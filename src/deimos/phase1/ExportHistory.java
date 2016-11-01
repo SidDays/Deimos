@@ -47,7 +47,11 @@ public class ExportHistory {
 	public static void main(String[] args) throws FileNotFoundException
 	{
 		
-		String historyLocation = "C:/Users/Siddhesh/AppData/Local/Google/Chrome/User Data/Default/History";
+		// The AppData/Local folder - WINDOWS ONLY!
+		String dataFolder = System.getenv("LOCALAPPDATA");
+		
+		// The default directory where chrome keeps its files
+		String historyLocation = dataFolder+"/Google/Chrome/User Data/Default/History";
 
 		try {
 			retrieveHistory(historyLocation);
