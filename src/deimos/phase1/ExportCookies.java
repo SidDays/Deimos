@@ -15,12 +15,12 @@ public class ExportCookies {
 	static PrintStream fileStream;
 	static int count = 1;
 
-	static ArrayList<String> retrieveHistory() {
+	static ArrayList<String> retrieveHistory(String cookiesLocation) {
 		try {
 			fileStream = new PrintStream(new File("export-cookies.txt"));
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager
-					.getConnection("jdbc:sqlite:C:/users/Amogh/appdata/local/google/chrome/user data/Default/Cookies");
+					.getConnection("jdbc:sqlite:"+cookiesLocation);
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(
 					"SELECT host_key, name FROM  cookies");
@@ -37,9 +37,15 @@ public class ExportCookies {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
+		
+		// The AppData/Local folder - WINDOWS ONLY!
+		String dataFolder = System.getenv("LOCALAPPDATA");
+
+		// The default directory where chrome keeps its files
+		String cookiesLocation = dataFolder+"/Google/Chrome/User Data/Default/Cookies";
 
 		try {
-			retrieveHistory();
+			retrieveHistory(cookiesLocation);
 			System.out.println(count);
 			for (int i = 0; i < output.size(); i++) {
 				fileStream.println(output.get(i));
