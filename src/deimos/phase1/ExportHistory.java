@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,11 +20,13 @@ public class ExportHistory {
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;
-	private static ArrayList<String> output = new ArrayList<String>();
 	private static PrintStream fileStream;
 	private static int count = 1;
 
-	public static ArrayList<String> retrieveHistory(String historyLocation) {
+	public static List<String> retrieveHistory(String historyLocation)
+	{
+		List<String> output = new ArrayList<>();
+		
 		try {
 			fileStream = new PrintStream(new File("export-history.txt"));
 			Class.forName("org.sqlite.JDBC");
@@ -32,12 +35,13 @@ public class ExportHistory {
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(
 					"SELECT datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime'),url FROM  urls order by last_visit_time desc");
-
+			
 			while (resultSet.next()) {
 				output.add(resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')")
 						+ "|" + resultSet.getString("url"));
 				count++;
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -54,7 +58,7 @@ public class ExportHistory {
 		String historyLocation = dataFolder+"/Google/Chrome/User Data/Default/History";
 
 		try {
-			retrieveHistory(historyLocation);
+			List<String> output = retrieveHistory(historyLocation);
 			System.out.println(count);
 			for (int i = 0; i < output.size(); i++) {
 				fileStream.println(output.get(i));

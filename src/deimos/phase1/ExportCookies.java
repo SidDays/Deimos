@@ -5,17 +5,20 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.io.*;
 
 public class ExportCookies {
 	static Connection connection = null;
 	static ResultSet resultSet = null;
 	static Statement statement = null;
-	static ArrayList<String> output = new ArrayList<String>();
 	static PrintStream fileStream;
 	static int count = 1;
 
-	static ArrayList<String> retrieveHistory(String cookiesLocation) {
+	static List<String> retrieveCookies(String cookiesLocation) {
+		
+		List<String> output = new ArrayList<>();
+		
 		try {
 			fileStream = new PrintStream(new File("export-cookies.txt"));
 			Class.forName("org.sqlite.JDBC");
@@ -38,6 +41,8 @@ public class ExportCookies {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		
+		
+		
 		// The AppData/Local folder - WINDOWS ONLY!
 		String dataFolder = System.getenv("LOCALAPPDATA");
 
@@ -45,7 +50,7 @@ public class ExportCookies {
 		String cookiesLocation = dataFolder+"/Google/Chrome/User Data/Default/Cookies";
 
 		try {
-			retrieveHistory(cookiesLocation);
+			List<String> output = retrieveCookies(cookiesLocation);
 			System.out.println(count);
 			for (int i = 0; i < output.size(); i++) {
 				fileStream.println(output.get(i));
