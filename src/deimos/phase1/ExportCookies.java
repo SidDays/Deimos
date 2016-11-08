@@ -9,18 +9,18 @@ import java.util.List;
 import java.io.*;
 
 public class ExportCookies {
-	static Connection connection = null;
-	static ResultSet resultSet = null;
-	static Statement statement = null;
-	static PrintStream fileStream;
-	static int count = 1;
+	private static Connection connection = null;
+	private static ResultSet resultSet = null;
+	private static Statement statement = null;
+	private static PrintStream fileStream;
+	private static int count = 0; // count of entries, not lines
 
-	static List<String> retrieveCookies(String cookiesLocation) {
+	public static List<String> retrieveCookies(String cookiesLocation) {
 		
 		List<String> output = new ArrayList<>();
 		
 		try {
-			fileStream = new PrintStream(new File("export-cookies.txt"));
+
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager
 					.getConnection("jdbc:sqlite:"+cookiesLocation);
@@ -30,7 +30,7 @@ public class ExportCookies {
 
 			while (resultSet.next()) {
 				output.add(resultSet.getString("host_key")
-						+ "|" + resultSet.getString("name"));
+						+ " | " + resultSet.getString("name"));
 				count++;
 			}
 		} catch (Exception e) {
@@ -38,10 +38,8 @@ public class ExportCookies {
 		}
 		return output;
 	}
-
-	public static void main(String[] args) throws FileNotFoundException {
-		
-		
+	
+	public static void retreiveCookiesAsFile(String fileName) {
 		
 		// The AppData/Local folder - WINDOWS ONLY!
 		String dataFolder = System.getenv("LOCALAPPDATA");
@@ -49,19 +47,22 @@ public class ExportCookies {
 		// The default directory where chrome keeps its files
 		String cookiesLocation = dataFolder+"/Google/Chrome/User Data/Default/Cookies";
 
+		List<String> output = retrieveCookies(cookiesLocation);
+		
 		try {
-			List<String> output = retrieveCookies(cookiesLocation);
+			fileStream = new PrintStream(new File(fileName));
 			System.out.println(count);
-			for (int i = 0; i < output.size(); i++) {
+			fileStream.println(count);
+			
+			for (int i = 0; i < output.size(); i++)
+			{
+				// System.out.println(output.get(i));
 				fileStream.println(output.get(i));
 			}
-			fileStream.println(count);
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
 		}
-
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		finally {
 			try {
 				resultSet.close();
@@ -73,5 +74,10 @@ public class ExportCookies {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		
+		retreiveCookiesAsFile("export-cookies.txt");
 	}
 }

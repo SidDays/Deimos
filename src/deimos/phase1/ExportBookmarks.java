@@ -1,99 +1,144 @@
 package deimos.phase1;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class ExportBookmarks {
+public class ExportBookmarks
+{
+	final private static int RECURSION_LIMIT = 5; /* prevent infinite recursion */
+	private static JSONParser jsonParser = new JSONParser();
+	private static JSONObject jsonObject;
+	private static PrintStream fileStream;
+	private static int count = 0;
 	
-	
-	//private static final String filePath = "C:/Users/Amogh/Desktop/New folder (2)/Bookmarks";
-	
-	public static void main(String[] args) {
+	public static List<String> retrieveBookmarksFromFolder(JSONObject structure,
+			String folderName, int recursion)
+	{
+		List<String> output = new ArrayList<String>();
+		
+		if(recursion <= RECURSION_LIMIT)
+		{
+			try {
+			
+				JSONObject folder = (JSONObject) structure.get(folderName);
+				JSONArray folderchild = (JSONArray) folder.get("children");
+				
+				// take the elements of the json array
+				Iterator<?> i = folderchild.iterator();
+				
+				output.add(folderName.toUpperCase());
+				output.add(folder.get("date_added")+" | "+
+						folder.get("date_modified")+" | "+
+						folder.get("id")+" | "+
+						folder.get("name")+" | "+
+						folder.get("type"));
+				
+				// take each value from the json array separately
+				while (i.hasNext()){
+					
+					JSONObject innerObj = (JSONObject) i.next();
+					
+					// is it a bookmark?
+					if (innerObj.get("url") != null) {
+						output.add(innerObj.get("date_added")+" | "+
+								innerObj.get("id")+" | "+
+								innerObj.get("name")+" | "+
+								innerObj.get("url"));
+						count++;
+					}
+					else // it's a folder
+					{
+						// List<String> output_child
+						// output.addAll(output_child);
+					}
+					
+				}
+			}
+			catch (NullPointerException npe) {
+				npe.printStackTrace();
+				output.add("EXCEPTION | "+npe.toString());
+			}
+		}
+		
+		output.add(" ");
+		// System.out.println();
+		
+		return output;
 
-		String dataFolder = System.getenv("LOCALAPPDATA");
-		String filePath = dataFolder+"/Google/Chrome/User Data/Default/Bookmarks";
+	}
+	
+	public static List<String> retreiveBookmarks(String bookmarksLocation)
+	{
+		List<String> output = new ArrayList<String>();
+		
 		try {
 			// read the json file
-			FileReader reader = new FileReader(filePath);
+			FileReader reader = new FileReader(bookmarksLocation);
 
-			JSONParser jsonParser = new JSONParser();
-			JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-
-			// get a String from the JSON object
-			//String checksum = (String) jsonObject.get("checksum");
-			//System.out.println(checksum);
-
-			// get a number from the JSON object
-			//long id =  (long) jsonObject.get("id");
-			//System.out.println("The id is: " + id);
+			jsonObject = (JSONObject) jsonParser.parse(reader);
+			
 
 			JSONObject structure = (JSONObject) jsonObject.get("roots");
 			
-			///////////////////////////// 						bookmark_bar BOOKMARK 						/////////////////////////////
-			System.out.println("BOOKMARK BAR");
-			JSONObject bookmar = (JSONObject) structure.get("bookmark_bar");
-			JSONArray bookchild= (JSONArray) bookmar.get("children");
+			output.addAll(retrieveBookmarksFromFolder(structure, "bookmark_bar", 0));
+			output.addAll(retrieveBookmarksFromFolder(structure, "other", 0));
+			output.addAll(retrieveBookmarksFromFolder(structure, "synced", 0));
 			
-			// take the elements of the json array
-			Iterator i = bookchild.iterator();
-			// take each value from the json array separately
-			while (i.hasNext()) {
-				JSONObject innerObj = (JSONObject) i.next();
-				//System.out.println("date_added ="+ innerObj.get("date_added")+" | id ="+ innerObj.get("id")+" | name ="+ innerObj.get("name")+" | type ="+ innerObj.get("type")+" | url ="+ innerObj.get("url"));
-				System.out.println(innerObj.get("date_added")+" | "+ innerObj.get("id")+" | "+ innerObj.get("name")+" | "+ innerObj.get("url"));
-			}
-			//System.out.println("date_added ="+ bookmar.get("date_added")+" | date_modified ="+ bookmar.get("date_modified")+" | id ="+ bookmar.get("id")+" | name ="+ bookmar.get("name")+" | type ="+ bookmar.get("type"));
-			System.out.println(bookmar.get("date_added")+" | "+ bookmar.get("date_modified")+" | "+ bookmar.get("id")+" | "+ bookmar.get("name")+" | "+ bookmar.get("type"));
-			
-			///////////////////////////// 						other OTHER 						/////////////////////////////
-			System.out.println("OTHER");
-			JSONObject other = (JSONObject) structure.get("other");
-			JSONArray otherchild= (JSONArray) other.get("children");
-			
-			// take the elements of the json array
-			Iterator j = otherchild.iterator();
-
-			// take each value from the json array separately
-			while (j.hasNext()) {
-				JSONObject innerObj = (JSONObject) j.next();
-				System.out.println(innerObj.get("date_added")+" | "+ innerObj.get("id")+" | "+ innerObj.get("name")+" | "+ innerObj.get("url"));
-			}
-			//System.out.println("date_added ="+ other.get("date_added")+" | date_modified ="+ other.get("date_modified")+" | id ="+ other.get("id")+" | name ="+ other.get("name")+" | type ="+ other.get("type"));
-			System.out.println(other.get("date_added")+" | "+ other.get("date_modified")+" | "+ other.get("id")+" | "+ other.get("name")+" | "+ other.get("type"));
-			
-			///////////////////////////// 						synced SYNCED 						/////////////////////////////
-			System.out.println("SYNCED");
-			JSONObject synced = (JSONObject) structure.get("synced");
-			JSONArray syncchild= (JSONArray) synced.get("children");
-			
-			// take the elements of the json array
-			Iterator k = syncchild.iterator();
-
-			// take each value from the json array separately
-			while (k.hasNext()) {
-				JSONObject innerObj = (JSONObject) k.next();
-				System.out.println(innerObj.get("date_added")+" | "+ innerObj.get("id")+" | "+ innerObj.get("name")+" | "+ innerObj.get("url"));
-			}
-			//System.out.println("date_added ="+ synced.get("date_added")+" | date_modified ="+ synced.get("date_modified")+" | id ="+ synced.get("id")+" | name ="+ synced.get("name")+" | type ="+ synced.get("type"));
-			System.out.println(synced.get("date_added")+" | "+ synced.get("date_modified")+" | "+ synced.get("id")+" | "+ synced.get("name")+" | "+ synced.get("type"));
 
 		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
+			output.add("EXCEPTION | "+ex.toString());
 		} catch (IOException ex) {
 			ex.printStackTrace();
+			output.add("EXCEPTION | "+ex.toString());
 		} catch (ParseException ex) {
 			ex.printStackTrace();
+			output.add("EXCEPTION | "+ex.toString());
 		} catch (NullPointerException ex) {
 			ex.printStackTrace();
+			output.add("EXCEPTION | "+ex.toString());
 		}
-
+		
+		return output;
+	}
+	
+	public static void retreiveBookmarksAsFile(String fileName) {
+		
+		String dataFolder = System.getenv("LOCALAPPDATA");
+		String filePath = dataFolder+"/Google/Chrome/User Data/Default/Bookmarks";
+		
+		List<String> output = retreiveBookmarks(filePath);
+		
+		try {
+			fileStream = new PrintStream(new File(fileName));
+			System.out.println(count);
+			fileStream.println(count);
+			
+			for (int i = 0; i < output.size(); i++)
+			{
+				// System.out.println(output.get(i));
+				fileStream.println(output.get(i));
+			}
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args)
+	{
+		retreiveBookmarksAsFile("export-bookmarks.txt");
 	}
 
 }
