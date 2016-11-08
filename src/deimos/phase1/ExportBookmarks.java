@@ -22,27 +22,65 @@ public class ExportBookmarks
 	private static PrintStream fileStream;
 	private static int count = 0;
 	
-	public static List<String> retrieveBookmarksFromFolder(JSONObject structure,
-			String folderName, int recursion)
+	/**
+	 * Google Chrome's top-level bookmarks are divided into three groups,
+	 * bookmark_bar, others and synced.
+	 * @param structure The root level JSONObject
+	 * @param folderName The group name, used as a key
+	 * @return a List containing information about bookmarks retreived.
+	 */
+	public static List<String> retrieveBookmarksFromGroup(JSONObject structure,
+			String folderName)
+	{
+		List<String> output = new ArrayList<String>();
+
+		try {
+
+			JSONObject folder = (JSONObject) structure.get(folderName);
+			output.add(folderName.toUpperCase());
+			/*output.add(folder.get("date_added")+" | "+
+			folder.get("date_modified")+" | "+
+			folder.get("id")+" | "+
+			folder.get("name")+" | "+
+			folder.get("type"));*/
+			
+			JSONArray folderchild = (JSONArray) folder.get("children");
+			List<String> output_child = retrieveBookmarksFromJSONArray(folderchild, 0);
+			output.addAll(output_child);
+			
+		}
+		catch (NullPointerException npe) {
+			npe.printStackTrace();
+			output.add("EXCEPTION | "+npe.toString());
+		}
+
+		output.add(" ");
+		// System.out.println();
+		
+		return output;
+
+	}
+	
+	/**
+	 * The main 'groups' contain JSONArrays containing bookmarks and
+	 * bookmark folders (which are also JSONArrays)
+	 * @param folderchild The JSONArray, value of the "children" key
+	 * @param folderName This is used to print a folder name
+	 * @param recursion The max. depth to which it can be explored
+	 * @return a List containing information about bookmarks retreived.
+	 */
+	
+	public static List<String> retrieveBookmarksFromJSONArray(JSONArray folderchild,
+			int recursion)
 	{
 		List<String> output = new ArrayList<String>();
 		
 		if(recursion <= RECURSION_LIMIT)
 		{
 			try {
-			
-				JSONObject folder = (JSONObject) structure.get(folderName);
-				JSONArray folderchild = (JSONArray) folder.get("children");
 				
 				// take the elements of the json array
 				Iterator<?> i = folderchild.iterator();
-				
-				output.add(folderName.toUpperCase());
-				output.add(folder.get("date_added")+" | "+
-						folder.get("date_modified")+" | "+
-						folder.get("id")+" | "+
-						folder.get("name")+" | "+
-						folder.get("type"));
 				
 				// take each value from the json array separately
 				while (i.hasNext()){
@@ -57,10 +95,13 @@ public class ExportBookmarks
 								innerObj.get("url"));
 						count++;
 					}
-					else // it's a folder
+					else // it's a new folder
 					{
-						// List<String> output_child
-						// output.addAll(output_child);
+						output.add(innerObj.get("name").toString());
+						List<String> output_child = retrieveBookmarksFromJSONArray(
+								(JSONArray)innerObj.get("children"),
+								recursion+1);
+						output.addAll(output_child);
 					}
 					
 				}
@@ -69,13 +110,11 @@ public class ExportBookmarks
 				npe.printStackTrace();
 				output.add("EXCEPTION | "+npe.toString());
 			}
+			
+			output.add(" ");
 		}
-		
-		output.add(" ");
-		// System.out.println();
-		
-		return output;
 
+		return output;
 	}
 	
 	public static List<String> retreiveBookmarks(String bookmarksLocation)
@@ -91,9 +130,9 @@ public class ExportBookmarks
 
 			JSONObject structure = (JSONObject) jsonObject.get("roots");
 			
-			output.addAll(retrieveBookmarksFromFolder(structure, "bookmark_bar", 0));
-			output.addAll(retrieveBookmarksFromFolder(structure, "other", 0));
-			output.addAll(retrieveBookmarksFromFolder(structure, "synced", 0));
+			output.addAll(retrieveBookmarksFromGroup(structure, "bookmark_bar"));
+			output.addAll(retrieveBookmarksFromGroup(structure, "other"));
+			output.addAll(retrieveBookmarksFromGroup(structure, "synced"));
 			
 
 		} catch (FileNotFoundException ex) {
