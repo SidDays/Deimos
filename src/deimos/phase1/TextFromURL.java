@@ -88,8 +88,6 @@ public class TextFromURL {
 				urls.set(i, subst);
 			}
 			
-			System.out.println(urls.size());
-			
 			// remove duplicates from urls by using sets - NOT REQUIRED
 			/*
 			Set<String> hs = new HashSet<>();
@@ -97,8 +95,6 @@ public class TextFromURL {
 			urls.clear();
 			urls.addAll(hs);
 			*/
-			
-			System.out.println(urls.size());
 
 			noOfURLs = 1000; // any value ranging from 1 to urls.size()
 
