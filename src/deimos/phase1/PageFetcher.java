@@ -40,7 +40,7 @@ public class PageFetcher {
 
 				// System.out.println(output.get(i));
 				fileStream.println(urlText);
-
+				
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
