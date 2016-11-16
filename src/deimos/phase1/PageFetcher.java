@@ -56,6 +56,7 @@ public class PageFetcher {
 
 			String url = args[0];
 			fetchHTMLAsFile("URL-text.txt", url);
+			
 			//System.out.println(fetchHTML(url));
 		}
 

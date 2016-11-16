@@ -11,7 +11,7 @@ import java.io.PrintStream;
 public class TextFromURL {
 	
 	// this function deletes all the files exist in the URL texts directory
-	 
+	// here also directories are lacal machine dependent
 	public static void cleanDirectory() {
 		File file = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\URL Texts");
 		String[] myFiles;
