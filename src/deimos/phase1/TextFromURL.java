@@ -55,7 +55,7 @@ public class TextFromURL {
 				fileStream = new PrintStream(new File("URLs.txt")); //contains all urls
 				fileStream.println(urls.size());
 				
-				// System.out.println(output.get(i));
+				//System.out.println(output.get(i));
 				
 				for (int i = 0; i < urls.size(); i++)
 					fileStream.println(urls.get(i));

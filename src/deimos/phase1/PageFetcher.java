@@ -23,6 +23,7 @@ public class PageFetcher {
 			// further stripping required for '?'
 
 			return html;
+			
 		} catch (IllegalArgumentException e) {
 			System.out.println("ERROR: invalid URL - missed a protocol?\n");
 			e.printStackTrace();
