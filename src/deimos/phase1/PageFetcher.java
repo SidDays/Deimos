@@ -30,8 +30,7 @@ public class PageFetcher {
 
 		return "";
 	}
-	
-	//this one method is added to link it with TextFromURL
+
 	public static void fetchHTMLAsFile(String fileName, String url) {
 		PrintStream fileStream;
 		try {

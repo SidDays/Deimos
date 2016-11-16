@@ -11,7 +11,7 @@ import java.io.PrintStream;
 public class TextFromURL {
 	
 	// this function deletes all the files exist in the URL texts directory
-	// all directories used here are machine dependent!!!
+	 
 	public static void cleanDirectory() {
 		File file = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\URL Texts");
 		String[] myFiles;
@@ -26,7 +26,7 @@ public class TextFromURL {
 
 	public static void main(String[] args) {
 		try {
-			File historyFile = new File("\\C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\export-history.txt"); 
+			File historyFile = new File("\\C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\export-history.txt"); //location of history text file, machine dependent!
 			FileReader fileReader = new FileReader(historyFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			List<String> historyContent = new ArrayList<String>();
