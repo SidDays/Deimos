@@ -87,6 +87,18 @@ public class TextFromURL {
 				String subst = s.substring(s.indexOf('|') + 2);
 				urls.set(i, subst);
 			}
+			
+			System.out.println(urls.size());
+			
+			// remove duplicates from urls by using sets - NOT REQUIRED
+			/*
+			Set<String> hs = new HashSet<>();
+			hs.addAll(urls);
+			urls.clear();
+			urls.addAll(hs);
+			*/
+			
+			System.out.println(urls.size());
 
 			noOfURLs = 1000; // any value ranging from 1 to urls.size()
 
