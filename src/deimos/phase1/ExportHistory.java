@@ -54,9 +54,9 @@ public class ExportHistory {
 		String dataFolder = System.getenv("LOCALAPPDATA");
 
 		// The default directory where chrome keeps its files
-		String cookiesLocation = dataFolder+"/Google/Chrome/User Data/Default/History";
+		String historyLocation = dataFolder+"/Google/Chrome/User Data/Default/History";
 
-		List<String> output = retrieveHistory(cookiesLocation);
+		List<String> output = retrieveHistory(historyLocation);
 
 		try {
 			fileStream = new PrintStream(new File(fileName));
