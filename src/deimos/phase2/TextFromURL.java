@@ -47,7 +47,6 @@ public class TextFromURL {
 		return filename;
 	}
 	
-
 	public static void fetchTextFromHistoryDump() {
 		try {
 			
@@ -96,7 +95,7 @@ public class TextFromURL {
 			urls.addAll(hs);
 			*/
 
-			noOfURLs = 1000; // any value ranging from 1 to urls.size()
+			noOfURLs = 50; // any value ranging from 1 to urls.size()
 
 			new File(URLS_DIR).mkdirs(); // Creates empty output directory if it doesn't exist
 
@@ -132,9 +131,6 @@ public class TextFromURL {
 						}
 					}
 				}
-
-				System.out.println("All files are fetched!");
-
 
 			} catch (SecurityException se) {
 				se.printStackTrace();
