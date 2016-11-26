@@ -5,14 +5,29 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import deimos.common.DeimosConfig;
 
 public class RemoveStopWords {
-	public static void main(String[] args) {
+	
+	final public static String SWFREE_DIR = DeimosConfig.OUTPUT_DIR + "/swfreetexts";
+	final public static String SW_FILE = "stopwords.txt";
+	
+	/**
+	 * Initializes a Set, stopWords it gets from a file SW_FILE.
+	 * Goes through each file in URLS_DIR, and creates stopword-free output
+	 * which is stored into SWFREE_DIR
+	 */
+	public static void removeStopWordsFromURLTexts() {
+		
 		File folder;
 		File[] listOfFiles;
-		List<String> stopWords;
+		Set<String> stopWords; // using a Set prevents duplicates
 		String[] lineWords;
 		String[] allFiles;
 		List<String> fileWords;
@@ -20,145 +35,105 @@ public class RemoveStopWords {
 		List<String> intersection;
 		
 		try {
-			folder = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\urltexts");
-			listOfFiles = folder.listFiles();
-			stopWords = new ArrayList<String>();
-			fileWords = new ArrayList<String>();
 			
-			System.out.println(listOfFiles.length);
-
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					System.out.println(i + 1 + "	" + listOfFiles[i].getName());
-				} else if (listOfFiles[i].isDirectory()) {
-					System.out.println("Directory " + listOfFiles[i].getName());
-				}
-			}
+			folder = new File(deimos.phase2.TextFromURL.URLS_DIR);
+			listOfFiles = folder.listFiles();
+			stopWords = new LinkedHashSet<>();
+			fileWords = new ArrayList<>();
 			
 			allFiles = new String[listOfFiles.length];
 			for (int i = 0; i < listOfFiles.length; i++) {
 				allFiles[i] = listOfFiles[i].getName().toString();
 			}
-			File stopWordFile = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\Stopwords.txt");
-
+			
+			// Contains list of all stopwords to remove
+			File stopWordFile = new File(SW_FILE);
 			FileReader fileReader = new FileReader(stopWordFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			
+			// add stopwords from external file to set
 			String line;
-
 			while ((line = bufferedReader.readLine()) != null) {
-				stopWords.add(line);
+
+				line = line.trim();
+				if(line.length() > 0) {
+					stopWords.add(line);
+				}
 			}
 			fileReader.close();
 			
-			/**for (int i = 0; i < stopWords.size(); i++) {
-				System.out.println(stopWords.get(i));
-			}*/
+			// Create empty output directory if it doesn't exist
+			new File(SWFREE_DIR).mkdirs();
 			
-			File inputFile = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\urltexts\\2A914F7F0183A96455FE15F96747F488.txt");
-			//System.out.println(inputFile);
+			// Initialize output 'engine' (idk)
+			File inputFile;
+			File outputFile;
+			BufferedReader reader = null;
+			BufferedWriter writer = null;
 			
-			File theDir = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\Stop Word free texts");
-
-			// if the directory does not exist, create it
-			if (!theDir.exists()) {
-			    System.out.println("creating directory: Stop Word free texts");
-			    boolean result = false;
-
-			    try{
-			        theDir.mkdir();
-			        result = true;
-			    } 
-			    catch(SecurityException se){
-			        //handle it
-			    }        
-			    if(result) {    
-			        System.out.println("New directory created");  
-			    }
-			}
+			// Go through all the files
+			String filename;
 			
-			File outputFile = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\Stop Word free texts\\2A914F7F0183A96455FE15F96747F488.txt");
-			BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-
-			String currentLine;
-			
-			while((currentLine = reader.readLine()) != null) {
-			    // trim newline 
-			    String trimmedLine = currentLine.trim();
-			    lineWords = trimmedLine.toLowerCase().split(" ");
-			    for(int j = 0; j < lineWords.length; j++)
-			    	fileWords.add(lineWords[j]);
-			}
-			System.out.println(fileWords);
-			union = new ArrayList<String>(stopWords);
-			union.addAll(fileWords);
-			intersection = new ArrayList<String>(stopWords);
-			intersection.retainAll(fileWords);
-			union.removeAll(intersection);
-			intersection = new ArrayList<String>(stopWords);
-			intersection.retainAll(union);
-			union.removeAll(intersection);
-			for(String s: union) {
-				writer.write(s+" ");
-			}
-			writer.close(); 
-			reader.close();
-			
-			
-			
-			/**for(int i = 0; i < listOfFiles.length; i++) {
-					String fileName = listOfFiles[i].getName().toString();
-					System.out.println(fileName);
-					File inputFile = new File(fileName+".txt");
+			System.out.println("No. of URL Texts: "+listOfFiles.length);
+			for (int i = 0; i < listOfFiles.length; i++)
+			{
+				if (listOfFiles[i].isFile())
+				{
+					filename = listOfFiles[i].getName();
+					System.out.println(i + 1 + "\t" + filename);
 					
-					File theDir = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\Stop Word free texts");
-
-					// if the directory does not exist, create it
-					if (!theDir.exists()) {
-					    System.out.println("creating directory: Stop Word free texts");
-					    boolean result = false;
-
-					    try{
-					        theDir.mkdir();
-					        result = true;
-					    } 
-					    catch(SecurityException se){
-					        //handle it
-					    }        
-					    if(result) {    
-					        System.out.println("New directory created");  
-					    }
+					if(filename.endsWith(".txt"))
+					{
+						inputFile = new File(deimos.phase2.TextFromURL.URLS_DIR +
+								"/"+filename);
+						outputFile = new File(SWFREE_DIR + "/"+ filename);
+						reader = new BufferedReader(new FileReader(inputFile));
+						writer = new BufferedWriter(new FileWriter(outputFile));
+						
+						fileWords.clear();
+						String currentLine;
+						while((currentLine = reader.readLine()) != null)
+						{
+						    // trim newline 
+						    String trimmedLine = currentLine.trim();
+						    lineWords = trimmedLine.toLowerCase().split(" ");
+						    for(int j = 0; j < lineWords.length; j++)
+						    	fileWords.add(lineWords[j]);
+						}
+						
+						// System.out.println(fileWords);
+						union = new ArrayList<String>(stopWords);
+						union.addAll(fileWords);
+						
+						intersection = new ArrayList<String>(stopWords);
+						intersection.retainAll(fileWords);
+						
+						union.removeAll(intersection);
+						intersection = new ArrayList<String>(stopWords);
+						
+						intersection.retainAll(union);
+						union.removeAll(intersection);
+						
+						for(String s: union) {
+							writer.write(s+" ");
+						}
+						
+						writer.close();
+						reader.close();
 					}
-					File outputFile = new File("C:\\Users\\Owner\\git\\Deimos-BE-A-2017-KJSCE\\output\\Stop Word free texts\\"+fileName+".txt");
-					BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-					BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-
-					String currentLine;
 					
-					while((currentLine = reader.readLine()) != null) {
-					    // trim newline 
-					    String trimmedLine = currentLine.trim();
-					    lineWords = trimmedLine.toLowerCase().split(" ");
-					    for(int j = 0; j < lineWords.length; j++)
-					    	fileWords.add(lineWords[j]);
-					}
-					System.out.println(fileWords);
-					union = new ArrayList<String>(stopWords);
-					union.addAll(fileWords);
-					intersection = new ArrayList<String>(stopWords);
-					intersection.retainAll(fileWords);
-					union.removeAll(intersection);
-					intersection = new ArrayList<String>(stopWords);
-					intersection.retainAll(union);
-					union.removeAll(intersection);
-					for(String s: union) {
-						writer.write(s+" ");
-					}
-					writer.close(); 
-					reader.close();
-
-			}*/
-		} catch (Exception e) {
+				}
+				else if (listOfFiles[i].isDirectory()) {
+					System.out.println("DIR\t" + listOfFiles[i].getName());
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		removeStopWordsFromURLTexts();
 	}
 }

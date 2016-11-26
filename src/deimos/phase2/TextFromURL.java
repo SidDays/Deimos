@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class TextFromURL {
 	
-	final private static String URLS_DIR = DeimosConfig.OUTPUT_DIR + "/urltexts";
+	final public static String URLS_DIR = DeimosConfig.OUTPUT_DIR + "/urltexts";
 	private static MessageDigest md;
 
 	/**
@@ -97,8 +97,9 @@ public class TextFromURL {
 
 			noOfURLs = 50; // any value ranging from 1 to urls.size()
 
-			new File(URLS_DIR).mkdirs(); // Creates empty output directory if it doesn't exist
-
+			// Creates empty output directory if it doesn't exist
+			new File(URLS_DIR).mkdirs(); 
+			
 			// cleanDirectory(); // delete previous text files
 
 			System.out.println("Extracting text from fetched URLs...\n");
