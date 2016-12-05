@@ -127,6 +127,7 @@ public class RemoveStopWords {
 					System.out.println("DIR\t" + listOfFiles[i].getName());
 				}
 			}
+			System.out.println("All stop words have been removed!!!");
 			
 		} catch (IOException e) {
 			e.printStackTrace();
