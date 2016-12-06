@@ -47,6 +47,14 @@ public class TextFromURL {
 		return filename;
 	}
 	
+	/** 
+	 * Parses the history input file 'export-history.txt';
+	 * creates a List containing each parsed URL,
+	 * uses a MessageDigest to generate MD5 hashes of URLs to use as filenames,
+	 * and uses PageFetcher's fetchHTMLAsFile to save URL texts in URLS_DIR.
+	 * 
+	 */
+	
 	public static void fetchTextFromHistoryDump() {
 		try {
 			

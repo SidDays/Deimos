@@ -13,7 +13,7 @@ import java.util.Set;
 
 import deimos.common.DeimosConfig;
 
-public class RemoveStopWords {
+public class StopWordsRemoval {
 	
 	final public static String SWFREE_DIR = DeimosConfig.OUTPUT_DIR + "/swfreetexts";
 	final public static String SW_FILE = "stopwords.txt";
@@ -74,7 +74,7 @@ public class RemoveStopWords {
 			// Go through all the files
 			String filename;
 			
-			System.out.println("No. of URL Texts: "+listOfFiles.length);
+			System.out.println("Removing stop words from "+listOfFiles.length+" URL text(s).");
 			for (int i = 0; i < listOfFiles.length; i++)
 			{
 				if (listOfFiles[i].isFile())
@@ -127,7 +127,7 @@ public class RemoveStopWords {
 					System.out.println("DIR\t" + listOfFiles[i].getName());
 				}
 			}
-			System.out.println("All stop words have been removed!!!");
+			System.out.println("All stop words have been removed!");
 			
 		} catch (IOException e) {
 			e.printStackTrace();

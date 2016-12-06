@@ -53,7 +53,6 @@ public class ExportCookies {
 		
 		try {
 			fileStream = new PrintStream(new File(fileName));
-			System.out.println(count);
 			fileStream.println(count);
 			
 			for (int i = 0; i < output.size(); i++)
@@ -61,6 +60,8 @@ public class ExportCookies {
 				// System.out.println(output.get(i));
 				fileStream.println(output.get(i));
 			}
+			
+			System.out.println(count + " cookie(s) exported.");
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

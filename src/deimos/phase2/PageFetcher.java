@@ -8,7 +8,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 public class PageFetcher {
-
+	
+	/**
+	 * Returns a String containing only the textual contents of a web page.
+	 * @param url The URL to visit
+	 * @return a String containing the text of that web page.
+	 * @throws IOException while trying to get the Document for the Connection
+	 */
 	public static String fetchHTML(String url) throws IOException {
 
 		try {
@@ -20,7 +26,7 @@ public class PageFetcher {
 			String html = doc.text();
 			// This returns only the text
 
-			// further stripping required for '?'
+			// further stripping required for stuff like '?'
 
 			return html;
 			
@@ -31,7 +37,13 @@ public class PageFetcher {
 
 		return "";
 	}
-
+	
+	/**
+	 * Saves the textual contents of a web page to a filename specified.
+	 * @param fileName The name of output file.
+	 * @param url The URL to visit
+	 */
+	
 	public static void fetchHTMLAsFile(String fileName, String url) {
 		PrintStream fileStream;
 		try {
@@ -50,6 +62,13 @@ public class PageFetcher {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Saves the textual contents of a web page specified as the first
+	 * command line argument to a "URL-text.txt".
+	 * @param args Only the first String is processed as the URL
+	 * @throws IOException
+	 */
 
 	public static void main(String[] args) throws IOException {
 
