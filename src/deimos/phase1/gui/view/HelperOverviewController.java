@@ -132,7 +132,7 @@ public class HelperOverviewController {
     		System.out.println("Database locked? "+sle);
     		progressHistoryBar.setProgress(0);
 
-    		Alert alert = new Alert(AlertType.WARNING);
+    		Alert alert = new Alert(AlertType.ERROR);
     		alert.initOwner(mainApp.getPrimaryStage());
     		alert.setTitle("Error");
     		alert.setHeaderText("Database Locked");
