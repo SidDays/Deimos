@@ -88,7 +88,7 @@ public class ExportHistory {
 				fileStream.println(output.get(i));
 			}
 			
-			System.out.println(count + " history entries exported.");
+			System.out.println(count + " history entries exported to "+fileName+ ".");
 
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

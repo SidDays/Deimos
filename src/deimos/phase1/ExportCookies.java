@@ -61,7 +61,7 @@ public class ExportCookies {
 				fileStream.println(output.get(i));
 			}
 			
-			System.out.println(count + " cookie(s) exported.");
+			System.out.println(count + " cookie(s) exported to "+fileName+ ".");
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();

@@ -38,7 +38,7 @@ public class ExportIP {
 			ioe.printStackTrace();
 		}
 		
-		System.out.println(count + " public IP exported.");
+		System.out.println(count + " public IP exported to "+fileName+ ".");
 	}
 	
 	public static void main(String args[]) {

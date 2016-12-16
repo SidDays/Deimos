@@ -170,7 +170,7 @@ public class ExportBookmarks
 				fileStream.println(output.get(i));
 			}
 			
-			System.out.println(count + " bookmark(s) exported.");
+			System.out.println(count + " bookmark(s) exported to "+fileName+ ".");
 			
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
