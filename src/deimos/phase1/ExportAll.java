@@ -17,7 +17,12 @@ public class ExportAll {
 		
 		ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
 		
-		ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+		try {
+			ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+		} catch (SQLiteException e) {
+			
+			e.printStackTrace();
+		}
 		
 		try {
 			ExportHistory.retreiveHistoryAsFile("export-history.txt");

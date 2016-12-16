@@ -115,6 +115,7 @@ public class ExportHistory {
 			retreiveHistoryAsFile("export-history.txt");
 		}
 		catch (SQLiteException sle) {
+			System.out.println("Is Chrome Running?");
 			sle.printStackTrace();
 		}
 	}

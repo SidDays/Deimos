@@ -11,6 +11,8 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -54,9 +56,8 @@ public class HelperOverviewController {
     private Button startButton;
 
     // Reference to the main application.
-    @SuppressWarnings("unused")
 	private HelperApp mainApp;
-
+    
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
@@ -69,7 +70,8 @@ public class HelperOverviewController {
     
     final Task<Void> taskCookies = new Task<Void>() {
         @Override
-        public Void call() {
+        public Void call() throws SQLiteException
+        {
         	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
            	return null;
         }
@@ -85,14 +87,10 @@ public class HelperOverviewController {
     
     final Task<Void> taskHistory = new Task<Void>() {
         @Override
-        public Void call() {
-        	try {
-				ExportHistory.retreiveHistoryAsFile("export-history.txt");
-			} catch (SQLiteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-           	return null;
+        public Void call() throws SQLiteException
+        {
+        	ExportHistory.retreiveHistoryAsFile("export-history.txt");
+        	return null;
         }
     };
     
@@ -113,13 +111,35 @@ public class HelperOverviewController {
     	
     	System.out.println("Started Deimos Helper GUI.");
     	
+    	// Cookies
     	taskCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressCookiesBar.setProgress(1);
     	    }
     	});
+    	taskCookies.setOnCancelled(e -> { 
+    		System.out.println("Cookie export cancelled.");
+    		progressCookiesBar.setProgress(0);
+    	});
+    	taskCookies.setOnFailed(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	
+    	    	System.out.println("Cookie export failed: "+taskCookies.getException());
+    	    	progressCookiesBar.setProgress(0);
+    	    	
+    	    	taskHistory.cancel();
+    	    	
+    	    	Alert alertChromeOpen = new Alert(AlertType.ERROR);
+    	    	alertChromeOpen.initOwner(mainApp.getPrimaryStage());
+    	    	alertChromeOpen.setContentText("Please make sure Google Chrome is not running, then click on Start again.");
+    	    	alertChromeOpen.setTitle("Cookie Export Failed");
+    	    	alertChromeOpen.showAndWait();
+    	    }
+    	});
     	
+    	// Bookmarks
     	taskBookmarks.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
@@ -127,13 +147,38 @@ public class HelperOverviewController {
     	    }
     	});
     	
+    	
+    	// History
     	taskHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressHistoryBar.setProgress(1);
     	    }
     	});
+    	taskHistory.setOnCancelled(e -> { 
+    		System.out.println("History export cancelled.");
+    		progressHistoryBar.setProgress(0);
+    	});
+    	taskHistory.setOnFailed(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	
+    	    	System.out.println("History export failed: "+taskHistory.getException());
+    	    	progressHistoryBar.setProgress(0);
+    	    	
+    	    	Alert alertChromeOpen = new Alert(AlertType.ERROR);
+    	    	alertChromeOpen.initOwner(mainApp.getPrimaryStage());
+    	    	alertChromeOpen.setContentText("Please make sure Google Chrome is not running, then click on Start again.");
+    	    	alertChromeOpen.setTitle("History Export Failed");
+    	    	alertChromeOpen.showAndWait();
+    	    	
+    	    	if(taskCookies.isRunning()) {
+    	    		taskCookies.cancel();
+    	    	}
+    	    }
+    	});
     	
+    	// Public IP
     	taskPublicIP.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {

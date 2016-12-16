@@ -1,8 +1,10 @@
 package deimos.phase1;
 
+import org.sqlite.SQLiteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ public class ExportCookies {
 	private static PrintStream fileStream;
 	private static int count = 0; // count of entries, not lines
 
-	public static List<String> retrieveCookies(String cookiesLocation) {
+	public static List<String> retrieveCookies(String cookiesLocation) throws SQLiteException {
 		
 		List<String> output = new ArrayList<>();
 		
@@ -35,13 +37,17 @@ public class ExportCookies {
 						+ " | " + resultSet.getString("name"));
 				count++;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ClassNotFoundException ce) {
+			ce.printStackTrace();
+		} catch (SQLiteException sle) {
+			throw sle; // Let it be handled externally!
+		} catch (SQLException se) {
+			se.printStackTrace();
 		}
 		return output;
 	}
 	
-	public static void retreiveCookiesAsFile(String fileName) {
+	public static void retreiveCookiesAsFile(String fileName) throws SQLiteException {
 		
 		// The AppData/Local folder - WINDOWS ONLY!
 		String dataFolder = System.getenv("LOCALAPPDATA");
@@ -68,9 +74,12 @@ public class ExportCookies {
 		}
 		finally {
 			try {
-				resultSet.close();
-				statement.close();
-				connection.close();
+				if(resultSet != null)
+					resultSet.close();
+				if(statement != null)
+					statement.close();
+				if(connection != null)
+					connection.close();
 			}
 
 			catch (Exception e) {
@@ -81,6 +90,11 @@ public class ExportCookies {
 
 	public static void main(String[] args) {
 		
-		retreiveCookiesAsFile("export-cookies.txt");
+		try {
+			retreiveCookiesAsFile("export-cookies.txt");
+		} catch (SQLiteException e) {
+			
+			e.printStackTrace();
+		}
 	}
 }
