@@ -7,15 +7,16 @@ import deimos.phase1.ExportCookies;
 import deimos.phase1.ExportHistory;
 import deimos.phase1.ExportIP;
 import deimos.phase1.gui.HelperApp;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 
 /**
  * View-controller for HelperOverview.
@@ -32,9 +33,9 @@ public class HelperOverviewController {
     @FXML
     private TextField lastNameTextField;
     @FXML
-    private ChoiceBox genderChoiceBox;
+    private ChoiceBox<String> genderChoiceBox;
     @FXML
-    private ChoiceBox yearOfBirthChoiceBox;
+    private ChoiceBox<Integer> yearOfBirthChoiceBox;
     @FXML
     private CheckBox tosAgreeCheckBox;
     @FXML
@@ -53,24 +54,92 @@ public class HelperOverviewController {
     private Button startButton;
 
     // Reference to the main application.
-    private HelperApp mainApp;
+    @SuppressWarnings("unused")
+	private HelperApp mainApp;
 
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
      */
     public HelperOverviewController() {
+    	
     }
-
+    
+    // The Tasks
+    
+    final Task<Void> taskCookies = new Task<Void>() {
+        @Override
+        public Void call() {
+        	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+           	return null;
+        }
+    };
+    
+    final Task<Void> taskBookmarks = new Task<Void>() {
+        @Override
+        public Void call(){
+        	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
+           	return null;
+        }
+    };
+    
+    final Task<Void> taskHistory = new Task<Void>() {
+        @Override
+        public Void call() {
+        	try {
+				ExportHistory.retreiveHistoryAsFile("export-history.txt");
+			} catch (SQLiteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+           	return null;
+        }
+    };
+    
+    final Task<Void> taskPublicIP = new Task<Void>() {
+        @Override
+        public Void call(){
+        	ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+           	return null;
+        }
+    };
+    
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
      */
     @FXML
     private void initialize() {
-        // Initialize the person table with the two columns.
-        // firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
-        // lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
+    	
+    	System.out.println("Started Deimos Helper GUI.");
+    	
+    	taskCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	progressCookiesBar.setProgress(1);
+    	    }
+    	});
+    	
+    	taskBookmarks.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	progressBookmarksBar.setProgress(1);
+    	    }
+    	});
+    	
+    	taskHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	progressHistoryBar.setProgress(1);
+    	    }
+    	});
+    	
+    	taskPublicIP.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	progressPublicIPBar.setProgress(1);
+    	    }
+    	});
     }
 
     /**
@@ -81,66 +150,31 @@ public class HelperOverviewController {
     public void setMainApp(HelperApp mainApp) {
         this.mainApp = mainApp;
 
-        // Add observable list data to the table
-        // personTable.setItems(mainApp.getPersonData());
-    }
-    
-    public void exportCookies() {
-    	
-    	progressCookiesBar.setProgress(0);
-    	progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
-		progressCookiesBar.setProgress(1);
-
     }
 
-    public void exportBookmarks() {
-    	
-    	progressBookmarksBar.setProgress(0);
-    	progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
-    	progressBookmarksBar.setProgress(1);
-
-    }
-
-    public void exportHistory() throws SQLiteException {
-    	
-    	progressHistoryBar.setProgress(0);
-    	progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    	ExportHistory.retreiveHistoryAsFile("export-history.txt");
-    	progressHistoryBar.setProgress(1);
-    }
-
-    public void getPublicIP() {
-    	
-    	progressPublicIPBar.setProgress(0);
-    	progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
-		progressPublicIPBar.setProgress(1);
-    }
-    
     public void handleStartButton() {
     	
-    	exportCookies();
-    	exportBookmarks();
-    	
-    	try {
-    		exportHistory();
-    	}
-    	catch (SQLiteException sle) {
+		progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+		Thread tC = new Thread(taskCookies);
+		tC.setDaemon(true); // thread will not prevent application shutdown
+		tC.start();
+		
+		progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+		Thread tB = new Thread(taskBookmarks);
+		tB.setDaemon(true); // thread will not prevent application shutdown
+		tB.start();
+		
+		progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+		Thread tH = new Thread(taskBookmarks);
+		tH.setDaemon(true); // thread will not prevent application shutdown
+		tH.start();
+		
+		progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+		Thread tP = new Thread(taskPublicIP);
+		tP.setDaemon(true); // thread will not prevent application shutdown
+		tP.start();
 
-    		System.out.println("Database locked? "+sle);
-    		progressHistoryBar.setProgress(0);
-
-    		Alert alert = new Alert(AlertType.ERROR);
-    		alert.initOwner(mainApp.getPrimaryStage());
-    		alert.setTitle("Error");
-    		alert.setHeaderText("Database Locked");
-    		alert.setContentText("Please make sure Google Chrome is not running, then click on Start again.");
-    		alert.showAndWait();
-    	}
-    	
-    	getPublicIP();
-    	
     }
+    
+
 }
