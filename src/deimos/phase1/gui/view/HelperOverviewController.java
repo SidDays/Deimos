@@ -1,12 +1,18 @@
 package deimos.phase1.gui.view;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.sqlite.SQLiteException;
 
+import deimos.common.BrowserCheck;
 import deimos.phase1.ExportBookmarks;
 import deimos.phase1.ExportCookies;
 import deimos.phase1.ExportHistory;
 import deimos.phase1.ExportIP;
 import deimos.phase1.gui.HelperApp;
+
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
@@ -18,7 +24,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
  * View-controller for HelperOverview.
@@ -29,6 +41,7 @@ import javafx.scene.control.TextField;
 
 public class HelperOverviewController {
 	
+	// TODO unclutter code
 
     @FXML
     private TextField firstNameTextField;
@@ -43,13 +56,23 @@ public class HelperOverviewController {
     @FXML
     private Label tosAgreeLabel;
     @FXML
+    ImageView browserIcon;
+    @FXML
     private Label browserLabel;
+    @FXML
+    private Label progressCookiesLabel;
     @FXML
     private ProgressBar progressCookiesBar;
     @FXML
+    private Label progressHistoryLabel;
+    @FXML
     private ProgressBar progressHistoryBar;
     @FXML
+    private Label progressBookmarksLabel;
+    @FXML
     private ProgressBar progressBookmarksBar;
+    @FXML
+    private Label progressIPLabel;
     @FXML
     private ProgressBar progressPublicIPBar;
     @FXML
@@ -57,6 +80,9 @@ public class HelperOverviewController {
 
     // Reference to the main application.
 	private HelperApp mainApp;
+	
+	private String licenseText;
+	
     
     /**
      * The constructor.
@@ -65,6 +91,25 @@ public class HelperOverviewController {
     public HelperOverviewController() {
     	
     }
+    
+    private void initalizeLicense(String file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader (file));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+
+            licenseText = stringBuilder.toString();
+        } finally {
+            reader.close();
+        }
+    }
+    
     
     // The Tasks
     
@@ -103,6 +148,69 @@ public class HelperOverviewController {
     };
     
     /**
+     * uses BrowserCheck to check if a browser is available,
+     * if it is, controls should be enabled on this task's success.
+     */
+    final Task<Void> taskBrowserCheck = new Task<Void>() {
+    	
+    	// Check if Google Chrome can be used
+        public Void call(){
+        	
+        	// TODO Remove this later! Used to simulate a delay
+        	try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				
+				e.printStackTrace();
+			}
+        	if(BrowserCheck.isChromeAvailable()) {
+        		
+        		System.out.println("Google Chrome is available.");
+        		
+        	}
+        	else {
+        		
+        		this.cancel();
+        	}
+           	return null;
+        }
+    };
+    
+    /**
+     * Sets the saturation of the image used as the browser icon.
+     * Possible application could be greying out the browser image
+     * if something stops working.
+     * @param value A double between -1.0 and +1.0
+     */
+    public void saturateBrowserIcon(double value) {
+    	ColorAdjust monochrome = new ColorAdjust();
+        monochrome.setSaturation(-1.0);
+        browserIcon.setEffect(monochrome);
+    }
+    
+    /**
+     * Once we know that a browser is available to collect data,
+     * we can enable the controls used to start the process.
+     * @return
+     */
+    private void setControlsDisabled(boolean disable) {
+
+    	browserIcon.setDisable(disable);
+    	browserLabel.setDisable(disable);
+    	progressCookiesLabel.setDisable(disable);
+    	progressCookiesBar.setDisable(disable);
+    	progressHistoryLabel.setDisable(disable);
+    	progressHistoryBar.setDisable(disable);
+    	progressBookmarksLabel.setDisable(disable);
+    	progressBookmarksBar.setDisable(disable);
+    	progressIPLabel.setDisable(disable);
+    	progressPublicIPBar.setDisable(disable);
+    	startButton.setDisable(disable);
+
+    }
+    
+    
+    /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
      */
@@ -110,6 +218,63 @@ public class HelperOverviewController {
     private void initialize() {
     	
     	System.out.println("Started Deimos Helper GUI.");
+    	
+    	taskBrowserCheck.setOnRunning(e -> {
+    		browserLabel.setText("Checking for installed browsers...");
+    	});
+    	taskBrowserCheck.setOnSucceeded(e -> {
+    		browserIcon.setImage(new Image("./deimos/phase1/gui/view/icon_Chrome.png"));
+    		browserLabel.setText("Google Chrome loaded.");
+    		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
+    		setControlsDisabled(false);
+    	});
+    	taskBrowserCheck.setOnCancelled(e -> {
+    		System.err.println("No compatible browsers available!");
+    		
+    	});
+    	taskBrowserCheck.setOnFailed(e -> {
+    		taskBrowserCheck.getException().printStackTrace();
+    	});
+    	Thread t = new Thread(taskBrowserCheck);
+		t.setDaemon(true); // thread will not prevent application shutdown
+		t.start();
+    	
+    	
+    	
+    	tosAgreeLabel.setOnMouseClicked(e -> {
+    		Alert alert = new Alert(AlertType.INFORMATION);
+    		alert.setTitle("Terms of Service");
+    		alert.setHeaderText("Deimos Helper Terms of Service");
+
+    		Label label = new Label("Please read the following..");
+    		
+    		try {
+				initalizeLicense("src/deimos/phase1/gui/view/helperlicense.txt");
+			} catch (IOException e1) {
+				
+				e1.printStackTrace();
+				licenseText = "Error loading license file";
+			}
+    		
+    		TextArea textArea = new TextArea(licenseText);
+    		textArea.setEditable(false);
+    		textArea.setWrapText(true);
+
+    		textArea.setMaxWidth(Double.MAX_VALUE);
+    		textArea.setMaxHeight(Double.MAX_VALUE);
+    		GridPane.setVgrow(textArea, Priority.ALWAYS);
+    		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+    		GridPane content = new GridPane();
+    		content.setMaxWidth(Double.MAX_VALUE);
+    		content.add(label, 0, 0);
+    		content.add(textArea, 0, 1);
+
+    		// Set expandable Exception into the dialog pane.
+    		alert.getDialogPane().setContent(content);
+
+    		alert.showAndWait();
+    	});
     	
     	// Cookies
     	taskCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {

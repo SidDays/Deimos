@@ -13,6 +13,7 @@ public class HelperApp extends Application {
 
     private Stage primaryStage;
     private VBox rootLayout;
+    final public String title = "Deimos Helper";
     // private Person currentPerson;
 
     @Override
@@ -29,7 +30,7 @@ public class HelperApp extends Application {
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
-            primaryStage.setTitle("Deimos Helper");
+            primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.setResizable(false);
             
