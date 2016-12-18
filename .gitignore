@@ -1,3 +1,12 @@
+# Deimos output
+output/*
+
+# Deimos Helper Output
+export-*.txt
+
+# ---------------
+# Eclipse related
+# ---------------
 
 .metadata
 bin/

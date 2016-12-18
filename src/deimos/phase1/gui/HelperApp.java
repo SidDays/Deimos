@@ -6,6 +6,7 @@ import deimos.phase1.gui.view.HelperOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -33,6 +34,7 @@ public class HelperApp extends Application {
             primaryStage.setTitle(title);
             primaryStage.setScene(scene);
             primaryStage.setResizable(false);
+            primaryStage.getIcons().add(new Image("./deimos/phase1/gui/view/icon_deimos.png"));
             
             primaryStage.show();
             

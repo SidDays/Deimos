@@ -33,6 +33,9 @@ public class ExportAll {
 		}
 		
 		ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+		
+		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
+				"male", 1995, "export-userInfo.txt");
 
 	}
 

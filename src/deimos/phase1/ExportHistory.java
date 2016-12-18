@@ -24,7 +24,7 @@ import java.io.PrintStream;
 
 public class ExportHistory {
 	
-	final public static String DELIM = "|";
+	private static final String DELIM = "|";
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;

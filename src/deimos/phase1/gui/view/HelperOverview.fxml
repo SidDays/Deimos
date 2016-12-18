@@ -53,16 +53,16 @@
                   </Label>
                   <HBox spacing="6.0">
                      <children>
-                        <TextField fx:id="firstNameTextField" promptText="First Name" />
-                        <TextField fx:id="lastNameTextField" promptText="Last Name" />
-                        <ChoiceBox fx:id="genderChoiceBox" prefWidth="150.0" />
-                        <ChoiceBox fx:id="yearOfBirthChoiceBox" prefWidth="150.0" />
+                        <TextField fx:id="firstNameTextField" disable="true" promptText="First Name" />
+                        <TextField fx:id="lastNameTextField" disable="true" promptText="Last Name" />
+                        <ChoiceBox fx:id="genderChoiceBox" disable="true" prefWidth="150.0" />
+                        <TextField fx:id="yearOfBirthTextField" disable="true" promptText="Year of Birth" />
                      </children>
                   </HBox>
                   <HBox fillHeight="false" spacing="4.0">
                      <children>
-                        <CheckBox fx:id="tosAgreeCheckBox" mnemonicParsing="false" text="I Agree to the" />
-                        <Label fx:id="tosAgreeLabel" maxHeight="1.7976931348623157E308" text="Deimos Helper Terms of Service" underline="true">
+                        <CheckBox fx:id="tosAgreeCheckBox" disable="true" mnemonicParsing="false" selected="true" text="I Agree to the" />
+                        <Label fx:id="tosAgreeLabel" disable="true" maxHeight="1.7976931348623157E308" text="Deimos Helper Terms of Service" underline="true">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Label>
