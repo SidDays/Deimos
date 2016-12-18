@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -83,6 +84,7 @@ public class HelperOverviewController {
 	
 	private String licenseText;
 	
+	
     
     /**
      * The constructor.
@@ -90,91 +92,9 @@ public class HelperOverviewController {
      */
     public HelperOverviewController() {
     	
-    }
-    
-    private void initalizeLicense(String file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader (file));
-        String         line = null;
-        StringBuilder  stringBuilder = new StringBuilder();
-        String         ls = System.getProperty("line.separator");
-
-        try {
-            while((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-
-            licenseText = stringBuilder.toString();
-        } finally {
-            reader.close();
-        }
-    }
-    
-    
-    // The Tasks
-    
-    final Task<Void> taskCookies = new Task<Void>() {
-        @Override
-        public Void call() throws SQLiteException
-        {
-        	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
-           	return null;
-        }
-    };
-    
-    final Task<Void> taskBookmarks = new Task<Void>() {
-        @Override
-        public Void call(){
-        	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
-           	return null;
-        }
-    };
-    
-    final Task<Void> taskHistory = new Task<Void>() {
-        @Override
-        public Void call() throws SQLiteException
-        {
-        	ExportHistory.retreiveHistoryAsFile("export-history.txt");
-        	return null;
-        }
-    };
-    
-    final Task<Void> taskPublicIP = new Task<Void>() {
-        @Override
-        public Void call(){
-        	ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
-           	return null;
-        }
-    };
-    
-    /**
-     * uses BrowserCheck to check if a browser is available,
-     * if it is, controls should be enabled on this task's success.
-     */
-    final Task<Void> taskBrowserCheck = new Task<Void>() {
+    	System.out.println("Started Deimos Helper GUI.");
     	
-    	// Check if Google Chrome can be used
-        public Void call(){
-        	
-        	// TODO Remove this later! Used to simulate a delay
-        	try {
-				Thread.sleep(1500);
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
-			}
-        	if(BrowserCheck.isChromeAvailable()) {
-        		
-        		System.out.println("Google Chrome is available.");
-        		
-        	}
-        	else {
-        		
-        		this.cancel();
-        	}
-           	return null;
-        }
-    };
+    }
     
     /**
      * Sets the saturation of the image used as the browser icon.
@@ -209,37 +129,27 @@ public class HelperOverviewController {
 
     }
     
+    // All the initialization methods
     
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
-    @FXML
-    private void initialize() {
-    	
-    	System.out.println("Started Deimos Helper GUI.");
-    	
-    	taskBrowserCheck.setOnRunning(e -> {
-    		browserLabel.setText("Checking for installed browsers...");
-    	});
-    	taskBrowserCheck.setOnSucceeded(e -> {
-    		browserIcon.setImage(new Image("./deimos/phase1/gui/view/icon_Chrome.png"));
-    		browserLabel.setText("Google Chrome loaded.");
-    		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
-    		setControlsDisabled(false);
-    	});
-    	taskBrowserCheck.setOnCancelled(e -> {
-    		System.err.println("No compatible browsers available!");
-    		
-    	});
-    	taskBrowserCheck.setOnFailed(e -> {
-    		taskBrowserCheck.getException().printStackTrace();
-    	});
-    	Thread t = new Thread(taskBrowserCheck);
-		t.setDaemon(true); // thread will not prevent application shutdown
-		t.start();
-    	
-    	
+    private void initalizeLicense(String file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader (file));
+        String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
+        String         ls = System.getProperty("line.separator");
+
+        try {
+            while((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+
+            licenseText = stringBuilder.toString();
+        } finally {
+            reader.close();
+        }
+    }
+    
+    private void initializeTosAgree() {
     	
     	tosAgreeLabel.setOnMouseClicked(e -> {
     		Alert alert = new Alert(AlertType.INFORMATION);
@@ -275,8 +185,32 @@ public class HelperOverviewController {
 
     		alert.showAndWait();
     	});
-    	
-    	// Cookies
+    	tosAgreeLabel.setTooltip(new Tooltip("You must agree to the Deimos Helper Terms of Service."));
+	}
+    
+    private void initializeBrowserCheck() {
+    	taskBrowserCheck.setOnRunning(e -> {
+    		browserLabel.setText("Checking for installed browsers...");
+    	});
+    	taskBrowserCheck.setOnSucceeded(e -> {
+    		browserIcon.setImage(new Image("./deimos/phase1/gui/view/icon_Chrome.png"));
+    		browserLabel.setText("Google Chrome loaded.");
+    		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
+    		setControlsDisabled(false);
+    	});
+    	taskBrowserCheck.setOnCancelled(e -> {
+    		System.err.println("No compatible browsers available!");
+    		
+    	});
+    	taskBrowserCheck.setOnFailed(e -> {
+    		taskBrowserCheck.getException().printStackTrace();
+    	});
+    	Thread t = new Thread(taskBrowserCheck);
+		t.setDaemon(true); // thread will not prevent application shutdown
+		t.start();
+    }
+    
+    private void initializeCookiesExport() {
     	taskCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
@@ -294,26 +228,29 @@ public class HelperOverviewController {
     	    	System.out.println("Cookie export failed: "+taskCookies.getException());
     	    	progressCookiesBar.setProgress(0);
     	    	
-    	    	taskHistory.cancel();
-    	    	
     	    	Alert alertChromeOpen = new Alert(AlertType.ERROR);
     	    	alertChromeOpen.initOwner(mainApp.getPrimaryStage());
     	    	alertChromeOpen.setContentText("Please make sure Google Chrome is not running, then click on Start again.");
     	    	alertChromeOpen.setTitle("Cookie Export Failed");
     	    	alertChromeOpen.showAndWait();
+    	    	
+    	    	if(taskHistory.isRunning()) {
+    	    		taskHistory.cancel();
+    	    	}
+    	    	
+    	    	startButton.setDisable(false);
     	    }
     	});
-    	
-    	// Bookmarks
+    }
+    private void initializeBookmarksExport() {
     	taskBookmarks.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressBookmarksBar.setProgress(1);
     	    }
     	});
-    	
-    	
-    	// History
+    }
+    private void initializeHistoryExport() {
     	taskHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
@@ -340,10 +277,12 @@ public class HelperOverviewController {
     	    	if(taskCookies.isRunning()) {
     	    		taskCookies.cancel();
     	    	}
+    	    	
+    	    	startButton.setDisable(false);
     	    }
     	});
-    	
-    	// Public IP
+    }
+    private void initializePublicIPExport() {
     	taskPublicIP.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
@@ -351,40 +290,165 @@ public class HelperOverviewController {
     	    }
     	});
     }
-
+    
+    
     /**
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded.
+     */
+    @FXML
+    private void initialize() {
+    	
+    	initializeBrowserCheck();
+    	initializeTosAgree();
+    	initializeCookiesExport();
+    	initializeBookmarksExport();
+    	initializeHistoryExport();
+    	initializePublicIPExport();
+    }
+
+
+	/**
      * Is called by the main application to give a reference back to itself.
-     * 
      * @param mainApp
      */
     public void setMainApp(HelperApp mainApp) {
         this.mainApp = mainApp;
-
     }
 
     public void handleStartButton() {
     	
-		progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		Thread tC = new Thread(taskCookies);
-		tC.setDaemon(true); // thread will not prevent application shutdown
-		tC.start();
-		
-		progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		Thread tB = new Thread(taskBookmarks);
-		tB.setDaemon(true); // thread will not prevent application shutdown
-		tB.start();
-		
-		progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		Thread tH = new Thread(taskBookmarks);
-		tH.setDaemon(true); // thread will not prevent application shutdown
-		tH.start();
-		
-		progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-		Thread tP = new Thread(taskPublicIP);
-		tP.setDaemon(true); // thread will not prevent application shutdown
-		tP.start();
+    	// check if "i agree"
+    	if(tosAgreeCheckBox.isSelected())
+    	{
+
+    		progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		tC = new Thread(taskCookies);
+    		tC.setDaemon(true); // thread will not prevent application shutdown
+    		tC.start();
+
+    		progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		tB = new Thread(taskBookmarks);
+    		tB.setDaemon(true); // thread will not prevent application shutdown
+    		tB.start();
+
+    		progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		tH = new Thread(taskHistory);
+    		tH.setDaemon(true); // thread will not prevent application shutdown
+    		tH.start();
+
+    		progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		tP = new Thread(taskPublicIP);
+    		tP.setDaemon(true); // thread will not prevent application shutdown
+    		tP.start();
+    		
+    		startButton.setDisable(true);
+    		
+    		tCompletionWait = new Thread(new Runnable() {
+    	    	@Override
+    	    	public void run() {
+    	    		try {
+    					tC.join();
+    					tB.join();
+    					tH.join();
+    					tP.join();
+    					
+    					startButton.setDisable(false);
+    					
+    				} catch (InterruptedException e) {
+    					
+    					e.printStackTrace();
+    				}
+    	    		
+    	    		System.out.println("All threads completed!");
+    	    	}
+    	    });
+    		tCompletionWait.start();
+    	}
+    	else 
+    	{
+    		Alert alertTosAgree = new Alert(AlertType.WARNING);
+    		alertTosAgree.initOwner(mainApp.getPrimaryStage());
+    		alertTosAgree.setContentText("Click on the checkbox next to 'I Agree', then click on Start again.");
+    		alertTosAgree.setTitle("You must agree to the Deimos Helper ToS");
+    		alertTosAgree.showAndWait();
+    	}
 
     }
+
+    // The Tasks
+    /**
+     * Threads used to start tasks for each export activity.
+     */
+    private Thread tC, tB, tH, tP;
+    /**
+     * Thread that enables start button upon completion.
+     */
+    private Thread tCompletionWait;
+    
+    private final Task<Void> taskCookies = new Task<Void>() {
+        @Override
+        public Void call() throws SQLiteException
+        {
+        	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+           	return null;
+        }
+    };
+    
+    private final Task<Void> taskBookmarks = new Task<Void>() {
+        @Override
+        public Void call(){
+        	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
+           	return null;
+        }
+    };
+    
+    private final Task<Void> taskHistory = new Task<Void>() {
+        @Override
+        public Void call() throws SQLiteException
+        {
+        	ExportHistory.retreiveHistoryAsFile("export-history.txt");
+        	return null;
+        }
+    };
+    
+    private final Task<Void> taskPublicIP = new Task<Void>() {
+        @Override
+        public Void call(){
+        	ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+           	return null;
+        }
+    };
+    
+    
+    /**
+     * uses BrowserCheck to check if a browser is available,
+     * if it is, controls should be enabled on this task's success.
+     */
+    private final Task<Void> taskBrowserCheck = new Task<Void>() {
+    	
+    	// Check if Google Chrome can be used
+        public Void call(){
+        	
+        	// TODO Remove this later! Used to simulate a delay
+        	try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				
+				e.printStackTrace();
+			}
+        	if(BrowserCheck.isChromeAvailable()) {
+        		
+        		System.out.println("Google Chrome is available.");
+        		
+        	}
+        	else {
+        		
+        		this.cancel();
+        	}
+           	return null;
+        }
+    };
     
 
 }
