@@ -413,10 +413,11 @@ public class HelperOverviewController {
     	});
     	
     	// Lazy
-    	firstNameTextField.setText("John");
+    	
+    	/*firstNameTextField.setText("John");
     	lastNameTextField.setText("Doe");
     	genderChoiceBox.getSelectionModel().select(1);
-    	yearOfBirthTextField.setText("1995");
+    	yearOfBirthTextField.setText("1995");*/
     }
     
     private void initializeGenderChoiceBox() {
