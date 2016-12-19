@@ -492,8 +492,6 @@ public class HelperOverviewController {
     @FXML
     private void handleStartButton() {
     	
-    	System.out.println("\nBeginning export...");
-    	
     	// check if all user details are filled
     	String validationError = getInputValidationError();
     	if(validationError.isEmpty()) {
@@ -501,6 +499,8 @@ public class HelperOverviewController {
     		// check if "i agree"
     		if(tosAgreeCheckBox.isSelected())
     		{
+    			
+    			System.out.println("\nBeginning export...");
 
     			progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
     			serviceCookies.restart();
