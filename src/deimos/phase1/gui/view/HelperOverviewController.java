@@ -466,12 +466,14 @@ public class HelperOverviewController {
     	
     	String errors = "";
     	
-    	if(firstNameTextField.getText().trim().isEmpty()) {
+    	/*if(firstNameTextField.getText().trim().isEmpty()) {
     		errors = errors + ("First Name cannot be empty.\n");
     	}
+    	
     	if(lastNameTextField.getText().trim().isEmpty()) {
     		errors = errors + ("Last Name cannot be empty.\n");
-    	}
+    	}*/
+    	
     	if(genderChoiceBox.getSelectionModel().isSelected(0)) {
     		errors = errors + ("Gender must be Male or Female.\n");
     	}

@@ -46,17 +46,34 @@
             <Separator maxHeight="1.7976931348623157E308" />
             <VBox spacing="5.0">
                <children>
-                  <Label text="About You">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
+                  <HBox>
+                     <children>
+                        <Label text="About You">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label maxHeight="1.7976931348623157E308" text="(fields marked with a red * are required)" textFill="#686868">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <HBox.margin>
+                              <Insets left="6.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
                   <HBox spacing="6.0">
                      <children>
                         <TextField fx:id="firstNameTextField" disable="true" promptText="First Name" />
                         <TextField fx:id="lastNameTextField" disable="true" promptText="Last Name" />
                         <ChoiceBox fx:id="genderChoiceBox" disable="true" prefWidth="150.0" />
+                        <Label text="*" textFill="RED" />
                         <TextField fx:id="yearOfBirthTextField" disable="true" promptText="Year of Birth" />
+                        <Label text="*" textFill="RED" />
                      </children>
                   </HBox>
                   <HBox fillHeight="false" spacing="4.0">
@@ -66,6 +83,7 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Label>
+                        <Label text="*" textFill="RED" />
                      </children>
                   </HBox>
                </children>
