@@ -1,5 +1,7 @@
 package deimos.phase1;
 
+import java.net.UnknownHostException;
+
 import org.sqlite.SQLiteException;
 
 /**
@@ -32,7 +34,12 @@ public class ExportAll {
 			sle.printStackTrace();
 		}
 		
-		ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+		try {
+			ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+		} catch (UnknownHostException e) {
+
+			e.printStackTrace();
+		}
 		
 		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
 				"male", 1995, "export-userInfo.txt");

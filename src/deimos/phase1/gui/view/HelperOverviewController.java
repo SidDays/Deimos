@@ -3,6 +3,7 @@ package deimos.phase1.gui.view;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import org.sqlite.SQLiteException;
 
@@ -14,6 +15,7 @@ import deimos.phase1.ExportIP;
 import deimos.phase1.ExportUserInfo;
 import deimos.phase1.gui.HelperApp;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
@@ -44,7 +46,7 @@ import javafx.scene.layout.Priority;
 public class HelperOverviewController {
 	
 	// TODO unclutter code
-
+	
     @FXML
     private TextField firstNameTextField;
     @FXML
@@ -85,7 +87,26 @@ public class HelperOverviewController {
 	
 	private String licenseText;
 	
+	// In order;
 	
+	private static interface ServiceConstants {
+		int BOOKMARKS = 0;
+		int COOKIES = 1;
+		int HISTORY = 2;
+		int PUBLICIP = 3;
+		int USERINFO = 4;
+		int NUM_FLAGS = 5;
+	}
+	
+	private boolean[] flags = new boolean[ServiceConstants.NUM_FLAGS];
+	
+	private BookmarkService serviceBookmarks;
+	private CookieService serviceCookies;
+	private HistoryService serviceHistory;
+	private PublicIPService servicePublicIP;
+	private UserInfoService serviceUserInfo;
+	
+	private BrowserCheckService serviceBrowserCheck;
     
     /**
      * The constructor.
@@ -145,6 +166,14 @@ public class HelperOverviewController {
     	yearOfBirthTextField.setDisable(disable);
     	tosAgreeCheckBox.setDisable(disable);
     	tosAgreeLabel.setDisable(disable);
+    }
+    
+    private boolean isAllFlagsEnabled() {
+    	
+    	boolean result = true;
+    	for(boolean b : flags)
+    		result = result&b;
+    	return result;
     }
   
     // All the initialization methods
@@ -213,44 +242,54 @@ public class HelperOverviewController {
 	}
     
     private void initializeBrowserCheck() {
-    	taskBrowserCheck.setOnRunning(e -> {
+    	
+    	serviceBrowserCheck = new BrowserCheckService();
+    	
+    	serviceBrowserCheck.setOnRunning(e -> {
     		browserLabel.setText("Checking for installed browsers...");
     	});
-    	taskBrowserCheck.setOnSucceeded(e -> {
+    	serviceBrowserCheck.setOnSucceeded(e -> {
     		browserIcon.setImage(new Image("./deimos/phase1/gui/view/icon_Chrome.png"));
     		browserLabel.setText("Google Chrome loaded.");
     		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
     		setUsageControlsDisabled(false);
     		setInputControlsDisabled(false);
     	});
-    	taskBrowserCheck.setOnCancelled(e -> {
+    	serviceBrowserCheck.setOnCancelled(e -> {
     		System.err.println("No compatible browsers available!");
     		
     	});
-    	taskBrowserCheck.setOnFailed(e -> {
-    		taskBrowserCheck.getException().printStackTrace();
+    	serviceBrowserCheck.setOnFailed(e -> {
+    		serviceBrowserCheck.getException().printStackTrace();
     	});
-    	Thread t = new Thread(taskBrowserCheck);
-		t.setDaemon(true); // thread will not prevent application shutdown
-		t.start();
+
+		serviceBrowserCheck.start();
     }
     
     private void initializeCookiesExport() {
-    	taskCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	
+    	serviceCookies = new CookieService();
+    	
+    	serviceCookies.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressCookiesBar.setProgress(1);
+    	    	
+        		flags[ServiceConstants.COOKIES] = true;
+        		
+        		if(isAllFlagsEnabled())
+        			startButton.setDisable(false);
     	    }
     	});
-    	taskCookies.setOnCancelled(e -> { 
+    	serviceCookies.setOnCancelled(e -> { 
     		System.out.println("Cookie export cancelled.");
     		progressCookiesBar.setProgress(0);
     	});
-    	taskCookies.setOnFailed(new EventHandler<WorkerStateEvent>() {
+    	serviceCookies.setOnFailed(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	
-    	    	System.out.println("Cookie export failed: "+taskCookies.getException());
+    	    	System.out.println("Cookie export failed: "+serviceCookies.getException());
     	    	progressCookiesBar.setProgress(0);
     	    	
     	    	Alert alertChromeOpen = new Alert(AlertType.ERROR);
@@ -259,8 +298,8 @@ public class HelperOverviewController {
     	    	alertChromeOpen.setTitle("Cookie Export Failed");
     	    	alertChromeOpen.showAndWait();
     	    	
-    	    	if(taskHistory.isRunning()) {
-    	    		taskHistory.cancel();
+    	    	if(serviceHistory.isRunning()) {
+    	    		serviceHistory.cancel();
     	    	}
     	    	
     	    	startButton.setDisable(false);
@@ -268,29 +307,45 @@ public class HelperOverviewController {
     	});
     }
     private void initializeBookmarksExport() {
-    	taskBookmarks.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	
+    	serviceBookmarks = new BookmarkService();
+    	
+    	serviceBookmarks.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressBookmarksBar.setProgress(1);
+
+    	    	flags[ServiceConstants.BOOKMARKS] = true;
+
+    	    	if(isAllFlagsEnabled())
+    	    		startButton.setDisable(false);
     	    }
     	});
     }
     private void initializeHistoryExport() {
-    	taskHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	serviceHistory = new HistoryService();
+    	
+    	serviceHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressHistoryBar.setProgress(1);
+    	    	
+    	    	flags[ServiceConstants.HISTORY] = true;
+
+    	    	if(isAllFlagsEnabled())
+    	    		startButton.setDisable(false);
     	    }
     	});
-    	taskHistory.setOnCancelled(e -> { 
+    	serviceHistory.setOnCancelled(e -> { 
     		System.out.println("History export cancelled.");
     		progressHistoryBar.setProgress(0);
+    		
     	});
-    	taskHistory.setOnFailed(new EventHandler<WorkerStateEvent>() {
+    	serviceHistory.setOnFailed(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	
-    	    	System.out.println("History export failed: "+taskHistory.getException());
+    	    	System.out.println("History export failed: "+serviceHistory.getException());
     	    	progressHistoryBar.setProgress(0);
     	    	
     	    	Alert alertChromeOpen = new Alert(AlertType.ERROR);
@@ -299,8 +354,8 @@ public class HelperOverviewController {
     	    	alertChromeOpen.setTitle("History Export Failed");
     	    	alertChromeOpen.showAndWait();
     	    	
-    	    	if(taskCookies.isRunning()) {
-    	    		taskCookies.cancel();
+    	    	if(serviceCookies.isRunning()) {
+    	    		serviceCookies.cancel();
     	    	}
     	    	
     	    	startButton.setDisable(false);
@@ -308,30 +363,61 @@ public class HelperOverviewController {
     	});
     }
     private void initializePublicIPExport() {
-    	taskPublicIP.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+    	
+    	servicePublicIP = new PublicIPService();
+    	
+    	servicePublicIP.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
     	    @Override
     	    public void handle(WorkerStateEvent event) {
     	    	progressPublicIPBar.setProgress(1);
+    	    	
+    	    	flags[ServiceConstants.PUBLICIP] = true;
+
+    	    	if(isAllFlagsEnabled())
+    	    		startButton.setDisable(false);
+    	    }
+    	});
+    	
+    	servicePublicIP.setOnFailed(new EventHandler<WorkerStateEvent>() {
+    	    @Override
+    	    public void handle(WorkerStateEvent event) {
+    	    	
+    	    	System.out.println("Public IP export failed: "+servicePublicIP.getException());
+    	    	progressPublicIPBar.setProgress(0);
+    	    	
+    	    	Alert alert = new Alert(AlertType.ERROR);
+    	    	alert.initOwner(mainApp.getPrimaryStage());
+    	    	alert.setContentText("Please make sure your internet connection is working, and click Start again.");
+    	    	alert.setTitle("Public IP Export Failed");
+    	    	alert.showAndWait();
+    	    	
+    	    	startButton.setDisable(false);
     	    }
     	});
     }
+    
+    private void initializeUserInfoExport() {
+    	
+    	serviceUserInfo = new UserInfoService();
+    	
+    	serviceUserInfo.setOnSucceeded(e -> {
+    		flags[ServiceConstants.USERINFO] = true;
+
+	    	if(isAllFlagsEnabled())
+	    		startButton.setDisable(false);
+    	});
+    	
+    	// Lazy
+    	/*firstNameTextField.setText("John");
+    	lastNameTextField.setText("Doe");
+    	genderChoiceBox.getSelectionModel().select(1);
+    	yearOfBirthTextField.setText("1995");*/
+    }
+    
     private void initializeGenderChoiceBox() {
     	genderChoiceBox.setItems(FXCollections.observableArrayList(
         	    "Gender", "Male", "Female"));
         	genderChoiceBox.getSelectionModel().selectFirst();
-    }
-    /**
-     * For the lazy programmer: fills the input fields
-     * with sample input to help speed up testing.
-     * DO NOT KEEP IN FINAL!
-     */
-    @SuppressWarnings("unused")
-	private void initializeInputDefaults() {
-    	
-    	firstNameTextField.setText("John");
-    	lastNameTextField.setText("Doe");
-    	genderChoiceBox.getSelectionModel().select(1);
-    	yearOfBirthTextField.setText("1995");
     }
     
     /**
@@ -341,6 +427,9 @@ public class HelperOverviewController {
     @FXML
     private void initialize() {
     	
+    	for(int i = 0; i<flags.length; i++)
+    		flags[i] = false;
+    	
     	initializeBrowserCheck();
     	initializeTosAgree();
     	initializeCookiesExport();
@@ -348,7 +437,7 @@ public class HelperOverviewController {
     	initializeHistoryExport();
     	initializePublicIPExport();
     	initializeGenderChoiceBox();
-    	// initializeInputDefaults();
+    	initializeUserInfoExport();
     }
 
 
@@ -402,6 +491,9 @@ public class HelperOverviewController {
     
     @FXML
     private void handleStartButton() {
+    	
+    	System.out.println("\nBeginning export...");
+    	
     	// check if all user details are filled
     	String validationError = getInputValidationError();
     	if(validationError.isEmpty()) {
@@ -411,52 +503,20 @@ public class HelperOverviewController {
     		{
 
     			progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			threadCookies = new Thread(taskCookies);
-    			threadCookies.setDaemon(true); // thread will not prevent application shutdown
-    			threadCookies.start();
+    			serviceCookies.restart();
 
     			progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			threadBookmarks = new Thread(taskBookmarks);
-    			threadBookmarks.setDaemon(true); // thread will not prevent application shutdown
-    			threadBookmarks.start();
+    			serviceBookmarks.restart();
 
     			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			threadHistory = new Thread(taskHistory);
-    			threadHistory.setDaemon(true); // thread will not prevent application shutdown
-    			threadHistory.start();
+    			serviceHistory.restart();
 
     			progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			threadPublicIP = new Thread(taskPublicIP);
-    			threadPublicIP.setDaemon(true); // thread will not prevent application shutdown
-    			threadPublicIP.start();
-    			
-    			threadUserInfo = new Thread(taskUserInfo);
-    			threadUserInfo.setDaemon(true); // thread will not prevent application shutdown
-    			threadUserInfo.start();
+    			servicePublicIP.restart();
+
+    			serviceUserInfo.restart();
 
     			startButton.setDisable(true);
-
-    			threadCompletionWait = new Thread(new Runnable() {
-    				@Override
-    				public void run() {
-    					try {
-    						threadCookies.join();
-    						threadBookmarks.join();
-    						threadHistory.join();
-    						threadPublicIP.join();
-    						threadUserInfo.join();
-
-    						startButton.setDisable(false);
-
-    					} catch (InterruptedException e) {
-
-    						e.printStackTrace();
-    					}
-
-    					System.out.println("All threads completed!");
-    				}
-    			});
-    			threadCompletionWait.start();
     		}
     		else 
     		{
@@ -493,90 +553,127 @@ public class HelperOverviewController {
     		alert.showAndWait();
     	}
     }
+    
+    private class CookieService extends Service<Void> {
 
-    // The Tasks TODO Change them to services
-    /**
-     * Threads used to start tasks for each export activity.
-     */
-    private Thread threadCookies, threadBookmarks, threadHistory, threadPublicIP, threadUserInfo;
-    /**
-     * Thread that enables start button upon completion.
-     */
-    private Thread threadCompletionWait;
+		@Override
+		protected Task<Void> createTask() {
+			
+			return new Task<Void>() {
+	            @Override
+	            public Void call() throws SQLiteException
+	            {
+	            	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+	               	return null;
+	            }
+	        };
+		}
+
+    }
+
+    private class BookmarkService extends Service<Void> {
+
+		@Override
+		protected Task<Void> createTask() {
+
+			return new Task<Void>() {
+	            @Override
+	            public Void call(){
+	            
+	            	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
+	               	return null;
+	            }
+			};
+		}
+    	
+    }
     
-    private final Task<Void> taskCookies = new Task<Void>() {
-        @Override
-        public Void call() throws SQLiteException
-        {
-        	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
-           	return null;
-        }
-    };
+    private class HistoryService extends Service<Void> {
+
+		@Override
+		protected Task<Void> createTask() {
+
+			return new Task<Void>() {
+	            @Override
+	            public Void call() throws SQLiteException
+	            {
+	            	ExportHistory.retreiveHistoryAsFile("export-history.txt");
+	            	return null;
+	            }
+	        };
+		}
+    	
+    }
     
-    private final Task<Void> taskBookmarks = new Task<Void>() {
-        @Override
-        public Void call(){
-        	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
-           	return null;
-        }
-    };
+    private class PublicIPService extends Service<Void> {
+
+    	@Override
+    	protected Task<Void> createTask() {
+
+    		return new Task<Void>() {
+    			@Override
+    			public Void call() throws UnknownHostException {
+    				ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+
+    				return null;
+    			}
+    		};
+    	}
+
+    }
     
-    private final Task<Void> taskHistory = new Task<Void>() {
-        @Override
-        public Void call() throws SQLiteException
-        {
-        	ExportHistory.retreiveHistoryAsFile("export-history.txt");
-        	return null;
-        }
-    };
-    
-    private final Task<Void> taskPublicIP = new Task<Void>() {
-        @Override
-        public Void call(){
-        	ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
-           	return null;
-        }
-    };
-    private final Task<Void> taskUserInfo = new Task<Void>() {
-        @Override
-        public Void call(){
-        	ExportUserInfo.retrieveUserInfoAsFile(firstNameTextField.getText(),
-        			lastNameTextField.getText(),
-        			genderChoiceBox.getSelectionModel().getSelectedItem(),
-        			Integer.parseInt(yearOfBirthTextField.getText()),
-        			"export-userInfo.txt");
-           	return null;
-        }
-    };
-    
+    private class UserInfoService extends Service<Void> {
+    	
+    	@Override
+		protected Task<Void> createTask() {
+
+			return new Task<Void>() {
+				
+	            @Override
+	            public Void call(){
+	            	ExportUserInfo.retrieveUserInfoAsFile(firstNameTextField.getText(),
+	            			lastNameTextField.getText(),
+	            			genderChoiceBox.getSelectionModel().getSelectedItem(),
+	            			Integer.parseInt(yearOfBirthTextField.getText()),
+	            			"export-userInfo.txt");
+	               	return null;
+	            }
+	        };
+		}
+    }
     
     /**
      * uses BrowserCheck to check if a browser is available,
-     * if it is, controls should be enabled on this task's success.
+     * if it is, controls should be enabled on its success.
+     * Not a Usage Service
      */
-    private final Task<Void> taskBrowserCheck = new Task<Void>() {
-    	
-    	// Check if Google Chrome can be used
-        public Void call(){
-        	
-        	// TODO Remove this later! Used to simulate a delay
-        	try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
-			}
-        	if(BrowserCheck.isChromeAvailable()) {
-        		
-        		System.out.println("Google Chrome is available.");
-        		
-        	}
-        	else {
-        		
-        		this.cancel();
-        	}
-           	return null;
-        }
-    };
+    private class BrowserCheckService extends Service<Void> {
 
+		@Override
+		protected Task<Void> createTask() {
+
+			return new Task<Void>() {
+	        	
+	        	// Check if Google Chrome can be used
+	            public Void call(){
+	            	
+	            	// TODO Remove this later! Used to simulate a delay
+	            	try {
+	    				Thread.sleep(1000);
+	    			} catch (InterruptedException e) {
+	    				
+	    				e.printStackTrace();
+	    			}
+	            	if(BrowserCheck.isChromeAvailable()) {
+	            		
+	            		System.out.println("Google Chrome is available.");
+	            	}
+	            	else {
+	            		this.cancel();
+	            	}
+	               	return null;
+	            }
+	        };
+		}
+    }
 }

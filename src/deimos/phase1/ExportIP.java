@@ -3,6 +3,7 @@ package deimos.phase1;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.UnknownHostException;
 
 import org.ipify.Ipify;
 
@@ -10,12 +11,15 @@ public class ExportIP {
 	
 	private static PrintStream fileStream;
 	
-	public static String retrievePublicIP() {
+	public static String retrievePublicIP() throws UnknownHostException {
 		
 		String ipAddress = null;
 		
 		try {
 			ipAddress = Ipify.getPublicIp();
+		}
+		catch (UnknownHostException uhe) {
+			throw uhe;
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -23,27 +27,42 @@ public class ExportIP {
 		return ipAddress;
 	}
 	
-	public static void retrievePublicIPAsFile(String fileName) {
+	public static void retrievePublicIPAsFile(String fileName)
+			throws UnknownHostException {
 		
 		int count = 0;
-		String output = retrievePublicIP();	
+		try
+		{
+			String output = retrievePublicIP();	
 
-		try {
-			fileStream = new PrintStream(new File(fileName));
-			fileStream.println(output);
-			count++;
+			try {
+				fileStream = new PrintStream(new File(fileName));
+				fileStream.println(output);
+				count++;
+				
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 			
+			
+		} catch (UnknownHostException e) {
+			
+			throw e;
 		}
-		catch (IOException ioe) {
-			ioe.printStackTrace();
+		finally {
+			System.out.println(count + " public IP(s) exported to "+fileName+ ".");
 		}
-		
-		System.out.println(count + " public IP exported to "+fileName+ ".");
 	}
 	
 	public static void main(String args[]) {
 		
-		retrievePublicIPAsFile("export-publicIP.txt");
+		try {
+			retrievePublicIPAsFile("export-publicIP.txt");
+		} catch (UnknownHostException e) {
+
+			e.printStackTrace();
+		}
 	}
 
 }

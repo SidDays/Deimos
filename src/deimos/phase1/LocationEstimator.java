@@ -2,6 +2,8 @@ package deimos.phase1;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
+
 import com.maxmind.geoip.Location;
 import com.maxmind.geoip.LookupService;
 import com.maxmind.geoip.regionName;
@@ -69,9 +71,16 @@ public class LocationEstimator {
 	// Get the location information of the given 
 	public static String getLocationString()
 	{
-		String ipAddress = ExportIP.retrievePublicIP();
-		ServerLocation location = LocationEstimator.getLocation(ipAddress);
-		return location.toString();
+		try {
+			String ipAddress = ExportIP.retrievePublicIP();
+			ServerLocation location = LocationEstimator.getLocation(ipAddress);
+			return location.toString();
+			
+		} catch (UnknownHostException e) {
+
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static void main(String[] args) {
