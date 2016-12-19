@@ -1,13 +1,12 @@
 package deimos.phase1;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -152,6 +151,12 @@ public class ExportBookmarks
 		return output;
 	}
 	
+	/**
+	 * Retrieves the bookmarks from Google Chrome, then stores
+	 * the output as a text file in the defined output directory.
+	 * Currently no output directory used.
+	 * @param fileName
+	 */
 	public static void retreiveBookmarksAsFile(String fileName) {
 		
 		String dataFolder = System.getenv("LOCALAPPDATA");
@@ -159,8 +164,11 @@ public class ExportBookmarks
 		
 		List<String> output = retreiveBookmarks(filePath);
 		
+		// new File(DeimosConfig.OUTPUT_DIR).mkdirs();
+		
 		try {
-			fileStream = new PrintStream(new File(fileName));
+			// fileStream = new PrintStream(new File(DeimosConfig.OUTPUT_DIR + File.pathSeparator + fileName));
+			fileStream = new PrintStream(fileName);
 			
 			fileStream.println(count);
 			

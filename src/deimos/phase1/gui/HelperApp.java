@@ -10,6 +10,11 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * The main application for the Deimos Helper GUI.
+ * @author Siddhesh Karekar
+ *
+ */
 public class HelperApp extends Application {
 
     private Stage primaryStage;
@@ -50,7 +55,12 @@ public class HelperApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
+    
+    /**
+     * Can be used to allow other classes to
+     * make changes to the main Stage of the application.
+     * @return A reference to the main Stage used
+     */
 	public Stage getPrimaryStage() {
 		
 		return primaryStage;

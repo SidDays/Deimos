@@ -16,7 +16,7 @@ import deimos.common.DeimosConfig;
 public class StopWordsRemoval {
 	
 	final public static String SWFREE_DIR = DeimosConfig.OUTPUT_DIR + "/swfreetexts";
-	final public static String SW_FILE = "stopwords.txt";
+	final public static String SW_FILE = "resources/stopwords.txt";
 	
 	/**
 	 * Initializes a Set, stopWords it gets from a file SW_FILE.

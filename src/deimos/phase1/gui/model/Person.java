@@ -7,6 +7,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.BooleanProperty;
 
+/**
+ * Currently unused.
+ * A class detailing all possible properties for a Person
+ * intended to be used with the helper GUI. 
+ * @author Siddhesh Karekar
+ */
 public class Person {
 	
 	private final StringProperty firstName;
