@@ -175,6 +175,16 @@ public class HelperOverviewController {
     		result = result&b;
     	return result;
     }
+    
+    private void setInputControlsStartEnabledIfComplete() {
+    	if(isAllFlagsEnabled()) {
+    		setInputControlsStartDisabled(false);
+		}
+    }
+    private void setInputControlsStartDisabled(boolean disable) {
+    	startButton.setDisable(disable);
+    	setInputControlsDisabled(disable);
+    }
   
     // All the initialization methods
     
@@ -277,8 +287,7 @@ public class HelperOverviewController {
     	    	
         		flags[ServiceConstants.COOKIES] = true;
         		
-        		if(isAllFlagsEnabled())
-        			startButton.setDisable(false);
+        		setInputControlsStartEnabledIfComplete();
     	    }
     	});
     	serviceCookies.setOnCancelled(e -> { 
@@ -302,7 +311,7 @@ public class HelperOverviewController {
     	    		serviceHistory.cancel();
     	    	}
     	    	
-    	    	startButton.setDisable(false);
+    	    	setInputControlsStartDisabled(false);
     	    }
     	});
     }
@@ -317,8 +326,7 @@ public class HelperOverviewController {
 
     	    	flags[ServiceConstants.BOOKMARKS] = true;
 
-    	    	if(isAllFlagsEnabled())
-    	    		startButton.setDisable(false);
+    	    	setInputControlsStartEnabledIfComplete();
     	    }
     	});
     }
@@ -332,8 +340,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.HISTORY] = true;
 
-    	    	if(isAllFlagsEnabled())
-    	    		startButton.setDisable(false);
+    	    	setInputControlsStartEnabledIfComplete();
     	    }
     	});
     	serviceHistory.setOnCancelled(e -> { 
@@ -358,7 +365,7 @@ public class HelperOverviewController {
     	    		serviceCookies.cancel();
     	    	}
     	    	
-    	    	startButton.setDisable(false);
+    	    	setInputControlsStartDisabled(false);
     	    }
     	});
     }
@@ -373,8 +380,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.PUBLICIP] = true;
 
-    	    	if(isAllFlagsEnabled())
-    	    		startButton.setDisable(false);
+    	    	setInputControlsStartEnabledIfComplete();
     	    }
     	});
     	
@@ -391,7 +397,7 @@ public class HelperOverviewController {
     	    	alert.setTitle("Public IP Export Failed");
     	    	alert.showAndWait();
     	    	
-    	    	startButton.setDisable(false);
+    	    	setInputControlsStartDisabled(false);
     	    }
     	});
     }
@@ -403,15 +409,14 @@ public class HelperOverviewController {
     	serviceUserInfo.setOnSucceeded(e -> {
     		flags[ServiceConstants.USERINFO] = true;
 
-	    	if(isAllFlagsEnabled())
-	    		startButton.setDisable(false);
+    		setInputControlsStartEnabledIfComplete();
     	});
     	
     	// Lazy
-    	/*firstNameTextField.setText("John");
+    	firstNameTextField.setText("John");
     	lastNameTextField.setText("Doe");
     	genderChoiceBox.getSelectionModel().select(1);
-    	yearOfBirthTextField.setText("1995");*/
+    	yearOfBirthTextField.setText("1995");
     }
     
     private void initializeGenderChoiceBox() {
@@ -529,7 +534,7 @@ public class HelperOverviewController {
     			
     			startAgain(serviceUserInfo);
 
-    			startButton.setDisable(true);
+    			setInputControlsStartDisabled(true);
     		}
     		else 
     		{

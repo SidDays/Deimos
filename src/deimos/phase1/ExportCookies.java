@@ -21,6 +21,8 @@ public class ExportCookies {
 
 	public static List<String> retrieveCookies(String cookiesLocation) throws SQLiteException {
 		
+		count = 0;
+		
 		List<String> output = new ArrayList<>();
 		
 		try {

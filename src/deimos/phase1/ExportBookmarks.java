@@ -72,6 +72,7 @@ public class ExportBookmarks
 	public static List<String> retrieveBookmarksFromJSONArray(JSONArray folderchild,
 			int recursion)
 	{
+		
 		List<String> output = new ArrayList<String>();
 		
 		if(recursion <= RECURSION_LIMIT)
@@ -118,6 +119,8 @@ public class ExportBookmarks
 	
 	public static List<String> retreiveBookmarks(String bookmarksLocation)
 	{
+		count = 0;
+		
 		List<String> output = new ArrayList<String>();
 		
 		try {

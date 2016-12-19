@@ -41,6 +41,9 @@ public class ExportHistory {
 	
 	public static List<String> retrieveHistory(String historyLocation) throws SQLiteException
 	{
+		
+		count = 0;
+		
 		List<String> output = new ArrayList<>();
 		
 		try {
