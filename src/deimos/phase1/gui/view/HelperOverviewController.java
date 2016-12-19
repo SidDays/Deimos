@@ -489,6 +489,15 @@ public class HelperOverviewController {
     	return errors;
     }
     
+    private void startAgain(Service<?> s) {
+    	if(s.isRunning())
+    		s.restart();
+    	else {
+    		s.reset();
+    		s.start();
+    	}
+    }
+    
     @FXML
     private void handleStartButton() {
     	
@@ -501,20 +510,24 @@ public class HelperOverviewController {
     		{
     			
     			System.out.println("\nBeginning export...");
+    			
+    			// clear all usage flags
+    			for(int i = 0; i<flags.length; i++)
+    	    		flags[i] = false;
 
     			progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			serviceCookies.restart();
+    			startAgain(serviceCookies);
 
     			progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			serviceBookmarks.restart();
-
+    			startAgain(serviceBookmarks);
+    			
     			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			serviceHistory.restart();
+    			startAgain(serviceHistory);
 
     			progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-    			servicePublicIP.restart();
-
-    			serviceUserInfo.restart();
+    			startAgain(servicePublicIP);
+    			
+    			startAgain(serviceUserInfo);
 
     			startButton.setDisable(true);
     		}
