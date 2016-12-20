@@ -27,7 +27,7 @@ import java.io.PrintStream;
 
 public class ExportHistory {
 	
-
+	private static final String FILE_CHROME_WIN_HISTORY = DeimosConfig.DIR_CHROME_WIN + "/History";
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;
@@ -77,13 +77,7 @@ public class ExportHistory {
 
 	public static void retreiveHistoryAsFile(String fileName) throws SQLiteException {
 
-		// The AppData/Local folder - WINDOWS ONLY!
-		String dataFolder = System.getenv("LOCALAPPDATA");
-
-		// The default directory where chrome keeps its files
-		String historyLocation = dataFolder+"/Google/Chrome/User Data/Default/History";
-
-		List<String> output = retrieveHistory(historyLocation);
+		List<String> output = retrieveHistory(FILE_CHROME_WIN_HISTORY);
 
 		try {
 			fileStream = new PrintStream(new File(fileName));
