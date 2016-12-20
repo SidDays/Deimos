@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class TextFromURL {
 	
-	final public static String URLS_DIR = DeimosConfig.OUTPUT_DIR + "/urltexts";
+	final public static String URLS_DIR = DeimosConfig.DIR_OUTPUT + "/urltexts";
 	private static MessageDigest md;
 
 	/**

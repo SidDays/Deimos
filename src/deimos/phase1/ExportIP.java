@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 
 import org.ipify.Ipify;
 
+import deimos.common.DeimosConfig;
+
 public class ExportIP {
 	
 	private static PrintStream fileStream;
@@ -51,6 +53,10 @@ public class ExportIP {
 			throw e;
 		}
 		finally {
+			
+			if(fileStream != null)
+				fileStream.close();
+			
 			System.out.println(count + " public IP(s) exported to "+fileName+ ".");
 		}
 	}
@@ -58,7 +64,7 @@ public class ExportIP {
 	public static void main(String args[]) {
 		
 		try {
-			retrievePublicIPAsFile("export-publicIP.txt");
+			retrievePublicIPAsFile(DeimosConfig.FILE_OUTPUT_PUBLICIP);
 		} catch (UnknownHostException e) {
 
 			e.printStackTrace();

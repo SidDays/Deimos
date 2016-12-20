@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 import org.sqlite.SQLiteException;
 
 import deimos.common.BrowserCheck;
+import deimos.common.DeimosConfig;
+import deimos.phase1.ExportAll;
 import deimos.phase1.ExportBookmarks;
 import deimos.phase1.ExportCookies;
 import deimos.phase1.ExportHistory;
@@ -176,8 +178,11 @@ public class HelperOverviewController {
     	return result;
     }
     
-    private void setInputControlsStartEnabledIfComplete() {
+    private void setInputControlsStartEnabledAndZIPIfComplete() {
     	if(isAllFlagsEnabled()) {
+    		
+    		ExportAll.zipOutputFiles();
+    		
     		setInputControlsStartDisabled(false);
 		}
     }
@@ -287,7 +292,7 @@ public class HelperOverviewController {
     	    	
         		flags[ServiceConstants.COOKIES] = true;
         		
-        		setInputControlsStartEnabledIfComplete();
+        		setInputControlsStartEnabledAndZIPIfComplete();
     	    }
     	});
     	serviceCookies.setOnCancelled(e -> { 
@@ -326,7 +331,7 @@ public class HelperOverviewController {
 
     	    	flags[ServiceConstants.BOOKMARKS] = true;
 
-    	    	setInputControlsStartEnabledIfComplete();
+    	    	setInputControlsStartEnabledAndZIPIfComplete();
     	    }
     	});
     }
@@ -340,7 +345,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.HISTORY] = true;
 
-    	    	setInputControlsStartEnabledIfComplete();
+    	    	setInputControlsStartEnabledAndZIPIfComplete();
     	    }
     	});
     	serviceHistory.setOnCancelled(e -> { 
@@ -380,7 +385,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.PUBLICIP] = true;
 
-    	    	setInputControlsStartEnabledIfComplete();
+    	    	setInputControlsStartEnabledAndZIPIfComplete();
     	    }
     	});
     	
@@ -409,7 +414,7 @@ public class HelperOverviewController {
     	serviceUserInfo.setOnSucceeded(e -> {
     		flags[ServiceConstants.USERINFO] = true;
 
-    		setInputControlsStartEnabledIfComplete();
+    		setInputControlsStartEnabledAndZIPIfComplete();
     	});
     	
     	// Lazy
@@ -575,23 +580,6 @@ public class HelperOverviewController {
     	}
     }
     
-    private class CookieService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-			
-			return new Task<Void>() {
-	            @Override
-	            public Void call() throws SQLiteException
-	            {
-	            	ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
-	               	return null;
-	            }
-	        };
-		}
-
-    }
-
     private class BookmarkService extends Service<Void> {
 
 		@Override
@@ -601,7 +589,7 @@ public class HelperOverviewController {
 	            @Override
 	            public Void call(){
 	            
-	            	ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
+	            	ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
 	               	return null;
 	            }
 			};
@@ -609,6 +597,23 @@ public class HelperOverviewController {
     	
     }
     
+    private class CookieService extends Service<Void> {
+
+		@Override
+		protected Task<Void> createTask() {
+			
+			return new Task<Void>() {
+	            @Override
+	            public Void call() throws SQLiteException
+	            {
+	            	ExportCookies.retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
+	               	return null;
+	            }
+	        };
+		}
+
+    }
+
     private class HistoryService extends Service<Void> {
 
 		@Override
@@ -618,7 +623,7 @@ public class HelperOverviewController {
 	            @Override
 	            public Void call() throws SQLiteException
 	            {
-	            	ExportHistory.retreiveHistoryAsFile("export-history.txt");
+	            	ExportHistory.retreiveHistoryAsFile(DeimosConfig.FILE_OUTPUT_HISTORY);
 	            	return null;
 	            }
 	        };
@@ -634,7 +639,7 @@ public class HelperOverviewController {
     		return new Task<Void>() {
     			@Override
     			public Void call() throws UnknownHostException {
-    				ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+    				ExportIP.retrievePublicIPAsFile(DeimosConfig.FILE_OUTPUT_PUBLICIP);
 
     				return null;
     			}
@@ -656,7 +661,7 @@ public class HelperOverviewController {
 	            			lastNameTextField.getText(),
 	            			genderChoiceBox.getSelectionModel().getSelectedItem(),
 	            			Integer.parseInt(yearOfBirthTextField.getText()),
-	            			"export-userInfo.txt");
+	            			DeimosConfig.FILE_OUTPUT_USERINFO);
 	               	return null;
 	            }
 	        };

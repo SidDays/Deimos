@@ -13,9 +13,35 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import deimos.common.DeimosConfig;
+
+/**
+ * 
+ * Exports Bookmarks from Google Chrome.
+ * 
+ * The current output format is as follows:
+ * 
+ * <br>
+ * <br>
+ * count
+ * <br>
+ * {GROUP}
+ * <br>
+ * [Folder]
+ * <br>
+ * date added DELIM id DELIM url DELIM name
+ * 
+ * @author Amogh Bhabal
+ * @author Siddhesh Karekar
+ *
+ */
 public class ExportBookmarks
 {
-	final private static int RECURSION_LIMIT = 5; /* prevent infinite recursion */
+	/**
+	 * Prevents infinite recursion.
+	 */
+	private static final int LIMIT_RECURSION = 5;
+	private static final String FILE_CHROME_WIN_BOOKMARKS = DeimosConfig.DIR_CHROME_WIN + "/Bookmarks";
 	private static JSONParser jsonParser = new JSONParser();
 	private static JSONObject jsonObject;
 	private static PrintStream fileStream;
@@ -31,16 +57,18 @@ public class ExportBookmarks
 	public static List<String> retrieveBookmarksFromGroup(JSONObject structure,
 			String folderName)
 	{
+		
 		List<String> output = new ArrayList<String>();
 
 		try {
 
 			JSONObject folder = (JSONObject) structure.get(folderName);
-			output.add(folderName.toUpperCase());
-			/*output.add(folder.get("date_added")+" | "+
-			folder.get("date_modified")+" | "+
-			folder.get("id")+" | "+
-			folder.get("name")+" | "+
+			output.add("{" + folderName.toUpperCase() + "}");
+			
+			/*output.add(folder.get("date_added")+DeimosConfig.DELIM+
+			folder.get("date_modified")+DeimosConfig.DELIM+
+			folder.get("id")+DeimosConfig.DELIM+
+			folder.get("name")+DeimosConfig.DELIM+
 			folder.get("type"));*/
 			
 			JSONArray folderchild = (JSONArray) folder.get("children");
@@ -50,7 +78,7 @@ public class ExportBookmarks
 		}
 		catch (NullPointerException npe) {
 			npe.printStackTrace();
-			output.add("EXCEPTION | "+npe.toString());
+			output.add("EXCEPTION"+ DeimosConfig.DELIM + npe.toString());
 		}
 
 		output.add(" ");
@@ -75,7 +103,7 @@ public class ExportBookmarks
 		
 		List<String> output = new ArrayList<String>();
 		
-		if(recursion <= RECURSION_LIMIT)
+		if(recursion <= LIMIT_RECURSION)
 		{
 			try {
 				
@@ -89,15 +117,15 @@ public class ExportBookmarks
 					
 					// is it a bookmark?
 					if (innerObj.get("url") != null) {
-						output.add(innerObj.get("date_added")+" | "+
-								innerObj.get("id")+" | "+
-								innerObj.get("name")+" | "+
-								innerObj.get("url"));
+						output.add(innerObj.get("date_added")+DeimosConfig.DELIM+
+								innerObj.get("id")+DeimosConfig.DELIM+
+								innerObj.get("url")+DeimosConfig.DELIM+
+								innerObj.get("name"));
 						count++;
 					}
 					else // it's a new folder
 					{
-						output.add(innerObj.get("name").toString());
+						output.add("[" + innerObj.get("name").toString() + "]");
 						List<String> output_child = retrieveBookmarksFromJSONArray(
 								(JSONArray)innerObj.get("children"),
 								recursion+1);
@@ -108,7 +136,7 @@ public class ExportBookmarks
 			}
 			catch (NullPointerException npe) {
 				npe.printStackTrace();
-				output.add("EXCEPTION | "+npe.toString());
+				output.add("EXCEPTION"+DeimosConfig.DELIM+npe.toString());
 			}
 			
 			output.add(" ");
@@ -139,16 +167,16 @@ public class ExportBookmarks
 
 		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
-			output.add("EXCEPTION | "+ex.toString());
+			output.add("EXCEPTION"+ DeimosConfig.DELIM+ex.toString());
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			output.add("EXCEPTION | "+ex.toString());
+			output.add("EXCEPTION"+ DeimosConfig.DELIM+ex.toString());
 		} catch (ParseException ex) {
 			ex.printStackTrace();
-			output.add("EXCEPTION | "+ex.toString());
+			output.add("EXCEPTION"+ DeimosConfig.DELIM+ex.toString());
 		} catch (NullPointerException ex) {
 			ex.printStackTrace();
-			output.add("EXCEPTION | "+ex.toString());
+			output.add("EXCEPTION"+ DeimosConfig.DELIM+ex.toString());
 		}
 		
 		return output;
@@ -162,10 +190,7 @@ public class ExportBookmarks
 	 */
 	public static void retreiveBookmarksAsFile(String fileName) {
 		
-		String dataFolder = System.getenv("LOCALAPPDATA");
-		String filePath = dataFolder+"/Google/Chrome/User Data/Default/Bookmarks";
-		
-		List<String> output = retreiveBookmarks(filePath);
+		List<String> output = retreiveBookmarks(FILE_CHROME_WIN_BOOKMARKS);
 		
 		// new File(DeimosConfig.OUTPUT_DIR).mkdirs();
 		
@@ -186,11 +211,15 @@ public class ExportBookmarks
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+		finally {
+			if(fileStream != null)
+				fileStream.close();
+		}
 	}
 	
 	public static void main(String[] args)
 	{
-		retreiveBookmarksAsFile("export-bookmarks.txt");
+		retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
 	}
 
 }

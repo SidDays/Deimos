@@ -11,7 +11,7 @@ import deimos.common.DeimosConfig;
 
 public class StemmerApplier {
 	
-	final public static String PS_DIR = DeimosConfig.OUTPUT_DIR + "/pstemmedtexts";
+	final public static String PS_DIR = DeimosConfig.DIR_OUTPUT + "/pstemmedtexts";
 	
 	/**
 	 * While Stemmer provides an implementation of the algorithm,

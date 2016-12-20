@@ -13,8 +13,7 @@ import java.io.IOException;
  */
 public class BrowserCheck {
 
-	final private static String CHROME_DIR_WINDOWS = System.getenv("LOCALAPPDATA") +
-			"/Google/Chrome/User Data/Default";
+	
 	
 	/**
 	 * Confirms if Google Chrome data is available to
@@ -32,17 +31,17 @@ public class BrowserCheck {
 		try {
 			try {
 				current = "History";
-				File chromeHistoryDB = new File(CHROME_DIR_WINDOWS + "/History");
+				File chromeHistoryDB = new File(DeimosConfig.DIR_CHROME_WIN + "/History");
 				in = new FileInputStream(chromeHistoryDB);
 				in.close();
 				
 				current = "Bookmarks";
-				File chromeBookmarks = new File(CHROME_DIR_WINDOWS + "/Bookmarks");
+				File chromeBookmarks = new File(DeimosConfig.DIR_CHROME_WIN + "/Bookmarks");
 				in = new FileInputStream(chromeBookmarks);
 				in.close();
 				
 				current = "Cookies";
-				File chromeCookiesDB = new File(CHROME_DIR_WINDOWS + "/Cookies");
+				File chromeCookiesDB = new File(DeimosConfig.DIR_CHROME_WIN + "/Cookies");
 				in = new FileInputStream(chromeCookiesDB);
 				in.close();
 

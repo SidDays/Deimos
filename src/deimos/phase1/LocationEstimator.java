@@ -12,7 +12,8 @@ import com.maxmind.geoip.regionName;
  * Uses Maxmind's GeoIP API to find a location mapping to a given public IP
  * address.
  * Much of this code was provided by
- * https://www.mkyong.com/java/java-find-location-using-ip-address/
+ * www.mkyong.com/java/java-find-location-using-ip-address/
+ * 
  * @author mykong
  * @author Siddhesh Karekar
  *
@@ -20,16 +21,20 @@ import com.maxmind.geoip.regionName;
 
 public class LocationEstimator {
 
-	// Get the location object for an IP using the default GeoLiteCity database
+	/**
+	 * Get the location object for an IP using the default GeoLiteCity database
+	 */
 	public static ServerLocation getLocation(String ipAddress) {
 
 		File file = new File(
-				"libs/Maxmind/GeoLiteCity.dat");
+				"src/resources/Maxmind/GeoLiteCity.dat");
 		return getLocation(ipAddress, file);
 
 	}
 	
-	// Get the location object for an IP using a provided database
+	/**
+	 * Get the location object for an IP using a provided database
+	 */
 	public static ServerLocation getLocation(String ipAddress, File file) {
 
 		ServerLocation serverLocation = null;
@@ -59,7 +64,9 @@ public class LocationEstimator {
 
 	}
 	
-	// Get the location information for an IP passed as a parameter
+	/** 
+	 * Get the location information for an IP passed as a parameter
+	 */
 	public static String getLocationString(String ipAddress)
 	{
 
@@ -68,7 +75,9 @@ public class LocationEstimator {
 
 	}
 	
-	// Get the location information of the given 
+	/**
+	 * Get the location information of the given
+	 */
 	public static String getLocationString()
 	{
 		try {

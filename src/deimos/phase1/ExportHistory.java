@@ -1,6 +1,9 @@
 package deimos.phase1;
 
 import org.sqlite.SQLiteException;
+
+import deimos.common.DeimosConfig;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -24,7 +27,7 @@ import java.io.PrintStream;
 
 public class ExportHistory {
 	
-	private static final String DELIM = "|";
+
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;
@@ -41,6 +44,7 @@ public class ExportHistory {
 	
 	public static List<String> retrieveHistory(String historyLocation) throws SQLiteException
 	{
+		// TODO revise history output format 
 		
 		count = 0;
 		
@@ -57,7 +61,7 @@ public class ExportHistory {
 			
 			while (resultSet.next()) {
 				output.add(resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')")
-						+ DELIM + resultSet.getString("url"));
+						+ DeimosConfig.DELIM + resultSet.getString("url"));
 				count++;
 			}
 			
@@ -97,6 +101,10 @@ public class ExportHistory {
 			ioe.printStackTrace();
 		}
 		finally {
+			
+			if(fileStream != null)
+				fileStream.close();
+			
 			try {
 				if(resultSet != null)
 					resultSet.close();
@@ -115,7 +123,7 @@ public class ExportHistory {
 	public static void main(String[] args) {
 		
 		try {
-			retreiveHistoryAsFile("export-history.txt");
+			retreiveHistoryAsFile(DeimosConfig.FILE_OUTPUT_HISTORY);
 		}
 		catch (SQLiteException sle) {
 			System.out.println("Is Chrome Running?");

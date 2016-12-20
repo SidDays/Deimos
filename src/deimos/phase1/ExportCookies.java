@@ -1,6 +1,9 @@
 package deimos.phase1;
 
 import org.sqlite.SQLiteException;
+
+import deimos.common.DeimosConfig;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -13,12 +16,19 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 public class ExportCookies {
+	
+	private static final String FILE_CHROME_WIN_COOKIES = DeimosConfig.DIR_CHROME_WIN + "/Cookies";
+	
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;
 	private static PrintStream fileStream;
-	private static int count = 0; // count of entries, not lines
-
+	
+	/** Count of entries, not lines */
+	private static int count = 0;
+	
+	// TODO go over cookie output formats
+	
 	public static List<String> retrieveCookies(String cookiesLocation) throws SQLiteException {
 		
 		count = 0;
@@ -36,7 +46,7 @@ public class ExportCookies {
 
 			while (resultSet.next()) {
 				output.add(resultSet.getString("host_key")
-						+ " | " + resultSet.getString("name"));
+						+ DeimosConfig.DELIM + resultSet.getString("name"));
 				count++;
 			}
 		} catch (ClassNotFoundException ce) {
@@ -50,14 +60,8 @@ public class ExportCookies {
 	}
 	
 	public static void retreiveCookiesAsFile(String fileName) throws SQLiteException {
-		
-		// The AppData/Local folder - WINDOWS ONLY!
-		String dataFolder = System.getenv("LOCALAPPDATA");
 
-		// The default directory where chrome keeps its files
-		String cookiesLocation = dataFolder+"/Google/Chrome/User Data/Default/Cookies";
-
-		List<String> output = retrieveCookies(cookiesLocation);
+		List<String> output = retrieveCookies(FILE_CHROME_WIN_COOKIES);
 		
 		try {
 			fileStream = new PrintStream(new File(fileName));
@@ -75,6 +79,10 @@ public class ExportCookies {
 			ioe.printStackTrace();
 		}
 		finally {
+			
+			if(fileStream != null)
+				fileStream.close();
+			
 			try {
 				if(resultSet != null)
 					resultSet.close();
@@ -93,7 +101,7 @@ public class ExportCookies {
 	public static void main(String[] args) {
 		
 		try {
-			retreiveCookiesAsFile("export-cookies.txt");
+			retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
 		} catch (SQLiteException e) {
 			
 			e.printStackTrace();
