@@ -57,7 +57,7 @@ public class HelperOverviewController {
 	
 	// private static final String ICON_BROWSER_NONE = DIR_GUI_ICONS + "/icon_none.png";
 	private Image ICON_BROWSER_CHROME = new Image(DIR_GUI_ICONS + "/icon_Chrome.png");
-	private Image ICON_STATE_RUNNING = new Image(DIR_GUI_ICONS + "/icon_gears.png");
+	private Image ICON_STATE_RUNNING = new Image(DIR_GUI_ICONS + "/icon_gears.gif");
 	private Image ICON_STATE_FINISHED = new Image(DIR_GUI_ICONS + "/icon_greentick.png");
 	private Image ICON_STATE_FAILED = new Image(DIR_GUI_ICONS + "/icon_orangeexclamation.png");
 	private Image ICON_STATE_MAILED = new Image(DIR_GUI_ICONS + "/icon_gmail.png");
@@ -462,12 +462,12 @@ public class HelperOverviewController {
     		setInputControlsStartEnabledZIPAndMailIfComplete();
     	});
     	
-    	// Lazy
+    	// I'm lazy af
     	
-    	firstNameTextField.setText("John");
+    	/*firstNameTextField.setText("John");
     	lastNameTextField.setText("Doe");
     	genderChoiceBox.getSelectionModel().select(1);
-    	yearOfBirthTextField.setText("1995");
+    	yearOfBirthTextField.setText("1995");*/
     }
     
     private void initializeGenderChoiceBox() {
@@ -599,7 +599,7 @@ public class HelperOverviewController {
     		{
     			
     			System.out.println("\nBeginning export...");
-    			browserLabel.setText("Processing...");
+    			browserLabel.setText("Processing... Please wait.");
     			browserIcon.setImage(ICON_STATE_RUNNING);
     			
     			// clear all usage flags
