@@ -18,6 +18,8 @@ public class StopWordsRemoval {
 	final public static String SWFREE_DIR = DeimosConfig.DIR_OUTPUT + "/swfreetexts";
 	final public static String SW_FILE = "resources/stopwords.txt";
 	
+	// TODO make this a resource
+	
 	/**
 	 * Initializes a Set, stopWords it gets from a file SW_FILE.
 	 * Goes through each file in URLS_DIR, and creates stopword-free output

@@ -15,6 +15,7 @@ import java.util.Properties;
 public class DeimosConfig {
 
 	public static final String DIR_OUTPUT = "output";
+	public static final String DIR_IMAGES = "resources/images";
 	public static final String DIR_CHROME_WIN = System.getenv("LOCALAPPDATA") +
 			"/Google/Chrome/User Data/Default";
 
@@ -22,7 +23,7 @@ public class DeimosConfig {
 	 * Stores the e-mail credentials and passwords.
 	 * Remember to make sure .gitignore is set accordingly!
 	 */
-	public static final String FILE_CREDENTIALS = "src/deimos/common/credentials.properties";
+	public static final String FILE_CREDENTIALS = "resources/credentials.properties";
 
 	public static final String FILE_OUTPUT_BOOKMARKS = "export-bookmarks.txt";
 	public static final String FILE_OUTPUT_COOKIES = "export-cookies.txt";

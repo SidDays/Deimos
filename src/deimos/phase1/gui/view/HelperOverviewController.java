@@ -1,9 +1,17 @@
 package deimos.phase1.gui.view;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.sqlite.SQLiteException;
 
 import deimos.common.BrowserCheck;
 import deimos.common.DeimosConfig;
+import deimos.common.DeimosImages;
 import deimos.common.Mailer;
 import deimos.phase1.ExportAll;
 import deimos.phase1.ExportBookmarks;
@@ -13,12 +21,6 @@ import deimos.phase1.ExportIP;
 import deimos.phase1.ExportUserInfo;
 import deimos.phase1.Zipper;
 import deimos.phase1.gui.HelperApp;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -36,7 +38,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -52,15 +53,7 @@ public class HelperOverviewController {
 	
 	// TODO unclutter code
 	
-	private static final String DIR_GUI_ICONS = "./deimos/phase1/gui/view";
-	private static final String FILE_LICENSE_GUI = "src/deimos/phase1/gui/view/helperlicense.txt";
-	
-	// private static final String ICON_BROWSER_NONE = DIR_GUI_ICONS + "/icon_none.png";
-	private Image ICON_BROWSER_CHROME = new Image(DIR_GUI_ICONS + "/icon_Chrome.png");
-	private Image ICON_STATE_RUNNING = new Image(DIR_GUI_ICONS + "/icon_gears.gif");
-	private Image ICON_STATE_FINISHED = new Image(DIR_GUI_ICONS + "/icon_greentick.png");
-	private Image ICON_STATE_FAILED = new Image(DIR_GUI_ICONS + "/icon_orangeexclamation.png");
-	private Image ICON_STATE_MAILED = new Image(DIR_GUI_ICONS + "/icon_gmail.png");
+	private static final String FILE_LICENSE_GUI = "resources/license/helperlicense.txt";
 	
     @FXML
     private TextField firstNameTextField;
@@ -216,7 +209,7 @@ public class HelperOverviewController {
     		ExportAll.deleteOutputFiles();
     		
     		browserLabel.setText("Exported output. Mailing...");
-        	browserIcon.setImage(ICON_STATE_FINISHED);
+        	browserIcon.setImage(DeimosImages.IMG_STATE_EXPORTED);
     		
     		// Begin mailing
     		progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
@@ -239,7 +232,7 @@ public class HelperOverviewController {
     	}
     	
     	setInputControlsStartDisabled(false);
-    	browserIcon.setImage(ICON_STATE_FAILED);
+    	browserIcon.setImage(DeimosImages.IMG_STATE_FAILED);
     	browserLabel.setText("Fix the issues reported, then click on 'Start'.");
     	
     }
@@ -253,23 +246,52 @@ public class HelperOverviewController {
      * @throws IOException
      */
     private void initalizeLicense(String file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader (file));
-        String         line = null;
-        StringBuilder  stringBuilder = new StringBuilder();
-        String         ls = System.getProperty("line.separator");
+    	
+    	// TODO THE FUCK IS THIS CRAZY SHIT
+    	
+    	 BufferedReader reader = new BufferedReader(new FileReader (file));
+         String         line = null;
+         StringBuilder  stringBuilder = new StringBuilder();
+         String         ls = System.getProperty("line.separator");
 
-        try {
-            while((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
+         try {
+             while((line = reader.readLine()) != null) {
+                 stringBuilder.append(line);
+                 stringBuilder.append(ls);
+             }
 
-            licenseText = stringBuilder.toString();
-        } finally {
-            reader.close();
-        }
+             licenseText = stringBuilder.toString();
+         } finally {
+             reader.close();
+         }
+    	
+    	
+    	/*licenseText = "";
+    	
+    	StringBuilder stringBuilder = new StringBuilder();
+    	String ls = "\n";
+    	
+    	// URL url = getClass().getResource(FILE_LICENSE_GUI);
+    	
+    	//InputStream is = getClass().getResourceAsStream(FILE_LICENSE_GUI);
+    	InputStream is = ClassLoader.getSystemResourceAsStream(FILE_LICENSE_GUI);
+    	
+    	BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+	    String inputLine;
+	
+	    while ((inputLine = in.readLine()) != null) {
+	    	stringBuilder.append(inputLine);
+	    	stringBuilder.append(ls);
+	    }
+	
+	    in.close();
+	    is.close();
+
+    	licenseText = stringBuilder.toString();*/
+
     }
-    
+
     private void initializeTosAgree() {
     	
     	tosAgreeLabel.setOnMouseClicked(e -> {
@@ -311,13 +333,15 @@ public class HelperOverviewController {
     
     private void initializeBrowserCheck() {
     	
+    	browserIcon.setImage(DeimosImages.IMG_UNKNOWN);
+    	
     	serviceBrowserCheck = new BrowserCheckService();
     	
     	serviceBrowserCheck.setOnRunning(e -> {
     		browserLabel.setText("Checking for installed browsers...");
     	});
     	serviceBrowserCheck.setOnSucceeded(e -> {
-    		browserIcon.setImage(ICON_BROWSER_CHROME);
+    		browserIcon.setImage(DeimosImages.IMG_CHROME);
     		browserLabel.setText("Google Chrome loaded.");
     		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
     		setUsageControlsDisabled(false);
@@ -487,7 +511,7 @@ public class HelperOverviewController {
     		
     		browserLabel.setText("Thank you! You may now exit.");
     		
-    		browserIcon.setImage(ICON_STATE_MAILED);
+    		browserIcon.setImage(DeimosImages.IMG_STATE_MAILED);
     	});
     	serviceMailer.setOnFailed(eh -> {
     		
@@ -600,7 +624,7 @@ public class HelperOverviewController {
     			
     			System.out.println("\nBeginning export...");
     			browserLabel.setText("Processing... Please wait.");
-    			browserIcon.setImage(ICON_STATE_RUNNING);
+    			browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
     			
     			// clear all usage flags
     			for(int i = 0; i<flags.length; i++)

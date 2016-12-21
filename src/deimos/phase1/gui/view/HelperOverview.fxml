@@ -9,7 +9,6 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.FlowPane?>
@@ -98,9 +97,6 @@
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
-                     <image>
-                        <Image url="@icon_none.png" />
-                     </image>
                   </ImageView>
                   <Label fx:id="browserLabel" alignment="CENTER" contentDisplay="TOP" disable="true" maxWidth="1.7976931348623157E308" prefHeight="64.0" text="No browser selected." textAlignment="CENTER" HBox.hgrow="ALWAYS">
                      <HBox.margin>
