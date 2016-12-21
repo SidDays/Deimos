@@ -1,16 +1,14 @@
 package deimos.phase1;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
+import deimos.common.Mailer;
 
 /**
  * Combines all export functions,
@@ -49,64 +47,16 @@ public class ExportAll {
 		return success;
 	}
 	
-	/**
-	 * Zips all the output files defined in DeimosConfig
-	 * into a single ZIP file.
-	 */
-	public static void zipOutputFiles() {
+	
+	public static void mailOutputToDeimosTeam() {
+
+		String date = new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date());
+
+
+		Mailer.mailToDeimosTeam("Training Data: "+date,
+				"Sample body in ExportAll",
+				DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 		
-		/** If any errors were found. */
-		// boolean errors = false;
-		
-		/** The number of files zipped. */
-		int count_files = 0;
-		
-		/** The number of ZIP files created. */
-		int count = 0;
-		
-		byte[] buffer = new byte[1024];
-
-		try{
-
-			FileOutputStream fos = new FileOutputStream(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
-			ZipOutputStream zos = new ZipOutputStream(fos);
-			count++;
-
-			// System.out.println("Output to ZIP: " + DeimosConfig.FILE_OUTPUT_ALL_ZIP);
-
-			for(String file : DeimosConfig.FILES_OUTPUT_ALL){
-
-				// System.out.println("File Added: " + file);
-				ZipEntry ze= new ZipEntry(file);
-				zos.putNextEntry(ze);
-
-				FileInputStream in =
-						new FileInputStream(file);
-
-				int len;
-				
-				while ((len = in.read(buffer)) > 0) {
-					zos.write(buffer, 0, len);
-				}
-
-				in.close();
-				count_files++;
-			}
-
-			zos.closeEntry();
-			
-			// Remember to close it.
-			zos.close();
-			
-		}
-		catch(IOException ex) {
-			ex.printStackTrace();
-			// errors = true;
-		}
-		finally {
-			System.out.println(count+ " ZIP file(s) created at " + DeimosConfig.FILE_OUTPUT_ALL_ZIP + ".");
-			System.out.println(count_files+ " file(s) zipped into " + DeimosConfig.FILE_OUTPUT_ALL_ZIP + ".");
-		}
 	}
 
 	public static void main(String[] args) {
@@ -138,7 +88,11 @@ public class ExportAll {
 		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
 				"male", 1995, "export-userInfo.txt");
 		
-		zipOutputFiles();
+		Zipper.zipOutputFiles();
+		
+		mailOutputToDeimosTeam();
+
+       	System.out.println("Finished!");
 		
 		deleteOutputFiles();
 	}

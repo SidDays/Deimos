@@ -1,8 +1,15 @@
+# --------------
+# Deimos related
+# --------------
+
 # Deimos output
 output/*
 
 # Deimos Helper Output
 export-*.txt
+
+# Deimos Credentials
+src/deimos/common/*.properties
 
 # ---------------
 # Eclipse related

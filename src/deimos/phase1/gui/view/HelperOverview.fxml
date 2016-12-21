@@ -128,6 +128,7 @@
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
               </columnConstraints>
               <rowConstraints>
@@ -135,7 +136,7 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButton" prefHeight="68.0" prefWidth="60.0" text="Start!" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                  <Button fx:id="startButton" disable="true" mnemonicParsing="false" onAction="#handleStartButton" prefHeight="30.0" prefWidth="93.0" text="Start!" GridPane.columnIndex="5" GridPane.rowIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -148,6 +149,8 @@
                   <Label fx:id="progressBookmarksLabel" disable="true" text="Bookmarks" />
                   <Label fx:id="progressHistoryLabel" disable="true" text="History" GridPane.columnIndex="2" />
                   <Label fx:id="progressIPLabel" disable="true" text="IP" GridPane.columnIndex="3" />
+                  <Label fx:id="mailLabel" disable="true" text="Auto-mail" GridPane.columnIndex="4" />
+                  <ProgressBar fx:id="progressMailBar" disable="true" prefWidth="200.0" progress="0.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
                </children>
                <padding>
                   <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />

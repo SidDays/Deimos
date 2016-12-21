@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="src/resources/Jsonsimple/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="src/resources/JSoup/jsoup-1.9.2.jar"/>
 	<classpathentry kind="lib" path="src/resources/SQLite/sqlite-jdbc-3.14.2.1.jar"/>
+	<classpathentry kind="lib" path="src/resources/Javamail/javax.mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

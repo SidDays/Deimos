@@ -1,21 +1,24 @@
 package deimos.phase1.gui.view;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 import org.sqlite.SQLiteException;
 
 import deimos.common.BrowserCheck;
 import deimos.common.DeimosConfig;
+import deimos.common.Mailer;
 import deimos.phase1.ExportAll;
 import deimos.phase1.ExportBookmarks;
 import deimos.phase1.ExportCookies;
 import deimos.phase1.ExportHistory;
 import deimos.phase1.ExportIP;
 import deimos.phase1.ExportUserInfo;
+import deimos.phase1.Zipper;
 import deimos.phase1.gui.HelperApp;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -49,6 +52,16 @@ public class HelperOverviewController {
 	
 	// TODO unclutter code
 	
+	private static final String DIR_GUI_ICONS = "./deimos/phase1/gui/view";
+	private static final String FILE_LICENSE_GUI = "src/deimos/phase1/gui/view/helperlicense.txt";
+	
+	// private static final String ICON_BROWSER_NONE = DIR_GUI_ICONS + "/icon_none.png";
+	private Image ICON_BROWSER_CHROME = new Image(DIR_GUI_ICONS + "/icon_Chrome.png");
+	private Image ICON_STATE_RUNNING = new Image(DIR_GUI_ICONS + "/icon_gears.png");
+	private Image ICON_STATE_FINISHED = new Image(DIR_GUI_ICONS + "/icon_greentick.png");
+	private Image ICON_STATE_FAILED = new Image(DIR_GUI_ICONS + "/icon_orangeexclamation.png");
+	private Image ICON_STATE_MAILED = new Image(DIR_GUI_ICONS + "/icon_gmail.png");
+	
     @FXML
     private TextField firstNameTextField;
     @FXML
@@ -79,18 +92,26 @@ public class HelperOverviewController {
     private ProgressBar progressBookmarksBar;
     @FXML
     private Label progressIPLabel;
+    
     @FXML
     private ProgressBar progressPublicIPBar;
     @FXML
     private Button startButton;
+    
+    @FXML
+    private Label mailLabel;
+    @FXML
+    private ProgressBar progressMailBar;
+    
 
     // Reference to the main application.
 	private HelperApp mainApp;
 	
 	private String licenseText;
 	
-	// In order;
-	
+	/**
+	 * In order.
+	 */
 	private static interface ServiceConstants {
 		int BOOKMARKS = 0;
 		int COOKIES = 1;
@@ -110,6 +131,8 @@ public class HelperOverviewController {
 	
 	private BrowserCheckService serviceBrowserCheck;
     
+	private MailerService serviceMailer;
+	
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
@@ -117,7 +140,6 @@ public class HelperOverviewController {
     public HelperOverviewController() {
     	
     	System.out.println("Started Deimos Helper GUI.");
-    	
     }
     
     /**
@@ -155,6 +177,12 @@ public class HelperOverviewController {
     	startButton.setDisable(disable);
     }
     
+    private void setMailControlsDisabled(boolean disable) {
+    	
+    	mailLabel.setDisable(disable);
+    	progressMailBar.setDisable(disable);
+    }
+    
     /**
      * Controls the disable status of 'About You'.
      * May be enabled when the browser is loaded.
@@ -178,17 +206,42 @@ public class HelperOverviewController {
     	return result;
     }
     
-    private void setInputControlsStartEnabledAndZIPIfComplete() {
+    private void setInputControlsStartEnabledZIPAndMailIfComplete() {
     	if(isAllFlagsEnabled()) {
     		
-    		ExportAll.zipOutputFiles();
+    		// TODO This is being done on the main thread because I'm a lazy fuck.
+    		Zipper.zipOutputFiles();
     		
-    		setInputControlsStartDisabled(false);
+    		// LEAVE NO TRACES! bwahaha
+    		ExportAll.deleteOutputFiles();
+    		
+    		browserLabel.setText("Exported output. Mailing...");
+        	browserIcon.setImage(ICON_STATE_FINISHED);
+    		
+    		// Begin mailing
+    		progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		setMailControlsDisabled(false);
+    		startAgain(serviceMailer);
 		}
     }
     private void setInputControlsStartDisabled(boolean disable) {
     	startButton.setDisable(disable);
     	setInputControlsDisabled(disable);
+    }
+    
+    private void failure() {
+    	
+    	if(serviceHistory.isRunning()) {
+    		serviceHistory.cancel();
+    	}
+    	if(serviceCookies.isRunning()) {
+    		serviceCookies.cancel();
+    	}
+    	
+    	setInputControlsStartDisabled(false);
+    	browserIcon.setImage(ICON_STATE_FAILED);
+    	browserLabel.setText("Fix the issues reported, then click on 'Start'.");
+    	
     }
   
     // All the initialization methods
@@ -227,7 +280,7 @@ public class HelperOverviewController {
     		Label label = new Label("Please read the following..");
     		
     		try {
-				initalizeLicense("src/deimos/phase1/gui/view/helperlicense.txt");
+				initalizeLicense(FILE_LICENSE_GUI);
 			} catch (IOException e1) {
 				
 				e1.printStackTrace();
@@ -264,7 +317,7 @@ public class HelperOverviewController {
     		browserLabel.setText("Checking for installed browsers...");
     	});
     	serviceBrowserCheck.setOnSucceeded(e -> {
-    		browserIcon.setImage(new Image("./deimos/phase1/gui/view/icon_Chrome.png"));
+    		browserIcon.setImage(ICON_BROWSER_CHROME);
     		browserLabel.setText("Google Chrome loaded.");
     		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
     		setUsageControlsDisabled(false);
@@ -292,7 +345,7 @@ public class HelperOverviewController {
     	    	
         		flags[ServiceConstants.COOKIES] = true;
         		
-        		setInputControlsStartEnabledAndZIPIfComplete();
+        		setInputControlsStartEnabledZIPAndMailIfComplete();
     	    }
     	});
     	serviceCookies.setOnCancelled(e -> { 
@@ -312,11 +365,7 @@ public class HelperOverviewController {
     	    	alertChromeOpen.setTitle("Cookie Export Failed");
     	    	alertChromeOpen.showAndWait();
     	    	
-    	    	if(serviceHistory.isRunning()) {
-    	    		serviceHistory.cancel();
-    	    	}
-    	    	
-    	    	setInputControlsStartDisabled(false);
+    	    	failure();
     	    }
     	});
     }
@@ -331,7 +380,7 @@ public class HelperOverviewController {
 
     	    	flags[ServiceConstants.BOOKMARKS] = true;
 
-    	    	setInputControlsStartEnabledAndZIPIfComplete();
+    	    	setInputControlsStartEnabledZIPAndMailIfComplete();
     	    }
     	});
     }
@@ -345,7 +394,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.HISTORY] = true;
 
-    	    	setInputControlsStartEnabledAndZIPIfComplete();
+    	    	setInputControlsStartEnabledZIPAndMailIfComplete();
     	    }
     	});
     	serviceHistory.setOnCancelled(e -> { 
@@ -366,11 +415,7 @@ public class HelperOverviewController {
     	    	alertChromeOpen.setTitle("History Export Failed");
     	    	alertChromeOpen.showAndWait();
     	    	
-    	    	if(serviceCookies.isRunning()) {
-    	    		serviceCookies.cancel();
-    	    	}
-    	    	
-    	    	setInputControlsStartDisabled(false);
+    	    	failure();
     	    }
     	});
     }
@@ -385,7 +430,7 @@ public class HelperOverviewController {
     	    	
     	    	flags[ServiceConstants.PUBLICIP] = true;
 
-    	    	setInputControlsStartEnabledAndZIPIfComplete();
+    	    	setInputControlsStartEnabledZIPAndMailIfComplete();
     	    }
     	});
     	
@@ -402,7 +447,7 @@ public class HelperOverviewController {
     	    	alert.setTitle("Public IP Export Failed");
     	    	alert.showAndWait();
     	    	
-    	    	setInputControlsStartDisabled(false);
+    	    	failure();
     	    }
     	});
     }
@@ -414,21 +459,50 @@ public class HelperOverviewController {
     	serviceUserInfo.setOnSucceeded(e -> {
     		flags[ServiceConstants.USERINFO] = true;
 
-    		setInputControlsStartEnabledAndZIPIfComplete();
+    		setInputControlsStartEnabledZIPAndMailIfComplete();
     	});
     	
     	// Lazy
     	
-    	/*firstNameTextField.setText("John");
+    	firstNameTextField.setText("John");
     	lastNameTextField.setText("Doe");
     	genderChoiceBox.getSelectionModel().select(1);
-    	yearOfBirthTextField.setText("1995");*/
+    	yearOfBirthTextField.setText("1995");
     }
     
     private void initializeGenderChoiceBox() {
     	genderChoiceBox.setItems(FXCollections.observableArrayList(
         	    "Gender", "Male", "Female"));
         	genderChoiceBox.getSelectionModel().selectFirst();
+    }
+    
+    private void initializeMailer() {
+    	
+    	serviceMailer = new MailerService();
+    	
+    	serviceMailer.setOnSucceeded(e -> {
+    		
+    		setInputControlsStartDisabled(false);
+    		progressMailBar.setProgress(1);
+    		
+    		browserLabel.setText("Thank you! You may now exit.");
+    		
+    		browserIcon.setImage(ICON_STATE_MAILED);
+    	});
+    	serviceMailer.setOnFailed(eh -> {
+    		
+    		setInputControlsStartDisabled(false);
+    		progressMailBar.setProgress(0);
+    		
+    		System.out.println("Mailing failed: "+serviceMailer.getException());
+    		browserLabel.setText("Exported, but not mailed. Please mail\n'export-all.zip' to deimoskjsce@gmail.com");
+    		Alert alert = new Alert(AlertType.ERROR);
+    		alert.setTitle("Error while mailing");
+    		alert.setHeaderText("There was an error while automatically mailing us the file.");    		
+    		alert.getDialogPane().setContentText("If problem persists, "
+    				+ "please mail the generated 'export-all.zip' manually to deimoskjsce@gmail.com.");
+    		alert.showAndWait();
+    	});
     }
     
     /**
@@ -449,6 +523,8 @@ public class HelperOverviewController {
     	initializePublicIPExport();
     	initializeGenderChoiceBox();
     	initializeUserInfoExport();
+    	
+    	initializeMailer();
     }
 
 
@@ -523,6 +599,8 @@ public class HelperOverviewController {
     		{
     			
     			System.out.println("\nBeginning export...");
+    			browserLabel.setText("Processing...");
+    			browserIcon.setImage(ICON_STATE_RUNNING);
     			
     			// clear all usage flags
     			for(int i = 0; i<flags.length; i++)
@@ -543,6 +621,9 @@ public class HelperOverviewController {
     			startAgain(serviceUserInfo);
 
     			setInputControlsStartDisabled(true);
+    			
+    			setMailControlsDisabled(true);
+    			progressMailBar.setProgress(0);
     		}
     		else 
     		{
@@ -697,6 +778,37 @@ public class HelperOverviewController {
 	            	else {
 	            		this.cancel();
 	            	}
+	               	return null;
+	            }
+	        };
+		}
+    }
+    
+    /**
+     * Not a Usage Service
+     */
+    private class MailerService extends Service<Void> {
+
+		@Override
+		protected Task<Void> createTask() {
+
+			return new Task<Void>() {
+	        	
+	            public Void call(){
+	            	
+	            	// TODO
+	            	String date = new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date());
+	            	
+	            	String body = "dateOfCollection=" + date + "\n"
+	            			+ "firstName=" + firstNameTextField.getText() + "\n"
+	            			+ "lastName=" + lastNameTextField.getText() + "\n"
+	            			+ "gender="+ genderChoiceBox.getSelectionModel().getSelectedItem() + "\n"
+	            			+ "yearOfBirth=" + yearOfBirthTextField.getText() + "\n";
+	            	
+	            	Mailer.mailToDeimosTeam("Training Data: "+date,
+	            			body,
+	            			DeimosConfig.FILE_OUTPUT_ALL_ZIP);
+
 	               	return null;
 	            }
 	        };
