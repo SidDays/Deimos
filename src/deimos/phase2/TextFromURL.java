@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class TextFromURL {
 	
-	final public static String URLS_DIR = DeimosConfig.DIR_OUTPUT + "/urltexts";
+	final public static String DIR_URLS = DeimosConfig.DIR_OUTPUT + "/urltexts";
 	private static MessageDigest md;
 
 	/**
@@ -21,7 +21,7 @@ public class TextFromURL {
 	 */
 	public static void cleanDirectory() throws SecurityException
 	{
-		File file = new File(URLS_DIR);
+		File file = new File(DIR_URLS);
 		String[] myFiles;
 		if (file.isDirectory()) {
 			myFiles = file.list();		
@@ -106,7 +106,7 @@ public class TextFromURL {
 			noOfURLs = 50; // any value ranging from 1 to urls.size()
 
 			// Creates empty output directory if it doesn't exist
-			new File(URLS_DIR).mkdirs(); 
+			new File(DIR_URLS).mkdirs(); 
 			
 			// cleanDirectory(); // delete previous text files
 
@@ -126,7 +126,7 @@ public class TextFromURL {
 
 					System.out.println(i + ": " + truncURL + " " + hashValue);
 
-					File f = new File(URLS_DIR+"/"+hashValue);
+					File f = new File(DIR_URLS+"/"+hashValue);
 
 					if(!f.isDirectory())
 					{
@@ -135,7 +135,7 @@ public class TextFromURL {
 							System.out.println("Page already fetched.");
 						}
 						else {
-							PageFetcher.fetchHTMLAsFile(URLS_DIR + "/" +
+							PageFetcher.fetchHTMLAsFile(DIR_URLS + "/" +
 								(hashValue)+ ".txt", urls.get(i));
 						}
 					}

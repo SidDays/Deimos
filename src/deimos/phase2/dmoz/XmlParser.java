@@ -1,4 +1,4 @@
-package dmoz;
+package deimos.phase2.dmoz;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +14,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlParser {
-	public void getAllExternalpages(String fileName) {
+	
+	final public static String FILE_XML_EXAMPLE = "resources/xmlexample.xml";
+	
+	public void getAllExternalPages(String fileName) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = null;
+		
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		File file = new File(fileName);
 		if (file.exists()) {
 			Document doc = null;
@@ -40,44 +45,54 @@ public class XmlParser {
 			NodeList pageList = docEle.getElementsByTagName("ExternalPage");
 
 			// Print total student elements in document
-			System.out
-					.println("Total: " + pageList.getLength());
-			/**for(int i = 0; i < pageList.getLength(); i++) {
+			System.out.println("Total: " + pageList.getLength());
+			
+			/*
+			for(int i = 0; i < pageList.getLength(); i++) {
 				System.out.println(pageList.item(i));
-			}*/ 
-			if(pageList != null && pageList.getLength() > 0) {
-				for(int i = 0; i < pageList.getLength(); i++) {
+			}
+			*/
+			
+			if(pageList != null && pageList.getLength() > 0)
+			{
+				for(int i = 0; i < pageList.getLength(); i++)
+				{
 					Node node = pageList.item(i);
 					if (node.getNodeType() == Node.ELEMENT_NODE) {
 
-						System.out.println("");
+						System.out.println();
 
 						Element e = (Element) node;
 						NodeList nodeList = e.getElementsByTagName("d:Title");
-						System.out.println("ExternalPage: "
+						System.out.println("ExternalPage:\t"
 								+ nodeList.item(0).getChildNodes().item(0)
 										.getNodeValue());
 						
 						
 						nodeList = e.getElementsByTagName("d:Description");
-						System.out.println("Description: "
-								+ nodeList.item(0).getChildNodes().item(0)
-										.getNodeValue());
+						String d = nodeList.item(0).getChildNodes().item(0)
+								.getNodeValue();
+						d.replace("\t", ""); // Not working?
+						System.out.println("Description:\t"
+								+ d);
 
 						nodeList = e.getElementsByTagName("topic");
-						System.out.println("Topic: "
+						System.out.println("Topic:\t\t"
 								+ nodeList.item(0).getChildNodes().item(0)
 										.getNodeValue());
 					}
 				}
 			}
+			
 			else {
 				System.err.println("Error while parsing!!!");
 			}
 		}
 	}
+	
 	public static void main(String[] args) {
+		
 		XmlParser parser = new XmlParser();
-		parser.getAllExternalpages("xmlexample.xml");
+		parser.getAllExternalPages(FILE_XML_EXAMPLE);
 	}
 }

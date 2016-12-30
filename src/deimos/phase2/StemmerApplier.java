@@ -25,7 +25,7 @@ public class StemmerApplier {
 		int count = 0;
 		
 		// Specifies directory of stopword-free output
-		File directory = new File(deimos.phase2.StopWordsRemoval.SWFREE_DIR);
+		File directory = new File(deimos.phase2.StopWordsRemoval.DIR_SWFREE);
 
 		File[] cleanedFiles = directory.listFiles();
 		String[] files = new String[cleanedFiles.length];

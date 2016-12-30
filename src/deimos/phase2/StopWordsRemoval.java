@@ -15,8 +15,8 @@ import deimos.common.DeimosConfig;
 
 public class StopWordsRemoval {
 	
-	final public static String SWFREE_DIR = DeimosConfig.DIR_OUTPUT + "/swfreetexts";
-	final public static String SW_FILE = "resources/stopwords.txt";
+	final public static String DIR_SWFREE = DeimosConfig.DIR_OUTPUT + "/swfreetexts";
+	final public static String FILE_STOPWORDS = "resources/stopwords.txt";
 	
 	// TODO make this a resource
 	
@@ -38,7 +38,7 @@ public class StopWordsRemoval {
 		
 		try {
 			
-			folder = new File(deimos.phase2.TextFromURL.URLS_DIR);
+			folder = new File(deimos.phase2.TextFromURL.DIR_URLS);
 			listOfFiles = folder.listFiles();
 			stopWords = new LinkedHashSet<>();
 			fileWords = new ArrayList<>();
@@ -49,7 +49,7 @@ public class StopWordsRemoval {
 			}
 			
 			// Contains list of all stopwords to remove
-			File stopWordFile = new File(SW_FILE);
+			File stopWordFile = new File(FILE_STOPWORDS);
 			FileReader fileReader = new FileReader(stopWordFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
@@ -65,7 +65,7 @@ public class StopWordsRemoval {
 			fileReader.close();
 			
 			// Create empty output directory if it doesn't exist
-			new File(SWFREE_DIR).mkdirs();
+			new File(DIR_SWFREE).mkdirs();
 			
 			// Initialize output 'engine' (idk)
 			File inputFile;
@@ -86,9 +86,9 @@ public class StopWordsRemoval {
 					
 					if(filename.endsWith(".txt"))
 					{
-						inputFile = new File(deimos.phase2.TextFromURL.URLS_DIR +
+						inputFile = new File(deimos.phase2.TextFromURL.DIR_URLS +
 								"/"+filename);
-						outputFile = new File(SWFREE_DIR + "/"+ filename);
+						outputFile = new File(DIR_SWFREE + "/"+ filename);
 						reader = new BufferedReader(new FileReader(inputFile));
 						writer = new BufferedWriter(new FileWriter(outputFile));
 						
