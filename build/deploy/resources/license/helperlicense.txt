@@ -1,0 +1,28 @@
+Deimos Helper Terms of Service
+6th December, 2016
+
+Deimos is a system to estimate user demographics, such as age, gender, location, and topics of interest by analyzing locally stored browser data, for applications such as but not limited to personalization of delivered web content. For this purpose, this software, Deimos Helper is used to automatically collect the following user data:
+1. Browser cookies
+2. Browser favorites/bookmarks
+3. Browser history
+4. IP Address
+
+It will automatically detect the following installed browser configurations:
+1. Google Chrome
+
+Privacy:
+1. By using this software, you agree to share your data via Deimos Helper for use with the Deimos system, and understand that this data will NOT be shared with 3rd parties, and will NOT be used for purposes other than training the system and statistical analysis.
+2. You may choose not to provide your name, however, you MUST provide your identifying gender and year of birth.
+
+You agree that the data provided by you belongs to you, and that the information you provide is accurate to the best of your ability.
+
+While Deimos Helper has been tested to be working and free of errors, you understand that the team behind Deimos and Deimos Helper will not be responsible for any side-effects that may arise during the data collection process.
+
+Thank you for your cooperation.
+
+Sincerely,
+The Deimos Team
+
+Siddhesh Karekar (siddhesh.karekar@somaiya.edu)
+Bhushan Pathak (bhushan.pathak@somaiya.edu)
+Amogh Bhabal (amogh.bhabal@somaiya.edu)

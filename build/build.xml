@@ -167,8 +167,9 @@
 			updatemode="background" >
 	
 			<fx:platform basedir="${java.home}"/>
-			<fx:info title="Deimos" vendor="sidrk"/>
-	
+			<fx:info title="Deimos" vendor="sidrk">
+				<fx:icon href="./build/package/windows/DeimosHelperGUI-setup-icon.ico" />
+			</fx:info>
 			<fx:application refId="fxApplication"/>
 			<fx:resources refid="appRes"/>
 		</fx:deploy>
