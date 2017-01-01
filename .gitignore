@@ -9,8 +9,10 @@ output/*
 export-*.txt
 export-*.zip
 
-# Deimos Credentials
 src/deimos/common/*.properties
+resources/credentials.properties
+
+build/*.*
 
 # ---------------
 # Eclipse related
