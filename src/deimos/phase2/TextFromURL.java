@@ -91,7 +91,7 @@ public class TextFromURL {
 			for (int i = 0; i < urls.size(); i++) {
 				String s = urls.get(i);
 				// System.out.println(s);
-				String subst = s.substring(s.indexOf('|') + 2);
+				String subst = s.substring(s.indexOf('|') + 1);
 				urls.set(i, subst);
 			}
 			
