@@ -12,7 +12,7 @@ export-*.zip
 src/deimos/common/*.properties
 resources/credentials.properties
 
-build/*.*
+build/*
 
 # ---------------
 # Eclipse related
