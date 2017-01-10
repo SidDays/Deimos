@@ -13,6 +13,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Parses XML data.
+ * 
+ * @author Bhushan Pathak
+ * @author Siddhesh Karekar
+ *
+ */
 public class XmlParser {
 	
 	/**
