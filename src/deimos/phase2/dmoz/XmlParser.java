@@ -15,6 +15,9 @@ import org.xml.sax.SAXException;
 
 public class XmlParser {
 	
+	/**
+	 * Location of XML file to parse.
+	 */
 	final public static String FILE_XML_EXAMPLE = "resources/xmlexample.xml";
 	
 	public void getAllExternalPages(String fileName) {
