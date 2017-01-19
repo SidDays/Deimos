@@ -13,8 +13,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Parses XML data.
+ * 
+ * @author Bhushan Pathak
+ * @author Siddhesh Karekar
+ *
+ */
 public class XmlParser {
 	
+	/**
+	 * Location of XML file to parse.
+	 */
 	final public static String FILE_XML_EXAMPLE = "resources/xmlexample.xml";
 	
 	public void getAllExternalPages(String fileName) {
