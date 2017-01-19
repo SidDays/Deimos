@@ -25,6 +25,7 @@ import javax.mail.internet.MimeMultipart;
  * www.tutorialspoint.com/javamail_api/javamail_api_send_email_with_attachment.htm
  * www.tutorialspoint.com/javamail_api/javamail_api_gmail_smtp_server.htm
  * www.mkyong.com/java/java-properties-file-examples/
+ * stackoverflow.com/questions/16115453/javamail-could-not-convert-socket-to-tls-gmail
  * 
  * @author Siddhesh Karekar
  *
@@ -41,6 +42,7 @@ public class Mailer {
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
 		props.put("mail.smtp.host", "smtp.gmail.com");
 		props.put("mail.smtp.port", "587");
 

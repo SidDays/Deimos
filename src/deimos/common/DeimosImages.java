@@ -12,5 +12,5 @@ public class DeimosImages {
 	public static final Image IMG_STATE_EXPORTED = new Image("file:resources/images/Greentick_64x64.png");
 	public static final Image IMG_STATE_FAILED = new Image("file:resources/images/RedExclamation_64x64.png");
 	public static final Image IMG_STATE_WARNING = new Image("file:resources/images/YellowExclamation_64x64.png");
-	public static final Image IMG_STATE_MAILED = new Image("file:resources/images/Greentickmail_64x64_64x64.png");
+	public static final Image IMG_STATE_MAILED = new Image("file:resources/images/Greentickmail_64x64.png");
 }

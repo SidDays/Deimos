@@ -349,6 +349,7 @@ public class HelperOverviewController {
     	});
     	serviceBrowserCheck.setOnCancelled(e -> {
     		System.err.println("No compatible browsers available!");
+    		browserLabel.setText("No compatible browsers available.");
     		
     	});
     	serviceBrowserCheck.setOnFailed(e -> {

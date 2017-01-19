@@ -77,7 +77,7 @@
                   </HBox>
                   <HBox fillHeight="false" spacing="4.0">
                      <children>
-                        <CheckBox fx:id="tosAgreeCheckBox" disable="true" mnemonicParsing="false" selected="true" text="I Agree to the" />
+                        <CheckBox fx:id="tosAgreeCheckBox" disable="true" mnemonicParsing="false" text="I Agree to the" />
                         <Label fx:id="tosAgreeLabel" disable="true" maxHeight="1.7976931348623157E308" text="Deimos Helper Terms of Service" underline="true">
                            <cursor>
                               <Cursor fx:constant="HAND" />
