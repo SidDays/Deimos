@@ -27,7 +27,7 @@
                   <Font size="36.0" />
                </font>
             </Label>
-            <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" text="(version 1.01)" textFill="#5e5e5e">
+            <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" text="(version 1.02)" textFill="#5e5e5e">
                <font>
                   <Font size="18.0" />
                </font>

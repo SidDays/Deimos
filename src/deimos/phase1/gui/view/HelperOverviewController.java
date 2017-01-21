@@ -1,6 +1,9 @@
 package deimos.phase1.gui.view;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -21,10 +24,12 @@ import deimos.phase1.ExportIP;
 import deimos.phase1.ExportUserInfo;
 import deimos.phase1.Zipper;
 import deimos.phase1.gui.HelperApp;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -191,6 +196,10 @@ public class HelperOverviewController {
     	tosAgreeLabel.setDisable(disable);
     }
     
+    /**
+     * Checks if all sub-tasks are complete (except mailing)
+     * @return true if all of the 5 required processes are done.
+     */
     private boolean isAllFlagsEnabled() {
     	
     	boolean result = true;
@@ -247,7 +256,7 @@ public class HelperOverviewController {
      */
     private void initalizeLicense(String file) throws IOException {
     	
-    	// TODO THE FUCK IS THIS CRAZY SHIT
+    	// wtf is this shit
     	
     	 BufferedReader reader = new BufferedReader(new FileReader (file));
          String         line = null;
@@ -264,31 +273,6 @@ public class HelperOverviewController {
          } finally {
              reader.close();
          }
-    	
-    	
-    	/*licenseText = "";
-    	
-    	StringBuilder stringBuilder = new StringBuilder();
-    	String ls = "\n";
-    	
-    	// URL url = getClass().getResource(FILE_LICENSE_GUI);
-    	
-    	//InputStream is = getClass().getResourceAsStream(FILE_LICENSE_GUI);
-    	InputStream is = ClassLoader.getSystemResourceAsStream(FILE_LICENSE_GUI);
-    	
-    	BufferedReader in = new BufferedReader(new InputStreamReader(is));
-
-	    String inputLine;
-	
-	    while ((inputLine = in.readLine()) != null) {
-	    	stringBuilder.append(inputLine);
-	    	stringBuilder.append(ls);
-	    }
-	
-	    in.close();
-	    is.close();
-
-    	licenseText = stringBuilder.toString();*/
 
     }
 
@@ -313,7 +297,7 @@ public class HelperOverviewController {
     		textArea.setEditable(false);
     		textArea.setWrapText(true);
 
-    		textArea.setMaxWidth(Double.MAX_VALUE);
+    		textArea.setMaxWidth(380);
     		textArea.setMaxHeight(Double.MAX_VALUE);
     		GridPane.setVgrow(textArea, Priority.ALWAYS);
     		GridPane.setHgrow(textArea, Priority.ALWAYS);
@@ -511,6 +495,12 @@ public class HelperOverviewController {
     		progressMailBar.setProgress(1);
     		
     		browserLabel.setText("Thank you! You may now exit.");
+    		startButton.setText("Exit");
+    		startButton.setOnAction(new EventHandler<ActionEvent>() {
+    		    @Override public void handle(ActionEvent e) {
+    		        Platform.exit();
+    		    }
+    		});
     		
     		browserIcon.setImage(DeimosImages.IMG_STATE_MAILED);
     	});
@@ -520,13 +510,23 @@ public class HelperOverviewController {
     		progressMailBar.setProgress(0);
     		
     		System.out.println("Mailing failed: "+serviceMailer.getException());
-    		browserLabel.setText("Exported, but not mailed. Please mail\n'export-all.zip' to deimoskjsce@gmail.com");
+    		browserLabel.setText("Exported, but not mailed. Click 'Re-mail', or mail\n'export-all.zip' to deimoskjsce@gmail.com");
     		Alert alert = new Alert(AlertType.ERROR);
     		alert.setTitle("Error while mailing");
     		alert.setHeaderText("There was an error while automatically mailing us the file.");    		
-    		alert.getDialogPane().setContentText("If problem persists, "
-    				+ "please mail the generated 'export-all.zip' manually to deimoskjsce@gmail.com.");
+    		alert.getDialogPane().setContentText("Click on 'Re-mail' to try again. If problem persists, "
+    				+ "please mail the generated 'export-all.zip' in the program's folder "
+    				+ "manually to deimoskjsce@gmail.com. (Check the manual for instructions.)");
     		alert.showAndWait();
+    		
+    		// Set change the start button to a re-mail button
+    		startButton.setText("Re-mail");
+    		startButton.setOnAction(new EventHandler<ActionEvent>() {
+    		    @Override public void handle(ActionEvent e) {
+    		        handleRemailbutton();
+    		    }
+    		});
+    		
     	});
     }
     
@@ -603,6 +603,12 @@ public class HelperOverviewController {
     	return errors;
     }
     
+    /**
+     * An alternative to the factory restart() method.
+     * Avoids the cancellation of the service if it never started.
+     * Functionally near-equivalent to restart().
+     * @param s The service to start again
+     */
     private void startAgain(Service<?> s) {
     	if(s.isRunning())
     		s.restart();
@@ -610,6 +616,49 @@ public class HelperOverviewController {
     		s.reset();
     		s.start();
     	}
+    }
+    
+    private void handleRemailbutton() {
+    	
+    	// Check if the export-all.zip exists
+    	FileInputStream in;
+    	File exportAllZIP = new File(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
+		try {
+			in = new FileInputStream(exportAllZIP);
+			in.close();
+			
+			// by this point, it exists. re-email the file
+			browserLabel.setText("Trying to mail us again...");
+        	browserIcon.setImage(DeimosImages.IMG_STATE_EXPORTED);
+    		
+    		// Begin mailing
+    		progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    		setMailControlsDisabled(false);
+    		startAgain(serviceMailer);
+			
+		}
+		catch (FileNotFoundException e) {
+			// it doesn't exist. re-enable the data collection
+			
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.initOwner(mainApp.getPrimaryStage());
+			alert.setContentText("Click on Retry to collect data and try again.");
+			alert.setTitle("Export file missing");
+			alert.showAndWait();
+			
+			startButton.setText("Retry");
+			startButton.setOnAction(new EventHandler<ActionEvent>() {
+    		    @Override public void handle(ActionEvent e) {
+    		        handleStartButton();
+    		    }
+    		});
+			
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+    	
+    	// if not, change it to retry
     }
     
     @FXML
@@ -671,8 +720,8 @@ public class HelperOverviewController {
     		textArea.setEditable(false);
     		textArea.setWrapText(true);
 
-    		textArea.setMaxWidth(Double.MAX_VALUE);
-    		textArea.setMaxHeight(Double.MAX_VALUE);
+    		textArea.setMaxWidth(320);
+    		textArea.setMaxHeight(240);
     		GridPane.setVgrow(textArea, Priority.ALWAYS);
     		GridPane.setHgrow(textArea, Priority.ALWAYS);
 
