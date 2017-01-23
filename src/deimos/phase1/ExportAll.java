@@ -1,6 +1,7 @@
 package deimos.phase1;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,6 +10,7 @@ import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
 import deimos.common.Mailer;
+import deimos.common.ProcessUtils;
 
 /**
  * Combines all export functions,
@@ -22,6 +24,31 @@ import deimos.common.Mailer;
  */
 
 public class ExportAll {
+	
+	public static final String PROCESS_CHROME_WIN = "chrome.exe";
+	
+	public static boolean killChrome() {
+		System.out.print("Ensuring Chrome is not running: ");
+		
+		boolean killed = false;
+		
+		try
+		{
+			if(ProcessUtils.isProcessRunning(PROCESS_CHROME_WIN))
+			{
+				ProcessUtils.killProcess(PROCESS_CHROME_WIN);
+				killed = true;
+			}
+			else {
+				killed = true;
+			}
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		System.out.println(killed);
+		return killed;
+	}
 	
 	/**
 	 * Deletes all the files defined in DeimosConfig
@@ -60,6 +87,8 @@ public class ExportAll {
 	}
 
 	public static void main(String[] args) {
+		
+		killChrome();
 		
 		ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
 		
