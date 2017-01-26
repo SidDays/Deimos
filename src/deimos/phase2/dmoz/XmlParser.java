@@ -3,9 +3,8 @@ package deimos.phase2.dmoz;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,7 +26,8 @@ import org.xml.sax.SAXException;
  * Parses XML data.
  * 
  * Reference:
- * examples.javacodegeeks.com/core-java/xml/dom/remove-nodes-from-dom-document-recursively/
+ * examples.javacodegeeks.com/core-java/xml/dom/remove-nodes-from-dom-document-recursively
+ * stackoverflow.com/questions/11883294/writing-to-txt-file-from-stringwriter
  * 
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
@@ -39,6 +39,8 @@ public class XmlParser {
 	 * Location of XML file to parse.
 	 */
 	final public static String FILE_XML_EXAMPLE = "resources/xmlexample.xml";
+	// final public static String FILE_XML_EXAMPLE = "E:/Downloads/Padhai/Deimos/Dmoz/content.rdf.u8/content.rdf.u8";
+	final public static String FILE_XML_EXAMPLE2 = "export-dmoz.xml";
 
 	public static void removeRecursively(Node node, short nodeType, String name) {
 		if (node.getNodeType()==nodeType && (name == null || node.getNodeName().equals(name))) {
@@ -54,14 +56,15 @@ public class XmlParser {
 	}
 
 	public static final void prettyPrint(Document xml)
-			throws TransformerConfigurationException, TransformerException
+			throws TransformerConfigurationException, TransformerException, IOException
 	{
 		Transformer tf = TransformerFactory.newInstance().newTransformer();
 		tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		tf.setOutputProperty(OutputKeys.INDENT, "yes");
-		Writer out = new StringWriter();
-		tf.transform(new DOMSource(xml), new StreamResult(out));
-		System.out.println(out.toString());
+		// Writer out = new StringWriter();
+		FileWriter fw = new FileWriter(FILE_XML_EXAMPLE2);
+		tf.transform(new DOMSource(xml), new StreamResult(fw));
+		System.out.println("Exported cleaned XML to "+FILE_XML_EXAMPLE2+".");
 	}
 	
 	public static void removeNodes()
