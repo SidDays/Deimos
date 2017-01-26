@@ -1,36 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Page>
-	<ExternalPage xmlns="" about="http://www.awn.com">
-		<d:Title>Animation World Network</d:Title>
-		<d:Description>Provides information resources to the international animation community. Features include searchable database archives, monthly magazine, web animation guide, the Animation Village, discussion forums and other useful resources.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
-	<ExternalPage xmlns="" about="http://animation.about.com/">
-		<d:Title>About.com: Animation Guide</d:Title>
-		<d:Description>Keep up with developments in online animation for all skill levels. Download tools, and seek inspiration from online work.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
-	<ExternalPage xmlns="" about="http://www.toonhound.com">
-		<d:Title>Toonhound</d:Title>
-		<d:Description>British cartoon, animation and comic strip creations - links, reviews and news from the UK.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
-	<ExternalPage xmlns="" about="http://enculturation.gmu.edu/2_1/pisters.html">
-		<d:Title>Enculturation: From Mouse to Mouse: Overcoming Information</d:Title>
-		<d:Description>Essay by Patricia Pisters on the animated image and its changing relationship with the cinematic image.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
-	<ExternalPage xmlns="" about="http://www.digitalmediafx.com/Features/animationhistory.html">
-		<d:Title>Digital Media FX: The History of Animation</d:Title>
-		<d:Description>Michael Crandol takes an exhaustive look at the history of animation and animators/visionaries like Max Fleisher, Walter Lantz, and
-		 Otto Messmer.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
-	<ExternalPage xmlns="" about="http://www-viz.tamu.edu/courses/viza615/97spring/pjames/history/main.html">
-		<d:Title>History of Animation: Before Disney</d:Title>
-		<d:Description>A short, illustrated essay by Patrick James on the basics of early animations.</d:Description>
-		<topic>Top/Arts/Animation</topic>
-	</ExternalPage>
+
+<RDF xmlns:r="http://www.w3.org/TR/RDF/" xmlns:d="http://purl.org/dc/elements/1.0/" xmlns="http://dmoz.org/rdf/">
   <!-- Generated at 2010-03-24 03:16:06 EST from DMOZ 2.0 -->
   <Topic xmlns="" r:id="">
     <catid>1</catid>
@@ -520,4 +490,5 @@ raphs. Florida, USA.</d:Description>
     <d:Description>Yahoo Group for scholars engaged in the academic study of anime and manga, associated subcultures, and Japanese popular culture.</d:Description>
     <topic>Top/Arts/Animation/Anime/Clubs_and_Organizations</topic>
   </ExternalPage>
-</Page>
+</RDF>
+
