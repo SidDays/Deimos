@@ -17,6 +17,8 @@ import org.xml.sax.SAXException;
  * Parses XML data.
  * 
  * Reference:
+ * viralpatel.net/blogs/parsing-reading-xml-file-in-java-xml-reading-java-tutorial
+ * 
  * (unused now)
  * examples.javacodegeeks.com/core-java/xml/dom/remove-nodes-from-dom-document-recursively
  * stackoverflow.com/questions/11883294/writing-to-txt-file-from-stringwriter
@@ -26,33 +28,33 @@ import org.xml.sax.SAXException;
  *
  */
 
-public class XmlParser {
+public class XMLParser {
 	
 	/**
 	 * Location of XML file to parse.
 	 */
-	final public static String FILE_XML_EXAMPLE = "resources/xmlexample.xml";
-	// final public static String FILE_XML_EXAMPLE = "E:/Downloads/Padhai/Deimos/Dmoz/content.rdf.u8/content-noExternalPage.rdf.u8";
-	final public static String FILE_XML_OUTPUT = "export-dmoz.xml";
+	// final public static String FILE_XML_DMOZ = "resources/xmlexample.xml";
+	final public static String FILE_XML_DMOZ = "E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
 	
-	public void getAllExternalPages(String fileName) {
+	public void printAllTopicsWithLinks(String fileName)
+	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		// dbf.setValidating(false);
 		DocumentBuilder db = null;
 		
 		try {
 			db = dbf.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		File file = new File(fileName);
-		if (file.exists()) {
+		if (file.exists())
+		{
 			Document doc = null;
 			try {
 				doc = db.parse(file);
 			} catch (SAXException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Element docEle = doc.getDocumentElement();
@@ -60,57 +62,49 @@ public class XmlParser {
 			// Print root element of the document
 			System.out.println("Root element of the document: "
 					+ docEle.getNodeName());
-			NodeList pageList = docEle.getElementsByTagName("ExternalPage");
+			NodeList pageList = docEle.getElementsByTagName("Topic");
 
-			// Print total student elements in document
+			// Print total 'Topic' elements in document
 			System.out.println("Total: " + pageList.getLength());
-			
-			/*
-			for(int i = 0; i < pageList.getLength(); i++) {
-				System.out.println(pageList.item(i));
-			}
-			*/
 			
 			if(pageList != null && pageList.getLength() > 0)
 			{
 				for(int i = 0; i < pageList.getLength(); i++)
 				{
 					Node node = pageList.item(i);
-					if (node.getNodeType() == Node.ELEMENT_NODE) {
-
-						System.out.println();
-
-						Element e = (Element) node;
-						NodeList nodeList = e.getElementsByTagName("d:Title");
-						System.out.println("ExternalPage:\t"
-								+ nodeList.item(0).getChildNodes().item(0)
-										.getNodeValue());
+					if (node.getNodeType() == Node.ELEMENT_NODE)
+					{
+						String topicName = node.getAttributes().getNamedItem("r:id").getNodeValue();
 						
+						// Only for ease of printing
+						if(topicName.isEmpty())
+							topicName = "null";
 						
-						nodeList = e.getElementsByTagName("d:Description");
-						String d = nodeList.item(0).getChildNodes().item(0)
-								.getNodeValue();
-						d.replace("\t", ""); // Not working?
-						System.out.println("Description:\t"
-								+ d);
-
-						nodeList = e.getElementsByTagName("topic");
-						System.out.println("Topic:\t\t"
-								+ nodeList.item(0).getChildNodes().item(0)
-										.getNodeValue());
+						System.out.println("\nTopic:\t" + topicName);
+						
+						NodeList nodeList;
+						nodeList = ((Element)(node)).getElementsByTagName("link");
+						for(int j = 0; j < nodeList.getLength(); j++)
+						{
+							Node nodeLink = nodeList.item(j);
+							if (nodeLink.getNodeType() == Node.ELEMENT_NODE)
+							{
+								String link = nodeLink.getAttributes().getNamedItem("r:resource").getNodeValue();
+								System.out.println("Link:\t" + link);
+							}
+						}
 					}
 				}
 			}
-			
 			else {
-				System.err.println("Error while parsing!!!");
+				System.err.println("Error while parsing.");
 			}
 		}
 	}
 	
 	public static void main(String[] args) {
 		
-		XmlParser parser = new XmlParser();
-		parser.getAllExternalPages(FILE_XML_EXAMPLE);
+		XMLParser parser = new XMLParser();
+		parser.printAllTopicsWithLinks(FILE_XML_DMOZ);
 	}
 }
