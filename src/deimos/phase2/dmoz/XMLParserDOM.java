@@ -1,6 +1,7 @@
 package deimos.phase2.dmoz;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -17,26 +18,22 @@ import org.xml.sax.SAXException;
  * Parses XML data.
  * 
  * Reference:
- * viralpatel.net/blogs/parsing-reading-xml-file-in-java-xml-reading-java-tutorial
- * 
- * (unused now)
- * examples.javacodegeeks.com/core-java/xml/dom/remove-nodes-from-dom-document-recursively
- * stackoverflow.com/questions/11883294/writing-to-txt-file-from-stringwriter
+ * http://viralpatel.net/blogs/parsing-reading-xml-file-in-java-xml-reading-java-tutorial/
  * 
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
- *
  */
 
-public class XMLParser {
+public class XMLParserDOM {
 	
 	/**
 	 * Location of XML file to parse.
 	 */
 	// final public static String FILE_XML_DMOZ = "resources/xmlexample.xml";
 	final public static String FILE_XML_DMOZ = "E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
+	final public static boolean PRINT_LINKS = true;
 	
-	public void printAllTopicsWithLinks(String fileName)
+	public void printAllTopicsWithLinks2(String fileName) throws FileNotFoundException
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		// dbf.setValidating(false);
@@ -82,15 +79,18 @@ public class XMLParser {
 						
 						System.out.println("\nTopic:\t" + topicName);
 						
-						NodeList nodeList;
-						nodeList = ((Element)(node)).getElementsByTagName("link");
-						for(int j = 0; j < nodeList.getLength(); j++)
+						if(PRINT_LINKS)
 						{
-							Node nodeLink = nodeList.item(j);
-							if (nodeLink.getNodeType() == Node.ELEMENT_NODE)
+							NodeList nodeList;
+							nodeList = ((Element)(node)).getElementsByTagName("link");
+							for(int j = 0; j < nodeList.getLength(); j++)
 							{
-								String link = nodeLink.getAttributes().getNamedItem("r:resource").getNodeValue();
-								System.out.println("Link:\t" + link);
+								Node nodeLink = nodeList.item(j);
+								if (nodeLink.getNodeType() == Node.ELEMENT_NODE)
+								{
+									String link = nodeLink.getAttributes().getNamedItem("r:resource").getNodeValue();
+									System.out.println("Link:\t" + link);
+								}
 							}
 						}
 					}
@@ -100,11 +100,20 @@ public class XMLParser {
 				System.err.println("Error while parsing.");
 			}
 		}
+		else {
+			throw new FileNotFoundException();
+		}
 	}
 	
 	public static void main(String[] args) {
 		
-		XMLParser parser = new XMLParser();
-		parser.printAllTopicsWithLinks(FILE_XML_DMOZ);
+		XMLParserDOM parser = new XMLParserDOM();
+		try {
+			parser.printAllTopicsWithLinks2(FILE_XML_DMOZ);
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		}
+		
 	}
 }
