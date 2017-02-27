@@ -35,6 +35,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -126,9 +127,8 @@ public class HelperOverviewController {
 	private HistoryService serviceHistory;
 	private PublicIPService servicePublicIP;
 	private UserInfoService serviceUserInfo;
-	
 	private BrowserCheckService serviceBrowserCheck;
-    
+	private KillChromeService serviceKillChrome;
 	private MailerService serviceMailer;
 	
     /**
@@ -315,6 +315,12 @@ public class HelperOverviewController {
     	tosAgreeLabel.setTooltip(new Tooltip("You must agree to the Deimos Helper Terms of Service."));
 	}
     
+    /**
+     * Makes sure Google Chrome is available.
+     * If it is, also asks the user if Chrome should be closed
+     * automatically (otherwise, the user must close it manually -
+     * having it open may interfere with data collection.)
+     */
     private void initializeBrowserCheck() {
     	
     	browserIcon.setImage(DeimosImages.IMG_UNKNOWN);
@@ -326,8 +332,38 @@ public class HelperOverviewController {
     	});
     	serviceBrowserCheck.setOnSucceeded(e -> {
     		browserIcon.setImage(DeimosImages.IMG_CHROME);
-    		browserLabel.setText("Google Chrome loaded.");
-    		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome loaded");
+    		browserLabel.setText("Google Chrome found.");
+    		mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome found");
+    		
+    		// TODO Kill Chrome
+    		serviceKillChrome = new KillChromeService();
+    		serviceKillChrome.setOnRunning(e1 -> {
+    			browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
+    			browserLabel.setText("Closing Google Chrome...");
+    		});
+    		serviceKillChrome.setOnSucceeded(e1 -> {
+    			browserIcon.setImage(DeimosImages.IMG_CHROME);
+    			browserLabel.setText("Google Chrome found.");
+    			System.out.println("Successfully killed Chrome on user's request.");
+    		});
+    		serviceKillChrome.setOnFailed(e1 -> {
+    			browserIcon.setImage(DeimosImages.IMG_CHROME);
+    			browserLabel.setText("Google Chrome found.");
+    			System.out.println("Failed to kill Chrome on user's request. Please close it manually.");
+    		});
+    		
+    		Alert alert = new Alert(AlertType.CONFIRMATION);
+    		alert.setTitle("End Chrome if Running");
+    		alert.setHeaderText("Google Chrome must not be running");
+    		alert.setContentText("Close it automatically? If you wish to close it yourself, click on 'Cancel'.");
+
+    		alert.showAndWait().ifPresent(response -> {
+    		     if (response == ButtonType.OK) {
+    		         // System.out.println("Tried to kill Chrome.");
+    		    	 serviceKillChrome.start();
+    		     }
+    		 });
+    		
     		setUsageControlsDisabled(false);
     		setInputControlsDisabled(false);
     	});
@@ -821,6 +857,24 @@ public class HelperOverviewController {
 	            }
 	        };
 		}
+    }
+
+    private class KillChromeService extends Service<Void> {
+
+    	@Override
+    	protected Task<Void> createTask() {
+
+    		return new Task<Void>() {
+
+    			@Override
+    			public Void call(){
+    				
+    				ExportAll.killChrome();
+    				
+    				return null;
+    			}
+    		};
+    	}
     }
     
     /**
