@@ -29,8 +29,9 @@ public class XMLParserDOM {
 	/**
 	 * Location of XML file to parse.
 	 */
-	// final public static String FILE_XML_DMOZ = "resources/xmlexample.xml";
-	final public static String FILE_XML_DMOZ = "E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
+	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
+	final public static String FILE_XML_DMOZ =
+			"E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
 	final public static boolean PRINT_LINKS = true;
 	
 	public void printAllTopicsWithLinks2(String fileName) throws FileNotFoundException
@@ -88,7 +89,8 @@ public class XMLParserDOM {
 								Node nodeLink = nodeList.item(j);
 								if (nodeLink.getNodeType() == Node.ELEMENT_NODE)
 								{
-									String link = nodeLink.getAttributes().getNamedItem("r:resource").getNodeValue();
+									String link = nodeLink.getAttributes().
+											getNamedItem("r:resource").getNodeValue();
 									System.out.println("Link:\t" + link);
 								}
 							}
@@ -109,7 +111,7 @@ public class XMLParserDOM {
 		
 		XMLParserDOM parser = new XMLParserDOM();
 		try {
-			parser.printAllTopicsWithLinks2(FILE_XML_DMOZ);
+			parser.printAllTopicsWithLinks2(FILE_XML_DMOZ_EXAMPLE);
 		} catch (FileNotFoundException e) {
 			
 			e.printStackTrace();
