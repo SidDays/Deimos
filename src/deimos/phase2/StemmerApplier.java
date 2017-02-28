@@ -14,12 +14,27 @@ public class StemmerApplier {
 	final public static String PS_DIR = DeimosConfig.DIR_OUTPUT + "/pstemmedtexts";
 	
 	/**
+	 * Reuse the same Stemmer object whether it is to process multiple files
+	 * or a single one.
+	 */
+	public static Stemmer stemmer;
+	
+	static {
+		stemmer = new Stemmer();
+	}
+	
+	/**
 	 * While Stemmer provides an implementation of the algorithm,
 	 * this class uses it to stem the outputs produced on StopWordsRemoval
-	 * and saves them to PS_DIR. (This implementation is similar to the 
-	 * main defined in Stemmer.
+	 * and saves them to PS_DIR.
+	 * 
+	 * It reads every file in the specified directory,
+	 * then goes through each file byte-by-byte, and
+	 * finally stems each word it finds.
+	 * 
+	 * This implementation is similar to the 
+	 * main defined in Stemmes.
 	 */
-	
 	public static void applyStemmerOnSWFreeOutput()
 	{
 		int count = 0;
@@ -47,7 +62,7 @@ public class StemmerApplier {
 
 		// Use Stemmer on the files; mostly copied from Stemmer
 		char[] w = new char[501];
-		Stemmer s = new Stemmer();
+		
 		for (int i = 0; i < files.length; i++)
 		{
 			try
@@ -75,12 +90,12 @@ public class StemmerApplier {
 								{
 									/* to test add(char ch) */
 									for (int c = 0; c < j; c++)
-										s.add(w[c]);
+										stemmer.add(w[c]);
 
-									s.stem();
+									stemmer.stem();
 
 									/* and now, to test toString() */
-									String u = s.toString();
+									String u = stemmer.toString();
 									
 									// System.out.print(u);
 									writer.write(u + " ");
@@ -123,5 +138,52 @@ public class StemmerApplier {
 		}
 		
 		System.out.println(count + " stopword-free text(s) stemmed.");
+	}
+	
+	/**
+	 * Use stemmer to only stem a single word.
+	 * @param currentWord
+	 * @return
+	 */
+	public static String stemSingleWord(String currentWord)
+	{
+		// clear stemmer buffer
+		stemmer.stem();
+		
+		for(int j = 0; j < currentWord.length() && j < 501; j++)
+		{
+			stemmer.add(currentWord.charAt(j));
+		}
+		
+		stemmer.stem();
+		
+		return stemmer.toString();
+	}
+	
+	/**
+	 * Alternative to applyStemmerOnSWFreeOutput -
+	 * Gets the porter-stemmed output for just a source input text.
+	 */
+	public static String stemText(String input)
+	{
+		// clear stemmer buffer
+		stemmer.stem();
+		
+		StringBuilder sb = new StringBuilder();
+		
+		String[] words = input.split(" ");
+		for(int i = 0; i < words.length; i++)
+		{			
+			sb.append(stemSingleWord(words[i]));
+			sb.append(" ");
+		}
+		
+		return sb.toString();
+	}
+	
+	public static void main(String[] args)
+	{
+		String testInput = "Jump jumper jumping dog doggone doge eat eatery eaten earthy earth earthen";
+		System.out.println(stemText(testInput));
 	}
 }

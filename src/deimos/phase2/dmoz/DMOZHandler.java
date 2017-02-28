@@ -83,7 +83,7 @@ public class DMOZHandler extends DefaultHandler
         }
         
         if(localName.equalsIgnoreCase("RDF")) {
-    		System.out.println("\nTotal: "+countTopics);
+    		System.out.println("\nTotal Topics: "+countTopics);
     	}
     }
     

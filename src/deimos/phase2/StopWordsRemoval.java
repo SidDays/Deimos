@@ -82,7 +82,8 @@ public class StopWordsRemoval {
 				if (listOfFiles[i].isFile())
 				{
 					filename = listOfFiles[i].getName();
-					System.out.println(i + 1 + "\t" + filename);
+					System.out.format("%4d", i);
+					System.out.println(": " + filename);
 					
 					if(filename.endsWith(".txt"))
 					{

@@ -215,7 +215,8 @@ public class HelperOverviewController {
     		Zipper.zipOutputFiles();
     		
     		// LEAVE NO TRACES! bwahaha
-    		ExportAll.deleteOutputFiles();
+    		if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)
+    			ExportAll.deleteOutputFiles();
     		
     		browserLabel.setText("Exported output. Mailing...");
         	browserIcon.setImage(DeimosImages.IMG_STATE_EXPORTED);

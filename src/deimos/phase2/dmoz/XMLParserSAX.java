@@ -7,6 +7,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import deimos.common.DeimosConfig;
+
 /**
  * Parses XML data.
  * 
@@ -17,12 +19,6 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 public class XMLParserSAX
 {
-	/**
-	 * Location of XML file to parse.
-	 */
-	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
-	final public static String FILE_XML_DMOZ =
-			"E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
 	
 	public static void main(String[] args)
 	{
@@ -38,7 +34,12 @@ public class XMLParserSAX
             parser.setContentHandler(handler);
             
             // open the file
-            FileInputStream in = new FileInputStream(FILE_XML_DMOZ_EXAMPLE);
+            String dataPath;
+            if(DeimosConfig.OPTION_USE_EXAMPLE_DMOZ)
+            	dataPath = DeimosConfig.FILE_XML_DMOZ_EXAMPLE;
+            else
+            	dataPath = DeimosConfig.FILE_XML_DMOZ;
+            FileInputStream in = new FileInputStream(dataPath);
             InputSource source = new InputSource(in);
             
             // parse the data

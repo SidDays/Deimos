@@ -14,6 +14,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import deimos.common.DeimosConfig;
+
 /**
  * Parses XML data.
  * 
@@ -26,12 +28,7 @@ import org.xml.sax.SAXException;
 
 public class XMLParserDOM {
 	
-	/**
-	 * Location of XML file to parse.
-	 */
-	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
-	final public static String FILE_XML_DMOZ =
-			"E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
+	
 	final public static boolean PRINT_LINKS = true;
 	
 	public void printAllTopicsWithLinks2(String fileName) throws FileNotFoundException
@@ -110,8 +107,15 @@ public class XMLParserDOM {
 	public static void main(String[] args) {
 		
 		XMLParserDOM parser = new XMLParserDOM();
+
+        String dataPath;
+        if(DeimosConfig.OPTION_USE_EXAMPLE_DMOZ)
+        	dataPath = DeimosConfig.FILE_XML_DMOZ_EXAMPLE;
+        else
+        	dataPath = DeimosConfig.FILE_XML_DMOZ;
+        
 		try {
-			parser.printAllTopicsWithLinks2(FILE_XML_DMOZ_EXAMPLE);
+			parser.printAllTopicsWithLinks2(dataPath);
 		} catch (FileNotFoundException e) {
 			
 			e.printStackTrace();

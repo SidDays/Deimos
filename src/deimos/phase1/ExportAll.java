@@ -10,7 +10,7 @@ import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
 import deimos.common.Mailer;
-import deimos.common.ProcessUtils;
+import deimos.common.ProcessFileUtils;
 
 /**
  * Combines all export functions,
@@ -26,6 +26,7 @@ import deimos.common.ProcessUtils;
 public class ExportAll {
 	
 	public static final String PROCESS_CHROME_WIN = "chrome.exe";
+
 	
 	public static boolean killChrome() {
 		System.out.print("Ensuring Chrome is not running: ");
@@ -34,9 +35,9 @@ public class ExportAll {
 		
 		try
 		{
-			if(ProcessUtils.isProcessRunning(PROCESS_CHROME_WIN))
+			if(ProcessFileUtils.isProcessRunning(PROCESS_CHROME_WIN))
 			{
-				ProcessUtils.killProcess(PROCESS_CHROME_WIN);
+				ProcessFileUtils.killProcess(PROCESS_CHROME_WIN);
 				killed = true;
 			}
 			else {
@@ -123,7 +124,8 @@ public class ExportAll {
 
        	System.out.println("Finished!");
 		
-		deleteOutputFiles();
+       	if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)
+       		deleteOutputFiles();
 	}
 
 }

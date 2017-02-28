@@ -13,7 +13,17 @@ import java.util.Properties;
  *
  */
 public class DeimosConfig {
-
+	
+	// ----------------------------------------
+	// Filenames and resources
+	// ----------------------------------------
+	
+	// Phase 2
+	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
+	final public static String FILE_XML_DMOZ =
+			"E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
+	
+	// Phase 1
 	public static final String DIR_OUTPUT = "output";
 	public static final String DIR_IMAGES = "resources/images";
 	public static final String DIR_CHROME_WIN = System.getenv("LOCALAPPDATA") +
@@ -51,7 +61,37 @@ public class DeimosConfig {
 			EMAIL_TEAM_AMOGH,
 			EMAIL_TEAM_BHUSHAN
 	};
+	
+	// ----------------------------------------
+	// Options
+	// ----------------------------------------
+	
+	/**
+	 * If true, delete the individual text files (such as export-IP.txt) after zipping them.
+	 */
+	public static final boolean OPTION_DELETE_P1_OUTPUT = false;
+	
+	/**
+	 * If true, uses the sample xml instead of the full DMOZ data.
+	 */
+	public static final boolean OPTION_USE_EXAMPLE_DMOZ = true;
 
+	/**
+	 * If true, the texts of URLs are stored by using a hashed filename.
+	 * If false, the texts are stored with a more human-looking filename.
+	 */
+	public static final boolean OPTION_HASH_P1_OUTPUT_FILENAMES = false;
+	
+	/**
+	 * In Phase 2, download not more than these many texts
+	 * for web pages per history file/URL list.
+	 */
+	public static final int LIMIT_URLS_DOWNLOADED = 10;
+	
+	// ----------------------------------------
+	// Credentials
+	// ----------------------------------------
+	
 	public static String EMAIL_SEND;
 	public static String EMAIL_SEND_USERNAME;
 	public static String EMAIL_SEND_PASSWORD;

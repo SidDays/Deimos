@@ -1,5 +1,7 @@
 package deimos.phase2;
 
+import deimos.common.DeimosConfig;
+
 public class Phase2 {
 
 	/**
@@ -10,9 +12,13 @@ public class Phase2 {
 	 */
 	public static void phase2() {
 		
-		TextFromURL.fetchTextFromHistoryDump();
+		// Make sure to configure DeimosConfig.LIMIT_URLS_DOWNLOADED !
+		
+		TextFromURL.fetchTextFromHistoryDump(DeimosConfig.FILE_OUTPUT_HISTORY);
+		System.out.println();
 		
 		StopWordsRemoval.removeStopWordsFromURLTexts();
+		System.out.println();
 		
 		StemmerApplier.applyStemmerOnSWFreeOutput();
 	}

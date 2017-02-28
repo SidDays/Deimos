@@ -1,6 +1,8 @@
 package deimos.phase2;
 
 import deimos.common.DeimosConfig;
+import deimos.common.ProcessFileUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
@@ -11,6 +13,11 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * 
+ * @author Bhushan Pathak
+ * @author Siddhesh Karekar
+ */
 public class TextFromURL {
 	
 	final public static String DIR_URLS = DeimosConfig.DIR_OUTPUT + "/urltexts";
@@ -48,14 +55,16 @@ public class TextFromURL {
 	}
 	
 	/** 
-	 * Parses the history input file 'export-history.txt';
+	 * Parses the history input file;
 	 * creates a List containing each parsed URL,
 	 * uses a MessageDigest to generate MD5 hashes of URLs to use as filenames,
 	 * and uses PageFetcher's fetchHTMLAsFile to save URL texts in URLS_DIR.
 	 * 
+	 * @param filename Usually you need 'export-history.txt'
+	 * 
 	 */
-	
-	public static void fetchTextFromHistoryDump() {
+	public static void fetchTextFromHistoryDump(String filename)
+	{
 		try {
 			
 			int noOfURLs; // represents number of URLs taken into consideration
@@ -79,13 +88,15 @@ public class TextFromURL {
 			 */
 			
 			// Initialize the MessageDigest object that lets us produce hashes
-			try {
-				md = MessageDigest.getInstance("MD5");
-				
-			} catch(NoSuchAlgorithmException e) {
-				e.printStackTrace();
+			if(DeimosConfig.OPTION_HASH_P1_OUTPUT_FILENAMES) {
+				try {
+					md = MessageDigest.getInstance("MD5");
+
+				} catch(NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
 			}
-			
+
 			
 			// Parse the history dump to get URLs only
 			for (int i = 0; i < urls.size(); i++) {
@@ -103,14 +114,14 @@ public class TextFromURL {
 			urls.addAll(hs);
 			*/
 
-			noOfURLs = 50; // any value ranging from 1 to urls.size()
+			noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED; // any value ranging from 1 to urls.size()
 
 			// Creates empty output directory if it doesn't exist
 			new File(DIR_URLS).mkdirs(); 
 			
 			// cleanDirectory(); // delete previous text files
 
-			System.out.println("Extracting text from fetched URLs...\n");
+			System.out.println("Extracting text from fetched URLs...");
 
 			try {
 
@@ -121,12 +132,21 @@ public class TextFromURL {
 
 					String truncURL = currentURL.substring(0, 
 							Math.min(currentURL.length(), 32));
+					
+					String outputfilename;
+					if(DeimosConfig.OPTION_HASH_P1_OUTPUT_FILENAMES) {
+						outputfilename = getHashedFileName(currentURL);
+					}
+					else {
+						outputfilename = ProcessFileUtils.sanitizeFilename(currentURL);
+						outputfilename = outputfilename.substring(0,
+								Math.min(currentURL.length(), 48));
+					}
+					
+					System.out.format("%4d", i);
+					System.out.println(": " + truncURL + " -> " + outputfilename +".txt");
 
-					String hashValue = getHashedFileName(currentURL);
-
-					System.out.println(i + ": " + truncURL + " " + hashValue);
-
-					File f = new File(DIR_URLS+"/"+hashValue);
+					File f = new File(DIR_URLS+"/"+outputfilename);
 
 					if(!f.isDirectory())
 					{
@@ -136,7 +156,7 @@ public class TextFromURL {
 						}
 						else {
 							PageFetcher.fetchHTMLAsFile(DIR_URLS + "/" +
-								(hashValue)+ ".txt", urls.get(i));
+								(outputfilename)+ ".txt", urls.get(i));
 						}
 					}
 				}
@@ -153,6 +173,6 @@ public class TextFromURL {
 
 	public static void main(String[] args) {
 
-		fetchTextFromHistoryDump();
+		fetchTextFromHistoryDump(DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
 }
