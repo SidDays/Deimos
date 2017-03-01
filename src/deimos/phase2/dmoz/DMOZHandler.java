@@ -1,5 +1,8 @@
 package deimos.phase2.dmoz;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,19 +18,28 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class DMOZHandler extends DefaultHandler
 {
+	/** The total number of Topics parsed. No use. */
 	private int countTopics;
+	
+	/** The total number of URLs parsed. No use. */
+	private int countURLs;
 	
 	/**
 	 * When a Topic node is entered, the name (r:id)
 	 * is stored inside this.
 	 */
-	private String topicName;
+	private String currentTopicName;
+	
+	/**
+	 * Keeps track of all the URLs in the current topic
+	 */
+	private List<String> currentTopicURLs;
 	
 	/**
 	 * When a link node is entered, the link (r:resource)
 	 * is stored inside this.
-	 */
-	private String link;
+	 */	
+	private String currentURL;
 	
     private boolean inTopic = false;
     // private boolean inLink = false;
@@ -41,6 +53,8 @@ public class DMOZHandler extends DefaultHandler
     public DMOZHandler() {
         content = new StringBuilder();
         countTopics = 0;
+        countURLs = 0;
+        currentTopicURLs = new ArrayList<>();
     }
     
     @Override
@@ -53,14 +67,15 @@ public class DMOZHandler extends DefaultHandler
     	
         if(localName.equalsIgnoreCase("Topic")) {
         	inTopic = true;
-        	topicName = atts.getValue("r:id");
-        	content.setLength(0); // Not used produces 'catid' numbers
+        	currentTopicName = atts.getValue("r:id");
+        	content.setLength(0); // Not required, produces 'catid' numbers
+        	currentTopicURLs.clear(); // Start a fresh list of URLs
         }
         if(localName.equalsIgnoreCase("link") || 
         		localName.equalsIgnoreCase("link1"))
         {
         	// inLink = true;
-        	link = atts.getValue("r:resource"); 
+        	currentURL = atts.getValue("r:resource"); 
         }
     }
     
@@ -70,8 +85,15 @@ public class DMOZHandler extends DefaultHandler
     {
         if(localName.equalsIgnoreCase("Topic")) {
         	inTopic = false;
-        	System.out.println("\nTopic:\t"+topicName);
+        	System.out.println("\nTopic:\t"+currentTopicName);
         	System.out.println("CatID:\t"+content.toString().trim());
+        	
+        	// Print all urls in current list
+        	for(String link : currentTopicURLs)
+        	{
+        		System.out.println("Link:\t"+link);
+        	}
+        	
         	countTopics++;
         }
         
@@ -79,11 +101,15 @@ public class DMOZHandler extends DefaultHandler
         		localName.equalsIgnoreCase("link1"))
         {
         	// inLink = false;
-        	System.out.println("Link:\t"+link);
+        	// System.out.println("Link:\t"+link);
+        	currentTopicURLs.add(currentURL);
+        	
+        	countURLs++;
         }
         
         if(localName.equalsIgnoreCase("RDF")) {
-    		System.out.println("\nTotal Topics: "+countTopics);
+    		System.out.println("\nTotal Topics parsed: "+countTopics);
+    		System.out.println("Total URLs parsed: "+countURLs);
     	}
     }
     
