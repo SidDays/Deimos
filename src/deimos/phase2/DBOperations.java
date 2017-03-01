@@ -69,6 +69,6 @@ public class DBOperations
 		try {
 			dbo.connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
 		}
-		catch(Exception e) { System.out.println(e); }
+		catch(Exception e) { e.printStackTrace(); }
 	}
 }
