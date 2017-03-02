@@ -92,8 +92,8 @@ public class DeimosConfig {
 	// Credentials
 	// ----------------------------------------
 	
-	public static final String DB_USER = "Siddhesh";
-	public static final String DB_PASSWORD = "Siddhesh";
+	public static final String DB_USER = "deimos";
+	public static final String DB_PASSWORD = "deimos";
 	
 	public static String EMAIL_SEND;
 	public static String EMAIL_SEND_USERNAME;

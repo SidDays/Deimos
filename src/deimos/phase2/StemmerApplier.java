@@ -1,5 +1,7 @@
 package deimos.phase2;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +11,17 @@ import java.io.IOException;
 
 import deimos.common.DeimosConfig;
 
+/**
+ * Contains functions for actually using Porter-Stemming
+ * algorithm in our system.
+ * 
+ * Reference:
+ * stackoverflow.com/questions/13163547/using-hashmap-to-count-instances
+ * stackoverflow.com/questions/1066589/iterate-through-a-hashmap
+ * 
+ * @author Siddhesh Karekar
+ *
+ */
 public class StemmerApplier {
 	
 	final public static String PS_DIR = DeimosConfig.DIR_OUTPUT + "/pstemmedtexts";
@@ -181,9 +194,59 @@ public class StemmerApplier {
 		return sb.toString();
 	}
 	
+	/**
+	 * Alternative to applyStemmerOnSWFreeOutput -
+	 * Returns the stemmed words and their counts as a key-count HashMap.
+	 * Also converts all the words to lowercase.
+	 * 
+	 * @param input The input text
+	 * @return a Map containing all the stemmed words and their occurences.
+	 */
+	public static Map<String,Integer> stemmedWordsAndCount(String input)
+	{
+		HashMap<String,Integer> wordCounts = new HashMap<>();
+		
+		// clear stemmer buffer
+		stemmer.stem();
+		
+		String[] words = input.split(" ");
+		for(int i = 0; i < words.length; i++)
+		{	
+			String stemmedWord = stemSingleWord(words[i].toLowerCase());
+			
+			// Try to get the 'count' of this stemmed result
+			Integer existingCount = wordCounts.get(stemmedWord);
+			
+			// If it is not in the HashMap, null will be returned.
+		    if(existingCount == null)
+		    	wordCounts.put(stemmedWord, 1);
+		    else
+		    	wordCounts.put(stemmedWord, existingCount + 1);
+		}
+		
+		return wordCounts;
+	}
+	
+	/** Test it out. */
 	public static void main(String[] args)
 	{
-		String testInput = "Jump jumper jumping dog doggone doge eat eatery eaten earthy earth earthen";
-		System.out.println(stemText(testInput));
+		String testInput = "Jump jumper jumping dog doggone doge "
+				+ "eat eatery eaten earthy earth earthen "
+				+ "jumped jumping eated eaten";
+		System.out.println("Test string: "+testInput+"\n");
+		
+		// System.out.println(stemText(testInput));
+		
+		Map<String,Integer> testWordCounts = stemmedWordsAndCount(testInput);
+		
+		// print it
+		System.out.format("%8s %s\n", "Word", "Count");
+		for (Map.Entry<String, Integer> entry : testWordCounts.entrySet())
+		{
+		    String key = entry.getKey();
+		    int value = entry.getValue();
+		    
+		    System.out.format("%8s %2d\n", key, value);
+		}
 	}
 }

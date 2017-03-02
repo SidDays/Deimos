@@ -2,10 +2,16 @@ package deimos.phase2;
 
 import deimos.common.DeimosConfig;
 
+/**
+ * Performs all the actions involved in Phase 2.
+ * 
+ * @author Siddhesh Karekar
+ */
 public class Phase2 {
+	
+	// TODO
 
 	/**
-	 * Performs all the actions involved in Phase 2 (INCOMPLETE)
 	 * Fetches the URL Texts for each URL in the history dump,
 	 * removes stop words from each of these,
 	 * applies Porter-Stemmer to stopword-free output
