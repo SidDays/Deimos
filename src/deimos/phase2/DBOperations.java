@@ -98,6 +98,28 @@ public class DBOperations
 		return stmt.executeUpdate(query);
 	}
 	
+	public void clearAllTables()
+	{
+		String queries[] = {
+				"TRUNCATE topics;",
+				"TRUNCATE topics_children;",
+				"TRUNCATE tf_weight;",
+				"TRUNCATE idf;"
+		};
+		
+		for(String query : queries)
+		{
+			try {
+				this.executeUpdate(query);
+			}
+			catch (SQLException sqle)
+			{
+				sqle.printStackTrace();
+			}
+		}
+		
+	}
+	
 	public static void main(String[] args)
 	{
 		try {
