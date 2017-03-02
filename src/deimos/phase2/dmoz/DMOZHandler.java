@@ -109,13 +109,18 @@ public class DMOZHandler extends DefaultHandler
         	// System.out.println("Link:\t"+link);
         	currentTopicURLs.add(currentURL);
         	
+        	// Inserting data
+
         	try {
-        		for(int i = 0; i < currentTopicURLs.size(); i++) {
-            		String query = "INSERT INTO TABLE topics (topic_name, url) VALUES (\"" + currentTopicName + "\",\"" + currentTopicURLs.get(i)+ "\")";
-            		System.out.println(dbo.executeUpdate(query));
-            	}
-			} 
+        		String query = "INSERT INTO topics (topic_name, url) VALUES ('" +
+        				currentTopicName + "','" + currentURL+ "')";
+
+        		//System.out.println(
+        				dbo.executeUpdate(query);
+        				//);
+        	} 
         	catch (SQLException e) {
+
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
