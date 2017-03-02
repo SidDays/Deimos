@@ -1,11 +1,17 @@
 package deimos.phase2;
 
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLHandshakeException;
 
 public class PageFetcher {
 	
@@ -15,27 +21,49 @@ public class PageFetcher {
 	 * @return a String containing the text of that web page.
 	 * @throws IOException while trying to get the Document for the Connection
 	 */
-	public static String fetchHTML(String url) throws IOException {
-
+	public static String fetchHTML(String url)
+			throws IOException,
+			IllegalArgumentException, SocketException,
+			SocketTimeoutException, HttpStatusException,
+			UnknownHostException, SSLHandshakeException {
+		
+		// TODO Re-throw all these exceptions
+		String html = "";
+		
 		try {
 			Document doc = Jsoup.connect(url).get();
 
 			// String html = doc.html();
 			// This above, returns the entire html
 
-			String html = doc.text();
+			
+			html = doc.text();
 			// This returns only the text
 
 			// further stripping required for stuff like '?'
-
-			return html;
 			
 		} catch (IllegalArgumentException e) {
-			System.out.println("ERROR: invalid URL - missed a protocol?\n");
+			System.out.println("Invalid URL - missed a protocol?\n");
 			e.printStackTrace();
 		}
+		catch (SocketException se) {
+			
+			System.err.println("SocketException, Malformed or blank URL?");
+		}
+		catch (SocketTimeoutException ste) {
+			System.err.println("SocketTimeout - text took too long to access.");
+		}
+		catch (HttpStatusException hse) {
+			System.err.println("HttpStatusException.");
+		}
+		catch (UnknownHostException uhe) {
+			System.err.println("UnknownHostException.");
+		}
+		catch (SSLHandshakeException sshe) {
+			System.err.println("SSLHandshakeException.");
+		}
 
-		return "";
+		return html;
 	}
 	
 	/**

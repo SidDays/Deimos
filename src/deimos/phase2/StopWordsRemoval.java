@@ -72,7 +72,7 @@ public class StopWordsRemoval {
 		String[] words = inputText.trim().toLowerCase().split(" ");
 		for(String word : words)
 		{
-			word = word.trim();
+			word = Phase2.getAlphabeticalString(word.trim());
 			if(word.length() > 0 && !stopWords.contains(word))
 			{
 				sb.append(word);
@@ -95,7 +95,7 @@ public class StopWordsRemoval {
 		List<String> inputWithoutStopWords = new ArrayList<>(inputWordsList);
 		for(String word : inputWithoutStopWords)
 		{
-			word = word.toLowerCase().trim();
+			word = Phase2.getAlphabeticalString(word.toLowerCase().trim());
 		}
 		inputWithoutStopWords.removeAll(stopWords);
 

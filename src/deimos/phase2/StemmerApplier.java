@@ -207,9 +207,6 @@ public class StemmerApplier {
 	{
 		HashMap<String,Integer> wordCounts = new HashMap<>();
 		
-		// clear stemmer buffer
-		stemmer.stem();
-		
 		String[] words = input.split(" ");
 		for(int i = 0; i < words.length; i++)
 		{	
@@ -239,9 +236,6 @@ public class StemmerApplier {
 	public static Map<String,Integer> stemmedWordsAndCount(List<String> inputTexts)
 	{
 		HashMap<String,Integer> wordCounts = new HashMap<>();
-
-		// clear stemmer buffer
-		stemmer.stem();
 
 		String[] words;
 
