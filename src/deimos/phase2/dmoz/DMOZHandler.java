@@ -1,11 +1,14 @@
 package deimos.phase2.dmoz;
 
 import java.util.List;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import deimos.phase2.DBOperations;
 
 /**
  * Reference:
@@ -49,12 +52,14 @@ public class DMOZHandler extends DefaultHandler
      * Doesn't seem to be required for now.
      */
     private StringBuilder content;
+    private DBOperations dbo;
     
-    public DMOZHandler() {
+    public DMOZHandler() throws SQLException {
         content = new StringBuilder();
         countTopics = 0;
         countURLs = 0;
         currentTopicURLs = new ArrayList<>();
+        dbo = new DBOperations();
     }
     
     @Override
@@ -104,8 +109,20 @@ public class DMOZHandler extends DefaultHandler
         	// System.out.println("Link:\t"+link);
         	currentTopicURLs.add(currentURL);
         	
+        	try {
+        		for(int i = 0; i < currentTopicURLs.size(); i++) {
+            		String query = "INSERT INTO TABLE topics (topic_name, url) VALUES (\"" + currentTopicName + "\",\"" + currentTopicURLs.get(i)+ "\")";
+            		System.out.println(dbo.executeUpdate(query));
+            	}
+			} 
+        	catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	        	
         	countURLs++;
         }
+        
         
         if(localName.equalsIgnoreCase("RDF")) {
     		System.out.println("\nTotal Topics parsed: "+countTopics);
