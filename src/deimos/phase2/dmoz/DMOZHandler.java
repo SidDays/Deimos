@@ -43,6 +43,8 @@ public class DMOZHandler extends DefaultHandler
 	 * is stored inside this.
 	 */	
 	private String currentURL;
+	private String parentName;
+	private String query;
 	
     private boolean inTopic = false;
     // private boolean inLink = false;
@@ -60,6 +62,7 @@ public class DMOZHandler extends DefaultHandler
         countURLs = 0;
         currentTopicURLs = new ArrayList<>();
         dbo = new DBOperations();
+        //dbo.clearAllTables();
     }
     
     @Override
@@ -75,12 +78,33 @@ public class DMOZHandler extends DefaultHandler
         	currentTopicName = atts.getValue("r:id");
         	content.setLength(0); // Not required, produces 'catid' numbers
         	currentTopicURLs.clear(); // Start a fresh list of URLs
+        	try {
+       		 	if(!currentTopicName.isEmpty()) {
+       		 		int lastIndexOfSlash = currentTopicName.lastIndexOf("/");
+	            	if(lastIndexOfSlash != -1) {
+	            		parentName = currentTopicName.substring(0, lastIndexOfSlash);
+	            	}
+	            	else {
+	            		System.out.println("---------------------");
+	            		parentName = null;
+	            	}
+	            	System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
+	            	query = "INSERT INTO topics_children (topic_name, child_name) VALUES ('" +
+	        				parentName + "','" + currentTopicName+ "')";
+	            	dbo.executeUpdate(query);
+       		 	}
+        	}
+        	catch (SQLException e) {
+
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         if(localName.equalsIgnoreCase("link") || 
         		localName.equalsIgnoreCase("link1"))
         {
         	// inLink = true;
-        	currentURL = atts.getValue("r:resource"); 
+        	currentURL = atts.getValue("r:resource");
         }
     }
     
@@ -111,8 +135,8 @@ public class DMOZHandler extends DefaultHandler
         	
         	// Inserting data
 
-        	try {
-        		String query = "INSERT INTO topics (topic_name, url) VALUES ('" +
+        	/*try {
+        		query = "INSERT INTO topics (topic_name, url) VALUES ('" +
         				currentTopicName + "','" + currentURL+ "')";
 
         		//System.out.println(
@@ -123,7 +147,7 @@ public class DMOZHandler extends DefaultHandler
 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
         	        	
         	countURLs++;
         }
