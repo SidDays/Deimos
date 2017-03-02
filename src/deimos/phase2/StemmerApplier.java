@@ -1,6 +1,7 @@
 package deimos.phase2;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -222,6 +223,44 @@ public class StemmerApplier {
 		    	wordCounts.put(stemmedWord, 1);
 		    else
 		    	wordCounts.put(stemmedWord, existingCount + 1);
+		}
+		
+		return wordCounts;
+	}
+	
+	/**
+	 * Returns the stemmed words and their counts as a key-count HashMap,
+	 * for a List of input text Strings.
+	 * Also converts all the words to lowercase.
+	 * 
+	 * @param inputTexts A List of the input text
+	 * @return a Map containing all the stemmed words and their occurences.
+	 */
+	public static Map<String,Integer> stemmedWordsAndCount(List<String> inputTexts)
+	{
+		HashMap<String,Integer> wordCounts = new HashMap<>();
+
+		// clear stemmer buffer
+		stemmer.stem();
+
+		String[] words;
+
+		for(String input : inputTexts)
+		{
+			words = input.split(" ");
+			for(int i = 0; i < words.length; i++)
+			{	
+				String stemmedWord = stemSingleWord(words[i].toLowerCase());
+
+				// Try to get the 'count' of this stemmed result
+				Integer existingCount = wordCounts.get(stemmedWord);
+
+				// If it is not in the HashMap, null will be returned.
+				if(existingCount == null)
+					wordCounts.put(stemmedWord, 1);
+				else
+					wordCounts.put(stemmedWord, existingCount + 1);
+			}
 		}
 		
 		return wordCounts;

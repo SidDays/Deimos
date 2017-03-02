@@ -101,29 +101,32 @@ public class DBOperations
 	public void clearAllTables()
 	{
 		String queries[] = {
-				"TRUNCATE topics;",
-				"TRUNCATE topics_children;",
-				"TRUNCATE tf_weight;",
-				"TRUNCATE idf;"
+				"TRUNCATE TABLE topics"
+				, "TRUNCATE TABLE topics_children"
+				, "TRUNCATE TABLE tf_weight"
+				, "TRUNCATE TABLE idf"
 		};
-		
-		for(String query : queries)
-		{
-			try {
-				this.executeUpdate(query);
-			}
-			catch (SQLException sqle)
+		try {
+			for(String query : queries)
 			{
-				sqle.printStackTrace();
+				stmt.executeUpdate(query);
+				System.out.println("Truncated the table "+
+				query.substring(query.indexOf("TABLE ")+6)+".");
 			}
 		}
-		
+		catch (SQLException sqle)
+		{
+			sqle.printStackTrace();
+		}
+
 	}
 	
 	public static void main(String[] args)
 	{
 		try {
 			DBOperations dbo = new DBOperations();
+			
+			dbo.clearAllTables();
 
 			// Close the connection.
 			try {

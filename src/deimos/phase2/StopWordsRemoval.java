@@ -3,6 +3,7 @@ package deimos.phase2;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,39 +21,23 @@ public class StopWordsRemoval {
 	
 	// TODO make this a resource
 	
-	/**
-	 * Initializes a Set, stopWords it gets from a file SW_FILE.
-	 * Goes through each file in URLS_DIR, and creates stopword-free output
-	 * which is stored into SWFREE_DIR
-	 */
-	public static void removeStopWordsFromURLTexts() {
+	static File stopWordFile;
+	static FileReader fileReader;
+	static BufferedReader bufferedReader;
+	static Set<String> stopWords; // using a Set prevents duplicates
+	
+	// Initialize list of stopwords
+	static
+	{
+		stopWords = new LinkedHashSet<>();
 		
-		File folder;
-		File[] listOfFiles;
-		Set<String> stopWords; // using a Set prevents duplicates
-		String[] lineWords;
-		String[] allFiles;
-		List<String> fileWords;
-		List<String> union;
-		List<String> intersection;
-		
-		try {
-			
-			folder = new File(deimos.phase2.TextFromURL.DIR_URLS);
-			listOfFiles = folder.listFiles();
-			stopWords = new LinkedHashSet<>();
-			fileWords = new ArrayList<>();
-			
-			allFiles = new String[listOfFiles.length];
-			for (int i = 0; i < listOfFiles.length; i++) {
-				allFiles[i] = listOfFiles[i].getName().toString();
-			}
-			
-			// Contains list of all stopwords to remove
-			File stopWordFile = new File(FILE_STOPWORDS);
-			FileReader fileReader = new FileReader(stopWordFile);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			
+		// Contains list of all stopwords to remove
+		stopWordFile = new File(FILE_STOPWORDS);
+		try
+		{
+			fileReader = new FileReader(stopWordFile);
+			bufferedReader = new BufferedReader(fileReader);
+
 			// add stopwords from external file to set
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
@@ -64,6 +49,86 @@ public class StopWordsRemoval {
 			}
 			fileReader.close();
 			
+			System.out.println("Stopwords loaded.");
+
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Returns a string without any stopwords in it.
+	 * @param inputText
+	 * @return
+	 */
+	public static String removeStopWordsFromString(String inputText) {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		String[] words = inputText.trim().toLowerCase().split(" ");
+		for(String word : words)
+		{
+			word = word.trim();
+			if(word.length() > 0 && !stopWords.contains(word))
+			{
+				sb.append(word);
+				sb.append(" ");
+			}
+		}
+		
+		return sb.toString();
+
+	}
+	
+	/**
+	 * Returns a list of words after removing all stopwords in it.
+	 * @param inputWordsList
+	 * @return
+	 */
+	public static List<String> removeStopWordsFromString(List<String> inputWordsList)
+	{
+
+		List<String> inputWithoutStopWords = new ArrayList<>(inputWordsList);
+		for(String word : inputWithoutStopWords)
+		{
+			word = word.toLowerCase().trim();
+		}
+		inputWithoutStopWords.removeAll(stopWords);
+
+		return inputWithoutStopWords;
+	}
+
+	/**
+	 * Initializes a Set, stopWords it gets from a file SW_FILE.
+	 * Goes through each file in URLS_DIR, and creates stopword-free output
+	 * which is stored into SWFREE_DIR
+	 */
+	public static void removeStopWordsFromURLTexts() {
+
+		File folder;
+		File[] listOfFiles;
+		
+		String[] lineWords;
+		String[] allFiles;
+		List<String> fileWords;
+		List<String> union;
+		List<String> intersection;
+		
+		try {
+			
+			folder = new File(deimos.phase2.TextFromURL.DIR_URLS);
+			listOfFiles = folder.listFiles();
+			fileWords = new ArrayList<>();
+			
+			allFiles = new String[listOfFiles.length];
+			for (int i = 0; i < listOfFiles.length; i++) {
+				allFiles[i] = listOfFiles[i].getName().toString();
+			}
+
 			// Create empty output directory if it doesn't exist
 			new File(DIR_SWFREE).mkdirs();
 			
