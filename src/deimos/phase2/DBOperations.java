@@ -23,6 +23,11 @@ public class DBOperations
 	Connection con;
 	Statement stmt;
 	
+	/** By default, connect using configured username/pw */
+	public DBOperations() throws SQLException {
+		connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
+	}
+	
 	/**
 	 * Estabilishes a connection with the Oracle 11g XE database.
 	 * @param username
@@ -95,21 +100,22 @@ public class DBOperations
 	
 	public static void main(String[] args)
 	{
-		DBOperations dbo = new DBOperations();
-		
 		try {
-			dbo.connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
+			DBOperations dbo = new DBOperations();
+
+			// Close the connection.
+			try {
+				dbo.con.close();	
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch(Exception e) { e.printStackTrace(); }
-		
-		
-		// Close the connection.
-		try {
-			dbo.con.close();	
-		}
-		catch (SQLException e)
-		{
+		catch(Exception e) {
 			e.printStackTrace();
 		}
+
+
 	}
 }
