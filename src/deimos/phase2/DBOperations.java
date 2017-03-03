@@ -23,6 +23,23 @@ public class DBOperations
 	public Connection con;
 	private Statement stmt;
 	
+	/**
+	 * Close the connection before exiting.
+	 */
+	@Override
+	protected void finalize()
+	{
+		// Close the connection.
+		try {
+			con.close();
+			System.out.println("Connection to database closed successfully");
+		}
+		catch (SQLException e)
+		{
+			System.err.println("Failed to close connection to database.");
+		}
+	}
+	
 	/** By default, connect using configured username/pw */
 	public DBOperations() throws SQLException {
 		connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
@@ -98,27 +115,26 @@ public class DBOperations
 		return stmt.executeUpdate(query);
 	}
 	
-	public void clearAllTables()
+	public void truncateTable(String tableName)
 	{
-		String queries[] = {
-				"TRUNCATE TABLE topics"
-				, "TRUNCATE TABLE topics_children"
-				, "TRUNCATE TABLE tf_weight"
-				, "TRUNCATE TABLE idf"
-		};
 		try {
-			for(String query : queries)
-			{
-				stmt.executeUpdate(query);
-				System.out.println("Truncated the table "+
-				query.substring(query.indexOf("TABLE ")+6)+".");
-			}
+			String query = String.format("TRUNCATE TABLE %s", tableName);
+			// System.out.println(query);
+			this.executeUpdate(query);
+			System.out.println("Truncated the table "+ tableName +".");
 		}
-		catch (SQLException sqle)
-		{
-			sqle.printStackTrace();
+		catch (SQLException e) {
+			e.printStackTrace();
 		}
-
+	}
+	
+	
+	public void truncateAllTables()
+	{
+		this.truncateTable("topics");
+		this.truncateTable("topics_children");
+		this.truncateTable("tf_weight");
+		this.truncateTable("idf");
 	}
 	
 	public static void main(String[] args)
@@ -126,16 +142,9 @@ public class DBOperations
 		try {
 			DBOperations dbo = new DBOperations();
 			
-			dbo.clearAllTables();
+			dbo.truncateAllTables();
 
-			// Close the connection.
-			try {
-				dbo.con.close();	
-			}
-			catch (SQLException e)
-			{
-				e.printStackTrace();
-			}
+			
 		}
 		catch(Exception e) {
 			e.printStackTrace();

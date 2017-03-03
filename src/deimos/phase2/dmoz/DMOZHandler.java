@@ -76,7 +76,7 @@ public class DMOZHandler extends DefaultHandler
         countURLs = 0;
         currentTopicURLs = new ArrayList<>();
         dbo = new DBOperations();
-        dbo.clearAllTables();
+        dbo.truncateAllTables();
         currentTopicTermCounts = new HashMap<>();
     }
     

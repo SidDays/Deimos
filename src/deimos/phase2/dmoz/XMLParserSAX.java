@@ -42,11 +42,17 @@ public class XMLParserSAX
             FileInputStream in = new FileInputStream(dataPath);
             InputSource source = new InputSource(in);
             
+            long startTime = System.currentTimeMillis();
+            
             // parse the data
             parser.parse(source);
             
             // print an empty line under the data
             System.out.println("Parsed successfully!");
+            
+            long stopTime = System.currentTimeMillis();
+			System.out.format("Link insertion, page fetching and TF calculation completed in %.3fs.\n",
+					(stopTime-startTime)/1000f);
             
             // close the file
             in.close();
