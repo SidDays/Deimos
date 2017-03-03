@@ -22,7 +22,7 @@ public class DeimosConfig {
 	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
 	final public static String FILE_XML_DMOZ =
 			// "E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
-			"C:/Users/Siddhesh/Downloads/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
+			"resources/shopping.rdf.u8";
 	
 	// Phase 1
 	public static final String DIR_OUTPUT = "output";
@@ -75,7 +75,7 @@ public class DeimosConfig {
 	/**
 	 * If true, uses the sample xml instead of the full DMOZ data.
 	 */
-	public static final boolean OPTION_USE_EXAMPLE_DMOZ = true;
+	public static final boolean OPTION_USE_EXAMPLE_DMOZ = false;
 
 	/**
 	 * If true, the texts of URLs are stored by using a hashed filename.

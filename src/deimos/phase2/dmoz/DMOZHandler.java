@@ -27,6 +27,14 @@ import deimos.phase2.StopWordsRemoval;
 
 public class DMOZHandler extends DefaultHandler
 {
+	/** Not more than these many links, whose pages were able to be fetched,
+	 * should be added to the databse.
+	 */
+	public static final int LIMIT_WORKING_LINKS = 10;
+	
+	/** Go down only as many as these levels. */
+	public static final int LIMIT_DEPTH = 5;
+	
 	/** The total number of Topics parsed. No use. */
 	private int countTopics;
 	
@@ -92,36 +100,44 @@ public class DMOZHandler extends DefaultHandler
         {
         	inTopic = true;
         	currentTopicName = atts.getValue("r:id");
-        	content.setLength(0); // Not required, produces 'catid' numbers
-        	currentTopicURLs.clear(); // Start a fresh list of URLs
-        	currentTopicTermCounts.clear();
         	
-        	try
+        	if(getDepth(currentTopicName) <= LIMIT_DEPTH)
         	{
-        		// Populate topics_children (parent-child hierarchy)
-       		 	if(!currentTopicName.isEmpty())
-       		 	{
-       		 		int lastIndexOfSlash = currentTopicName.lastIndexOf("/");
-	            	if(lastIndexOfSlash != -1) {
-	            		parentName = currentTopicName.substring(0, lastIndexOfSlash);
-	            	}
-	            	else {
-	            		parentName = "null";
-	            	}
-	            	
-	            	// System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
-	            	
-	            	query = "INSERT INTO topics_children (topic_name, child_name) VALUES ('" +
-	        				parentName + "','" + currentTopicName+ "')";
-	            	dbo.executeUpdate(query);
 
-       		 	}
+        		content.setLength(0); // Not required, produces 'catid' numbers
+        		currentTopicURLs.clear(); // Start a fresh list of URLs
+        		currentTopicTermCounts.clear();
+
+        		try
+        		{
+        			// Populate topics_children (parent-child hierarchy)
+        			if(!currentTopicName.isEmpty())
+        			{
+        				int lastIndexOfSlash = currentTopicName.lastIndexOf("/");
+        				if(lastIndexOfSlash != -1) {
+        					parentName = currentTopicName.substring(0, lastIndexOfSlash);
+        				}
+        				else {
+        					parentName = "null";
+        				}
+
+        				// System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
+
+        				query = "INSERT INTO topics_children (topic_name, child_name) VALUES ('" +
+        						parentName + "','" + currentTopicName+ "')";
+        				dbo.executeUpdate(query);
+
+        			}
+        		}
+        		catch (SQLException e) {
+
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
         	}
-        	catch (SQLException e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+        	else {
+        		// beyond limit lmao
+        	}
         }
         if(localName.equalsIgnoreCase("link") || 
         		localName.equalsIgnoreCase("link1"))
@@ -178,75 +194,81 @@ public class DMOZHandler extends DefaultHandler
         if(localName.equalsIgnoreCase("link") || 
         		localName.equalsIgnoreCase("link1"))
         {
-        	// inLink = false;
-        	// System.out.println("Link:\t"+link);
-        	
-        	// DON'T ADD THE LINK UNLESS EVERYTHING GOES FINE!
-        	
-        	// Populate topics (topics and URLs)
-        	try {
-        		query = "INSERT INTO topics (topic_name, url) VALUES ('" +
-        				currentTopicName + "','" + currentURL+ "')";
-
-        		dbo.executeUpdate(query);
-        	} 
-        	catch (SQLException e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        	
-        	// Fetch current web page text
-        	try
+        	// After collecting certain number of working URLs, stop
+        	if(currentTopicURLs.size() < LIMIT_WORKING_LINKS)
         	{
-        		// System.out.println();
-        		System.out.println("Current URL: "+currentURL);
-				currentPageText = PageFetcher.fetchHTML(currentURL);
-				if(currentPageText.isEmpty())
-					throw new Exception();
-				
-				currentTopicURLs.add(currentURL);
-				
-				// System.out.format("Current page text: %s\n", currentPageText);
-				
-				// Remove its stopwords
-				currentPageText =
-						StopWordsRemoval.removeStopWordsFromString(currentPageText);
-				// System.out.format("Stopwords removed: %s\n", currentPageText);
-				
-				// Get its porter-stemmed result
-				Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentPageText);
-				for (Map.Entry<String, Integer> entry : porter.entrySet())
-				{
-					String stemmedWord = entry.getKey();
-					Integer porterCount = entry.getValue();
-					
-					// Update currentTopicTermCounts
-					// If it is not in the HashMap, null will be returned.
-					Integer existingCount = currentTopicTermCounts.get(stemmedWord);
-					if(existingCount == null)
-						currentTopicTermCounts.put(stemmedWord, 1);
-					else
-						currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
-				}
-				// System.out.println("Added all its Porter-Stemmer pairs.");
-				
-				
-			} catch (IOException e) {
+        		// inLink = false;
+        		// System.out.println("Link:\t"+link);
 
-				e.printStackTrace();
-			} catch (Exception ex) {
-				System.err.println("Skipping this URL.");
-			}
-        	        	
-        	countURLs++;
+        		// DON'T ADD THE LINK UNLESS EVERYTHING GOES FINE!
+
+        		// Populate topics (topics and URLs)
+        		try {
+        			query = "INSERT INTO topics (topic_name, url) VALUES ('" +
+        					currentTopicName + "','" + currentURL+ "')";
+
+        			dbo.executeUpdate(query);
+        		} 
+        		catch (SQLException e) {
+
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
+
+        		// Fetch current web page text
+        		try
+        		{
+        			// System.out.println();
+        			System.out.println("Current URL: "+currentURL);
+        			currentPageText = PageFetcher.fetchHTML(currentURL);
+        			if(currentPageText.isEmpty())
+        				throw new Exception();
+
+        			currentTopicURLs.add(currentURL);
+
+        			// System.out.format("Current page text: %s\n", currentPageText);
+
+        			// Remove its stopwords
+        			currentPageText =
+        					StopWordsRemoval.removeStopWordsFromString(currentPageText);
+        			// System.out.format("Stopwords removed: %s\n", currentPageText);
+
+        			// Get its porter-stemmed result
+        			Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentPageText);
+        			for (Map.Entry<String, Integer> entry : porter.entrySet())
+        			{
+        				String stemmedWord = entry.getKey();
+        				Integer porterCount = entry.getValue();
+
+        				// Update currentTopicTermCounts
+        				// If it is not in the HashMap, null will be returned.
+        				Integer existingCount = currentTopicTermCounts.get(stemmedWord);
+        				if(existingCount == null)
+        					currentTopicTermCounts.put(stemmedWord, 1);
+        				else
+        					currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
+        			}
+        			// System.out.println("Added all its Porter-Stemmer pairs.");
+
+
+        		} catch (IOException e) {
+
+        			e.printStackTrace();
+        		} catch (Exception ex) {
+        			System.err.println("Skipping this URL.");
+        		}
+
+        		countURLs++;
+        	}
         }
-        
-        
+
+
+        // End of whole XML/rdf.u8
         if(localName.equalsIgnoreCase("RDF")) {
-    		System.out.println("\nTotal Topics parsed: "+countTopics);
-    		System.out.println("Total URLs parsed: "+countURLs);
-    	}
+        	System.out.println("\nTotal Topics parsed: "+countTopics);
+        	System.out.println("Total URLs parsed: "+countURLs);
+        }
+
     }
     
     
@@ -257,4 +279,22 @@ public class DMOZHandler extends DefaultHandler
     	if(inTopic)
     		content.append(ch, start, length);
     }
+    
+    
+    public static int getDepth(String topicName)
+    {
+    	int level = 0;
+    	
+    	for(int i = 0; i < topicName.length(); i++)
+    	{
+    		char ch = topicName.charAt(i);
+    		if(ch == '/')
+    		{
+    			level++;
+    		}
+    	}
+    	
+    	return level;
+    }
+    
 }
