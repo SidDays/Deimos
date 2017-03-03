@@ -20,8 +20,8 @@ import deimos.common.DeimosConfig;
  */
 public class DBOperations
 {
-	Connection con;
-	Statement stmt;
+	public Connection con;
+	private Statement stmt;
 	
 	/** By default, connect using configured username/pw */
 	public DBOperations() throws SQLException {
