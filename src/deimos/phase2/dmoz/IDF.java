@@ -32,11 +32,23 @@ public class IDF
 				idfComputeCount, TimeUtils.formatHmss(stopTime-startTime));
 	}
 	
-	private String getETA()
+	/*private String getETA()
+	{
+		// TODO SOMETHING IS WRONG!!
+		
+		stopTime = System.currentTimeMillis();
+		long elapsed = stopTime-startTime;
+		long totalTimeRequired = (elapsed * totalTopics)/idfComputeCount;
+		
+		return "ETA: "+TimeUtils.formatHmss(totalTimeRequired - elapsed);
+	}*/
+	
+	private String getRatePerMinute()
 	{
 		stopTime = System.currentTimeMillis();
-		long duration = stopTime-startTime;
-		return TimeUtils.formatHmss((duration * totalTopics)/idfComputeCount);
+		long elapsed = stopTime-startTime;
+		double rate = idfComputeCount/(elapsed/60000.0);
+		return String.format("Rate: %.3f terms/m", rate);
 	}
 	
 	void computeIDF()
@@ -96,8 +108,8 @@ public class IDF
 				
 				dbo.executeUpdate(query);
 				idfComputeCount++;
-				System.out.format("%6d - %s (%d/%d) IDF = %.3f, ETA: %s\n",
-						idfComputeCount, termName, topicsWithTerm, totalTopics, idf, getETA());
+				System.out.format("%6d - %s (%d/%d) IDF = %.3f, %s\n",
+						idfComputeCount, termName, topicsWithTerm, totalTopics, idf, getRatePerMinute());
 			}
 			
 		} catch (SQLException e) {
