@@ -5,23 +5,45 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 public class IDF
 {
-	public static void main(String[] args)
+	double idf;
+	
+	int idfComputeCount;
+	int totalTopics;
+	int topicsWithTerm;
+	String query;
+	ResultSet rs;
+	DBOperations dbo;
+	long startTime, stopTime;
+	
+	public IDF() {
+		startTime = System.currentTimeMillis();
+		idfComputeCount = 0;
+	}
+	
+	@Override
+	protected void finalize() {
+		stopTime = System.currentTimeMillis();
+		System.out.format("IDF Calculation completed for %d terms in %s.\n",
+				idfComputeCount, TimeUtils.formatHmss(stopTime-startTime));
+	}
+	
+	private String getETA()
+	{
+		stopTime = System.currentTimeMillis();
+		long duration = stopTime-startTime;
+		return TimeUtils.formatHmss((duration * totalTopics)/idfComputeCount);
+	}
+	
+	void computeIDF()
 	{
 		try {
-			DBOperations dbo = new DBOperations();
+			dbo = new DBOperations();
 			dbo.truncateTable("IDF");
-			
-			double idf;
-			int totalTopics = 0;
-			// int index = 1;
-			int topicsWithTerm = 0;
-			// String termName;
-			String query;
-			ResultSet rs;
 			
 			rs = dbo.executeQuery("SELECT DISTINCT term FROM tf_weight");
 			
@@ -32,13 +54,20 @@ public class IDF
 		        terms.add(currentTerm);
 			}
 			
-			// System.out.println("No. of distinct terms: "+terms.size());
-			int idfComputeCount = 0;
-			/*for(int i = 0; i < terms.size(); i++) {
-				System.out.println(terms.get(i));
-			}*/
+			System.out.println("\nNo. of distinct terms: "+terms.size());
 			
-			long startTime = System.currentTimeMillis();
+			
+			int disp = 10;
+			int ubound = Math.min(10, terms.size());
+			System.out.print("First "+disp+" terms: ");
+			for(int i = 0; i < ubound; i++) {
+				System.out.print(terms.get(i));
+				if(i == ubound-1)
+					System.out.println(".");
+				else
+					System.out.print(", ");
+			}
+			
 			
 			System.out.println("Computing IDF...");
 			for(String termName : terms)
@@ -67,17 +96,18 @@ public class IDF
 				
 				dbo.executeUpdate(query);
 				idfComputeCount++;
+				System.out.format("%6d - %s (%d/%d) IDF = %.3f, ETA: %s\n",
+						idfComputeCount, termName, topicsWithTerm, totalTopics, idf, getETA());
 			}
 			
-			long stopTime = System.currentTimeMillis();
-			System.out.format("IDF Calculation completed for %d terms in %.3fs.\n",
-					idfComputeCount, (stopTime-startTime)/1000f);
-			
-			
-			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args)
+	{
+		IDF idf = new IDF();
+		idf.computeIDF();
 	}
 }

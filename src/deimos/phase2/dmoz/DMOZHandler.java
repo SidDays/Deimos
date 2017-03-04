@@ -30,7 +30,7 @@ public class DMOZHandler extends DefaultHandler
 	/** Not more than these many links, whose pages were able to be fetched,
 	 * should be added to the databse.
 	 */
-	public static final int LIMIT_WORKING_LINKS = 10;
+	public static final int LIMIT_WORKING_LINKS = 5;
 	
 	/** Go down only as many as these levels. */
 	public static final int LIMIT_DEPTH = 5;
