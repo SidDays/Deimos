@@ -2,17 +2,25 @@ package deimos.phase2.dmoz;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
 import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
+/**
+ * Inverse Document Frequency (IDF) operations.
+ * 
+ * @author Bhushan Pathak
+ * @author Siddhesh Karekar
+ */
 public class IDF
 {
 	double idf;
 	
 	int idfComputeCount;
+	int resumeIndex;
 	int totalTopics;
 	int topicsWithTerm;
 	String query;
@@ -23,6 +31,7 @@ public class IDF
 	public IDF() {
 		startTime = System.currentTimeMillis();
 		idfComputeCount = 0;
+		resumeIndex = 0;
 	}
 	
 	@Override
@@ -47,15 +56,29 @@ public class IDF
 	{
 		stopTime = System.currentTimeMillis();
 		long elapsed = stopTime-startTime;
-		double rate = idfComputeCount/(elapsed/60000.0);
+		double rate = (idfComputeCount-resumeIndex)/(elapsed/60000.0);
 		return String.format("Rate: %.3f terms/m", rate);
 	}
 	
-	void computeIDF()
+	/**
+	 * Selects distinctly all the terms in tf_weight, and prepares a List.
+	 * Computes IDF for all the terms in that list, and inserts them into idf table.
+	 * You can specify a resumeIndex to not have to do the entire process at one go.
+	 * <br>
+	 * <br>
+	 * In any case, the term is a primary key of IDF, so duplicate entries will not be inserted.
+	 * Thus, if the tf_weight table is updated, you MUST specify the resumeIndex as -1 to
+	 * truncate the table beforehand!
+	 * 
+	 * @param resumeIndex If resumeIndex == -1, truncates the tables and starts afresh;
+	 * If resumeIndex == 0, no change;
+	 * If resumeIndex > 0, it will start only from the index mentioned.
+	 */
+	void computeIDF(int resumeIndexParam) // Resume with CARE!
 	{
+		this.resumeIndex = resumeIndexParam;
 		try {
 			dbo = new DBOperations();
-			dbo.truncateTable("IDF");
 			
 			rs = dbo.executeQuery("SELECT DISTINCT term FROM tf_weight");
 			
@@ -82,8 +105,23 @@ public class IDF
 			
 			
 			System.out.println("Computing IDF...");
-			for(String termName : terms)
+			
+			// Resume facility
+			if(resumeIndex > 0) {
+				System.out.format("The processing will resume from term %d of %d (%.2f%s complete).\n",
+						resumeIndex, terms.size(), (resumeIndex*100.0f/terms.size()), "%");
+				System.out.println("idf table was not truncated. "
+						+ "Make sure tf_weight was not changed beforehand!");
+			}
+			else if(resumeIndex == -1) {
+				dbo.truncateTable("IDF");
+				resumeIndex++;
+			}
+			System.out.println();
+			
+			for(idfComputeCount = resumeIndex; idfComputeCount < terms.size(); idfComputeCount++)
 			{
+				String termName = terms.get(idfComputeCount);
 				// System.out.println("Term-name: "+termName);
 				
 				ResultSet rs2 = dbo.executeQuery(
@@ -106,10 +144,17 @@ public class IDF
 				idf = Math.log((double)totalTopics/topicsWithTerm);
 				query = "INSERT INTO idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
 				
-				dbo.executeUpdate(query);
-				idfComputeCount++;
-				System.out.format("%6d - %s (%d/%d) IDF = %.3f, %s\n",
-						idfComputeCount, termName, topicsWithTerm, totalTopics, idf, getRatePerMinute());
+				try {
+					dbo.executeUpdate(query);
+					System.out.format("%6d - %s (%d/%d) IDF = %.3f, %s\n",
+							(idfComputeCount+1), termName, topicsWithTerm, totalTopics, idf, getRatePerMinute());
+					
+				}
+				catch (SQLIntegrityConstraintViolationException sqle) {
+					System.err.format("%6d - %s (%d/%d) IDF = %.3f (Already in database!)\n",
+							(idfComputeCount+1), termName, topicsWithTerm, totalTopics, idf);
+				}
+
 			}
 			
 		} catch (SQLException e) {
@@ -117,9 +162,21 @@ public class IDF
 		}
 	}
 	
+	/**
+	 * Selects distinctly all the terms in tf_weight, and prepares a List.
+	 * Computes IDF for all the terms in that list, and inserts them into idf table.
+	 * <br>
+	 * <br>
+	 * Same as computeIDF(0) - no truncate or resume.
+	 */
+	void computeIDF() {
+		this.resumeIndex = 0;
+		computeIDF(0);
+	}
+	
 	public static void main(String[] args)
 	{
 		IDF idf = new IDF();
-		idf.computeIDF();
+		idf.computeIDF(21183); // Where to resume from
 	}
 }
