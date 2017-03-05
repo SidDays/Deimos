@@ -1,6 +1,7 @@
 package deimos.common;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -58,6 +59,16 @@ public class ProcessFileUtils {
 	 */
 	public static String sanitizeFilename(String inputName) {
 	    return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+	}
+	
+	/**
+	 * Create a directory in the specified location if it doesn't already exist
+	 * @param dirPath
+	 * @return true if and only if the directory was created,
+	 * along with all necessary parent directories; false otherwise 
+	 */
+	public static boolean createDirectoryIfNotExists(String dirPath) {
+		return new File(dirPath).mkdirs(); 
 	}
 
 }
