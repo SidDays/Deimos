@@ -83,7 +83,6 @@ public class DBOperations
 		return false;
 	}
 	
-	// TODO
 	/**
 	 * For select queries.
 	 * @param query
@@ -115,6 +114,8 @@ public class DBOperations
 		return stmt.executeUpdate(query);
 	}
 	
+	/** Truncate the specified table.
+	 * Use with extreme caution! */
 	public void truncateTable(String tableName)
 	{
 		try {
@@ -128,8 +129,10 @@ public class DBOperations
 		}
 	}
 	
-	
-	public void truncateAllTables()
+	/** Truncate all tables used to build the reference ontology.
+	 * Use with extreme caution!
+	 */
+	public void truncateAllReferenceTables()
 	{
 		this.truncateTable("topics");
 		this.truncateTable("topics_children");
@@ -137,14 +140,24 @@ public class DBOperations
 		this.truncateTable("idf");
 	}
 	
+	/** Truncate all tables used in user data processing.
+	 * Use with extreme caution!
+	 */
+	public void truncateAllUserTables()
+	{
+		this.truncateTable("tf_users");
+		this.truncateTable("users");
+		this.truncateTable("similarity");
+	}
+	
+	/** Test purposes only... Remove later! */
 	public static void main(String[] args)
 	{
 		try {
+			@SuppressWarnings("unused")
 			DBOperations dbo = new DBOperations();
 			
-			dbo.truncateAllTables();
-
-			
+			// dbo.truncateAllReferenceTables();
 		}
 		catch(Exception e) {
 			e.printStackTrace();

@@ -5,19 +5,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.SSLHandshakeException;
-
-import org.jsoup.HttpStatusException;
 
 import deimos.common.DeimosConfig;
 import deimos.phase2.DBOperations;
@@ -41,23 +34,81 @@ public class UserOperations {
 	
 	static String query;
 	
+	/** Store all URLs in user history. */
 	static List<String> urls = new ArrayList<String>();
 	
-	static List<String> urlTimestamp = new ArrayList<String>();
+	/** Store all timestamps in user history for respective URLs. */
+	static List<String> urlTimeStamps = new ArrayList<String>();
 	
-	static Map<String, Integer> currentTopicTermCounts;
+	static Map<String, Integer> currentURLTermCounts;
 	
 	static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
 	static int user_id = 1;
 	
 	static DBOperations dbo;
-	
-	public static void main(String[] args) {
-		fetchTextFromURL();
+
+	/**
+	 * Prepare the List of urls in user browsing history;
+	 * load the history text file and parse it.
+	 * @param historyFileName The location of the history text file.
+	 */
+	public static void prepareHistory(String historyFileName)
+	{
+		File historyFile = new File(historyFileName); 
+		
+		try {
+			FileReader fileReader = new FileReader(historyFile);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String line;
+
+			while ((line = bufferedReader.readLine()) != null) {
+				urls.add(line);
+			}
+			fileReader.close();
+			
+			// remove the first line that has the number of URLs
+			urls.remove(0);
+			
+			// Convert the URLs into URL + Timestamp
+			for (int i = 0; i < urls.size(); i++)
+			{
+				urlTimestampSubst = urls.get(i).substring(0, urls.get(i).indexOf('|'));
+				urlTimeStamps.add(urlTimestampSubst);
+
+				urlSubst = urls.get(i).substring(urls.get(i).indexOf('|') + 1);
+				
+				// System.out.println(urlTimestampSubst+" "+urlSubst);
+				
+				// Replace the URL+Timestamp with only URL
+				urls.set(i, urlSubst);
+			}
+			System.out.format("Finished parsing user history of %d URL(s).\n", urls.size());
+			
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	static void tfTableInsertion() {
-		try {
+	/**
+	 * Prepare the List of urls in user browsing history,
+	 * by default, use the exported output text file.
+	 */
+	public static void prepareHistory()
+	{ 
+		prepareHistory(DeimosConfig.FILE_OUTPUT_HISTORY);
+	}
+	
+	static void tfTableInsertion()
+	{
+		try
+		{
+			currentURLTermCounts.clear();
 			Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentURLText);
 			for (Map.Entry<String, Integer> entry : porter.entrySet())
 			{
@@ -66,16 +117,20 @@ public class UserOperations {
 
 				// Update currentTopicTermCounts
 				// If it is not in the HashMap, null will be returned.
-				Integer existingCount = currentTopicTermCounts.get(stemmedWord);
+				Integer existingCount = currentURLTermCounts.get(stemmedWord);
 				if(existingCount == null)
-					currentTopicTermCounts.put(stemmedWord, 1);
+					currentURLTermCounts.put(stemmedWord, 1);
 				else
-					currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
+					currentURLTermCounts.put(stemmedWord, existingCount + porterCount);
 			}
 			
-			System.out.println(Collections.singletonList(currentTopicTermCounts));
+			// Print currentTopicTermCounts
+			// System.out.println(Collections.singletonList(currentTopicTermCounts));
 			
-			for (Map.Entry<String, Integer> entry : currentTopicTermCounts.entrySet())
+			// Put this stuff into the table
+			int termsAlreadyInTable = 0;
+			int totalTerms = currentURLTermCounts.size();
+			for (Map.Entry<String, Integer> entry : currentURLTermCounts.entrySet())
 			{
 				String term = entry.getKey();
 				
@@ -91,124 +146,101 @@ public class UserOperations {
 						tf
 						);
 				
-				dbo.executeUpdate(query);
+				try
+				{
+					dbo.executeUpdate(query);
+				}
+				catch (SQLIntegrityConstraintViolationException sicve) {
+					termsAlreadyInTable++;
+				}
 			}
+			if(termsAlreadyInTable > 0)
+				System.out.format("%d/%d URL terms already in tf_users.\n", termsAlreadyInTable, totalTerms);
+			else
+				System.out.println("Inserted into tf_users.");
 		}
 		catch (SQLException e) {
+			
 			// e.printStackTrace();
 			System.out.println(e);
 		}
 	}
-	
-	static void usersTableInsertion() {
+
+	public static void userAndTFTableInsertion()
+	{
+		// Initialize everything
+		currentURLTermCounts = new HashMap<>();
+
 		try {
-			for (int i = 0; (i < noOfURLs && i < urls.size()) ; i++)
+			dbo = new DBOperations();
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+
+		// USE WITH CAUTION!
+		dbo.truncateAllUserTables();
+
+		// Prepare the urls List.
+		prepareHistory();
+		
+		System.out.println("\nFetching pages and populating users and tf_users...");
+		for (int i = 0; (i < noOfURLs && i < urls.size()) ; i++)
+		{
+			currentTimestamp = urlTimeStamps.get(i);
+
+			currentURL = urls.get(i);
+
+			// Only for printing
+			int displayLen = 40;
+			String displayURL = currentURL.replace("https://","").replace("http://","");
+			if(displayURL.length() < displayLen)
+				displayURL = String.format("%"+displayLen+"s", displayURL);
+			else
+				displayURL = displayURL.substring(0, displayLen-3)+"...";
+			
+			System.out.format("%6d | ", i);
+			System.out.print(currentTimestamp+" | "+displayURL + " | ");
+			
+			try
 			{
-				currentTimestamp = urlTimestamp.get(i);
-
-				currentURL = urls.get(i);
-
-				/*currentURL = currentURL.substring(0, 
-						Math.min(currentURL.length(), 32));*/
-
-				System.out.println(currentTimestamp+" | "+currentURL);
 				currentURLText = PageFetcher.fetchHTML(currentURL);
+				if(currentURLText.isEmpty())
+    				throw new Exception();
 
 				currentURLText = StopWordsRemoval.removeStopWordsFromString(currentURLText);
 
-				System.out.println();
-				System.out.println("URL Text:");
-				System.out.println(currentURLText);
-				System.out.println();
-
-				query = "INSERT INTO users (user_td, url_timestamp, url) VALUES ('"+ 
-						user_id + "','" + "TO_TIMESTAMP('"+currentTimestamp + "','" + "'YYYY-MM-DD HH24:MI:SS'"+"')"+"','"+ currentURLText +"')";
+				// System.out.println("URL Text:"+currentURLText);
 
 				query = String.format(
-						"INSERT INTO users (user_id, url_timestamp, url) VALUES (%d, '%s', '%s')",
-						user_id,
-						currentTimestamp,
-						currentURL
-						);
+						"INSERT INTO users (user_id, url_timestamp, url) "
+						+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s')",
+						user_id, currentTimestamp, currentURL);
 
-				dbo.executeUpdate(query);	
+				// System.out.println(query);
+				try
+				{
+					dbo.executeUpdate(query);
+					System.out.print("Inserted into users | ");
+				}
+				catch (SQLIntegrityConstraintViolationException sicve) {
+					System.out.print("Already in users | ");
+				}
+
 				tfTableInsertion();
 			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			} catch (Exception ex) {
+				System.out.println("Skipping this URL.");
+			}
 		}
-		catch (SQLException e) {
-			// e.printStackTrace();
-			System.out.println(e);
-		} catch (SocketTimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SSLHandshakeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HttpStatusException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		System.out.println();
+		System.out.println("\nFinished fetching pages and populating users and tf_users!");
 	}
-	
-	public static void fetchTextFromURL() {
-		try {
-			currentTopicTermCounts = new HashMap<>();
-			dbo = new DBOperations();
-			//dbo.truncateAllTables();
-			File historyFile = new File("export-history.txt"); 
 
-			FileReader fileReader = new FileReader(historyFile);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-			String line;
-
-			while ((line = bufferedReader.readLine()) != null) {
-				urls.add(line);
-			}
-			fileReader.close();
-
-			// remove the first line that has the number of URLs
-			urls.remove(0);
-
-			System.out.println("---------------------------------------------");
-			for (int i = 0; i < noOfURLs; i++) {
-
-				urlTimestampSubst = urls.get(i).substring(0, urls.get(i).indexOf('|'));
-				System.out.println(urlTimestampSubst);
-				urlTimestamp.add(urlTimestampSubst);
-
-				urlSubst = urls.get(i).substring(urls.get(i).indexOf('|') + 1);
-				System.out.println(urlSubst);
-				System.out.println("---------------------------------------------");
-				urls.set(i, urlSubst);
-			}
-			
-			usersTableInsertion();
-			
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (Exception ex) {
-			System.err.println("Skipping this URL.");
-		}
-
+	public static void main(String[] args) {
+		userAndTFTableInsertion();
 	}
 }

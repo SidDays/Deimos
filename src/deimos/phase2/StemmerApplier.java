@@ -170,7 +170,7 @@ public class StemmerApplier {
 		}
 		
 		stemmer.stem();
-		
+		 
 		return stemmer.toString();
 	}
 	
@@ -211,15 +211,17 @@ public class StemmerApplier {
 		for(int i = 0; i < words.length; i++)
 		{	
 			String stemmedWord = stemSingleWord(words[i].toLowerCase());
-			
-			// Try to get the 'count' of this stemmed result
-			Integer existingCount = wordCounts.get(stemmedWord);
-			
-			// If it is not in the HashMap, null will be returned.
-		    if(existingCount == null)
-		    	wordCounts.put(stemmedWord, 1);
-		    else
-		    	wordCounts.put(stemmedWord, existingCount + 1);
+			if(!invalidStemmedWord(stemmedWord))
+			{
+				// Try to get the 'count' of this stemmed result
+				Integer existingCount = wordCounts.get(stemmedWord);
+
+				// If it is not in the HashMap, null will be returned.
+				if(existingCount == null)
+					wordCounts.put(stemmedWord, 1);
+				else
+					wordCounts.put(stemmedWord, existingCount + 1);
+			}
 		}
 		
 		return wordCounts;
@@ -245,19 +247,38 @@ public class StemmerApplier {
 			for(int i = 0; i < words.length; i++)
 			{	
 				String stemmedWord = stemSingleWord(words[i].toLowerCase());
+				if(!invalidStemmedWord(stemmedWord))
+				{
+					// Try to get the 'count' of this stemmed result
+					Integer existingCount = wordCounts.get(stemmedWord);
 
-				// Try to get the 'count' of this stemmed result
-				Integer existingCount = wordCounts.get(stemmedWord);
-
-				// If it is not in the HashMap, null will be returned.
-				if(existingCount == null)
-					wordCounts.put(stemmedWord, 1);
-				else
-					wordCounts.put(stemmedWord, existingCount + 1);
+					// If it is not in the HashMap, null will be returned.
+					if(existingCount == null)
+						wordCounts.put(stemmedWord, 1);
+					else
+						wordCounts.put(stemmedWord, existingCount + 1);
+				}
 			}
 		}
 		
 		return wordCounts;
+	}
+	
+	/**
+	 * Returns true if the word after stemming is invalid:
+	 * e.g. e, f, g, aaa
+	 * @param word
+	 * @return true if invalid (i.e. not to include in list of stemmed words),
+	 * false if valid (do include).
+	 */
+	public static boolean invalidStemmedWord(String word)
+	{
+		// TODO add more functions, but keep in mind optimization.
+		
+		if(word.length() < 2)
+			return true;
+		
+		return false;
 	}
 	
 	/** Test it out. */

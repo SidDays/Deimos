@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,6 +17,8 @@ import deimos.phase2.PageFetcher;
 import deimos.phase2.StemmerApplier;
 import deimos.phase2.StopWordsRemoval;
 
+// TODO Split this program into manageable functions
+
 /**
  * Reference:
  * 
@@ -24,7 +27,6 @@ import deimos.phase2.StopWordsRemoval;
  * 
  * @author Siddhesh Karekar
  */
-
 public class DMOZHandler extends DefaultHandler
 {
 	/** Not more than these many links, whose pages were able to be fetched,
@@ -33,7 +35,7 @@ public class DMOZHandler extends DefaultHandler
 	public static final int LIMIT_WORKING_LINKS = 5;
 	
 	/** Go down only as many as these levels. */
-	public static final int LIMIT_DEPTH = 5;
+	public static final int LIMIT_DEPTH = 3;
 	
 	/** The total number of Topics parsed. No use. */
 	private int countTopics;
@@ -84,7 +86,10 @@ public class DMOZHandler extends DefaultHandler
         countURLs = 0;
         currentTopicURLs = new ArrayList<>();
         dbo = new DBOperations();
-        dbo.truncateAllTables();
+        
+        // CAREFUL!
+        // dbo.truncateAllReferenceTables();
+        
         currentTopicTermCounts = new HashMap<>();
     }
     
@@ -107,7 +112,9 @@ public class DMOZHandler extends DefaultHandler
         		content.setLength(0); // Not required, produces 'catid' numbers
         		currentTopicURLs.clear(); // Start a fresh list of URLs
         		currentTopicTermCounts.clear();
-
+        		
+        		System.out.println("\nTopic:\t"+currentTopicName);
+        		
         		try
         		{
         			// Populate topics_children (parent-child hierarchy)
@@ -128,15 +135,13 @@ public class DMOZHandler extends DefaultHandler
         				dbo.executeUpdate(query);
 
         			}
+        		} 
+        		catch (SQLIntegrityConstraintViolationException sicve) {
+        			System.err.format("Parent-child combo already in database.\n");
         		}
         		catch (SQLException e) {
-
-        			// TODO Auto-generated catch block
         			e.printStackTrace();
         		}
-        	}
-        	else {
-        		// beyond limit lmao
         	}
         }
         if(localName.equalsIgnoreCase("link") || 
@@ -151,47 +156,64 @@ public class DMOZHandler extends DefaultHandler
     public void endElement(String namespaceURI, String localName,
     		String qualifiedName) throws SAXException
     {
-        if(localName.equalsIgnoreCase("Topic")) {
-        	inTopic = false;
-        	System.out.println("\nTopic:\t"+currentTopicName);
-        	System.out.println("CatID:\t"+content.toString().trim());
-        	
-        	// Print all urls in current list
-        	for(String link : currentTopicURLs)
-        	{
-        		System.out.println("Link:\t"+link);
-        	}
-        	
-        	// Insert this shit into the table.
-			for (Map.Entry<String, Integer> entry : currentTopicTermCounts.entrySet())
-			{
-				String term = entry.getKey();
-				
-				if(term.length() > 50)
-					term = term.substring(0, 50);
-				
-				Integer tf = entry.getValue();
-				
-				String query = String.format(
-						"INSERT INTO tf_weight (topic_name, term, tf, weight) VALUES ('%s', '%s', %d, null)",
-						currentTopicName,
-						term,
-						tf
-						);
-				// System.out.println(query);
-				try {
-					dbo.executeUpdate(query);
-				} catch (SQLException e) {
-					
-					// e.printStackTrace();
-					System.out.println(e);
-				}
-			}
-        	
-        	countTopics++;
-        }
-        
-        if(localName.equalsIgnoreCase("link") || 
+    	if(localName.equalsIgnoreCase("Topic"))
+    	{
+    		inTopic = false;
+
+    		if(getDepth(currentTopicName) <= LIMIT_DEPTH)
+    		{
+
+    			System.out.println("All compiled URLS for this topic: ");
+    			// System.out.println("CatID:\t"+content.toString().trim());
+
+    			// Print all urls in current list
+    			for(String link : currentTopicURLs)
+    			{
+    				System.out.println("Link:\t"+link);
+    			}
+
+    			// Insert this shit into the table
+    			int termsAlreadyInDatabase = 0; // For a clean error message output.
+    			for (Map.Entry<String, Integer> entry : currentTopicTermCounts.entrySet())
+    			{
+    				String term = entry.getKey();
+
+    				if(term.length() > 50)
+    					term = term.substring(0, 50);
+
+    				Integer tf = entry.getValue();
+
+    				String query = String.format(
+    						"INSERT INTO tf_weight (topic_name, term, tf, weight) VALUES ('%s', '%s', %d, null)",
+    						currentTopicName,
+    						term,
+    						tf
+    						);
+    				// System.out.println(query);
+
+    				try
+    				{
+    					dbo.executeUpdate(query);
+    				}
+    				catch (SQLIntegrityConstraintViolationException sicve) {
+    					termsAlreadyInDatabase++;
+
+    				}
+    				catch (SQLException e) {
+    					e.printStackTrace();
+    				}
+    			}
+    			if(termsAlreadyInDatabase > 0)
+    			{
+    				System.err.format("%d Topic-term combo(s) already in database.\n",
+    						termsAlreadyInDatabase);
+    			}
+
+    			countTopics++;
+    		}
+    	}
+
+    	if(localName.equalsIgnoreCase("link") || 
         		localName.equalsIgnoreCase("link1"))
         {
         	// After collecting certain number of working URLs, stop
@@ -209,9 +231,10 @@ public class DMOZHandler extends DefaultHandler
 
         			dbo.executeUpdate(query);
         		} 
+        		catch (SQLIntegrityConstraintViolationException sicve) {
+        			System.err.format("Topic-URL combo already in database.\n");
+        		}
         		catch (SQLException e) {
-
-        			// TODO Auto-generated catch block
         			e.printStackTrace();
         		}
 

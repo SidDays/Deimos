@@ -49,7 +49,7 @@ public class StopWordsRemoval {
 			}
 			fileReader.close();
 			
-			System.out.println("Stopwords loaded.");
+			System.out.print("(Stopwords loaded.) ");
 
 		}
 		catch (FileNotFoundException e) {
