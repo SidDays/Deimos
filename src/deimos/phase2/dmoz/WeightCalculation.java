@@ -71,7 +71,7 @@ public class WeightCalculation
 				term = rs.getString("term");
 				terms.add(term);
 				
-				idf = rs.getInt("idf");
+				idf = rs.getDouble("idf");
 				terms_idf.add(idf);
 			}
 			System.out.println(terms.size()+" terms in IDF table.");
