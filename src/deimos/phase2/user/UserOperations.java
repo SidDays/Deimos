@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +21,8 @@ import deimos.phase2.StopWordsRemoval;
 public class UserOperations {
 	
 	static String urlTimestampSubst;
+	
+	static String timestampFormat = "YYYY-MM-DD HH24:MI:SS";
 	
 	static String urlSubst;
 	
@@ -47,6 +51,7 @@ public class UserOperations {
 	
 	public static void fetchTextFromURL() {
 		try {
+			currentTopicTermCounts = new HashMap<>();
 			dbo = new DBOperations();
 	        dbo.truncateAllTables();
 			File historyFile = new File("export-history.txt"); 
@@ -100,7 +105,7 @@ public class UserOperations {
 				System.out.println();
 				
 				query = "INSERT INTO users (user_td, url_timestamp, url) VALUES ('"+ 
-						user_id + "','" + "TO_TIMESTAMP('"+currentTimestamp + "','" + "'DD-MON-YY HH.MI.SS')"+"','"+ currentURLText +"')";
+						user_id + "','" + "TO_TIMESTAMP('"+currentTimestamp + "','" + "'YYYY-MM-DD HH24:MI:SS'"+"')"+"','"+ currentURLText +"')";
 				
 				query = String.format(
 						"INSERT INTO users (user_id, url_timestamp, url) VALUES (%d, '%s', '%s')",
@@ -110,47 +115,50 @@ public class UserOperations {
 						);
 				
 				dbo.executeUpdate(query);*/
+				
+				Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentURLText);
+				for (Map.Entry<String, Integer> entry : porter.entrySet())
+				{
+					String stemmedWord = entry.getKey();
+					Integer porterCount = entry.getValue();
+
+					// Update currentTopicTermCounts
+					// If it is not in the HashMap, null will be returned.
+					Integer existingCount = currentTopicTermCounts.get(stemmedWord);
+					if(existingCount == null)
+						currentTopicTermCounts.put(stemmedWord, 1);
+					else
+						currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
+				}
+				
+				System.out.println(Collections.singletonList(currentTopicTermCounts));
+				
+				for (Map.Entry<String, Integer> entry : currentTopicTermCounts.entrySet())
+				{
+					String term = entry.getKey();
+					
+					if(term.length() > 50)
+						term = term.substring(0, 50);
+					
+					Integer tf = entry.getValue();
+					query = String.format(
+							"INSERT INTO tf_users (user_id, url, term, tf, weight) VALUES (%d, '%s', '%s', %d, null)",
+							user_id,
+							currentURL,
+							term,
+							tf
+							);
+					
+					dbo.executeUpdate(query);
+					//System.out.println(query);
+					
+				}
 			}
 			
 			/*System.out.println("---------------------------------------------");
 			System.out.println("Text for URL: "+currentURLText);*/
 			
-			Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentURLText);
-			for (Map.Entry<String, Integer> entry : porter.entrySet())
-			{
-				String stemmedWord = entry.getKey();
-				Integer porterCount = entry.getValue();
-
-				// Update currentTopicTermCounts
-				// If it is not in the HashMap, null will be returned.
-				Integer existingCount = currentTopicTermCounts.get(stemmedWord);
-				if(existingCount == null)
-					currentTopicTermCounts.put(stemmedWord, 1);
-				else
-					currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
-			}
 			
-			for (Map.Entry<String, Integer> entry : currentTopicTermCounts.entrySet())
-			{
-				String term = entry.getKey();
-				
-				if(term.length() > 50)
-					term = term.substring(0, 50);
-				
-				Integer tf = entry.getValue();
-				System.out.println("*************************************************************");
-				query = String.format(
-						"INSERT INTO tf_user (user_id, term, tf, weight) VALUES (%d, '%s', %d, null)",
-						user_id,
-						term,
-						tf
-						);
-				
-				dbo.executeUpdate(query);
-				System.out.println("---------------------------------------------");
-				//System.out.println(query);
-				
-			}
 			
 			
 		}
