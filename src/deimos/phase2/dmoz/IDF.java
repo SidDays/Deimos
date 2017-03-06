@@ -177,6 +177,6 @@ public class IDF
 	public static void main(String[] args)
 	{
 		IDF idf = new IDF();
-		idf.computeIDF(21183); // Where to resume from
+		idf.computeIDF(0); // Where to resume from
 	}
 }

@@ -29,8 +29,8 @@ public class XMLParserSAX
                 "com.sun.org.apache.xerces.internal.parsers.SAXParser"
             );
             
-            // setup the handler
-            ContentHandler handler = new DMOZHandler();
+            // setup the handler - true if start fresh (truncates all ref. tables)
+            ContentHandler handler = new DMOZHandler(true);
             parser.setContentHandler(handler);
             
             // open the file

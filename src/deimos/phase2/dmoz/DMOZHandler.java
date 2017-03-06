@@ -79,7 +79,7 @@ public class DMOZHandler extends DefaultHandler
     private StringBuilder content;
     private DBOperations dbo;
     
-    public DMOZHandler() throws SQLException
+    public DMOZHandler(boolean startAfresh) throws SQLException
     {
         content = new StringBuilder();
         countTopics = 0;
@@ -88,7 +88,8 @@ public class DMOZHandler extends DefaultHandler
         dbo = new DBOperations();
         
         // CAREFUL!
-        // dbo.truncateAllReferenceTables();
+        if(startAfresh)
+        	dbo.truncateAllReferenceTables();
         
         currentTopicTermCounts = new HashMap<>();
     }

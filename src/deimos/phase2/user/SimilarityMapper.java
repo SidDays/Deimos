@@ -7,145 +7,154 @@ import java.util.List;
 
 import deimos.phase2.DBOperations;
 
-public class SimilarityMapper {
-	
+public class SimilarityMapper
+{
 	private static List<String> referenceTerms = new ArrayList<>();
 	
 	private static List<String> userTerms = new ArrayList<>();
-	
-	private static List<String> unionOfTerms;
 	
 	private static List<Double> referenceTermsWeights = new ArrayList<>();
 	
 	private static List<Double> userTermsWeights = new ArrayList<>();
 	
-	private static String topicName, currentTerm, url;
-	private static final double threshold = Float.MIN_VALUE;
-	private static double currentWeight;
+	private static final double THRESHOLD = Float.MIN_VALUE;
 	
-	private static ResultSet rs, rs1;
+	// private static ResultSet rs, rs1;
 	private static DBOperations dbo;
 	
-	public static void main(String[] args) {
-		try {
+	static
+	{
+		try
+		{
 			dbo = new DBOperations();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	/** This function inserts all terms of one topic into the list */
-	private static void populateReferenceList() {
-		try {
-			
-			rs = dbo.executeQuery("SELECT DISTINCT topic_name FROM tf_weight");
-			
-			while(rs.next())
+	public static void main(String[] args)
+	{
+		computeSimilarity(1);
+	}
+	
+	private static void populateReferenceList(String topicName)
+	{
+		try
+		{
+			ResultSet rs1 = dbo.executeQuery("SELECT term, weight FROM tf_weight WHERE topic_name LIKE '" + topicName+"'");
+			while(rs1.next())
 			{
-				topicName = rs.getString("topic_name");
-				
-				rs1 = dbo.executeQuery("SELECT DISTINCT term FROM tf_weight WHERE topic_name LIKE " + topicName);
-				while(rs1.next())
-				{
-			        currentTerm = rs.getString("term");
-			        referenceTerms.add(currentTerm);
-				}
+				String currentTerm = rs1.getString("term");
+				double currentWeight = rs1.getDouble("weight");
+				referenceTerms.add(currentTerm);
+				referenceTermsWeights.add(currentWeight);
 			}
-			
+
 		} 
 		catch (SQLException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}
 	
-	private static void populateUserList() {
-		try {
-			rs = dbo.executeQuery("SELECT DISTINCT url FROM tf_users");
-			
-			while(rs.next()) {
-				url = rs.getString("url");
-				
-				rs1 = dbo.executeQuery("SELECT DISTINCT term FROM tf_user WHERE url LIKE " + url);
-				while(rs1.next())
-				{
-			        currentTerm = rs.getString("term");
-			        referenceTerms.add(currentTerm);
-				}
-			}
-		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private static void unionOfLists() {
-		unionOfTerms = new ArrayList<String>(referenceTerms);
-		unionOfTerms.addAll(userTerms);
-	}
-	
-	private static void insertUserWeights() {
-		try {
-			rs = dbo.executeQuery("SELECT DISTINCT url FROM tf_users");
-			
-			while(rs.next()) {
-				url = rs.getString("url");
-				
-				rs1 = dbo.executeQuery("SELECT weight FROM tf_user WHERE url LIKE " + url);
-				while(rs1.next())
-				{
-			        currentWeight = rs.getDouble("weight");
-			        userTermsWeights.add(currentWeight);
-				}
-			}
-		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private static void insertReferenceWeights() {
-		try {
-			rs = dbo.executeQuery("SELECT DISTINCT topic_name FROM tf_weights");
-			
-			while(rs.next())
+	private static void populateUserList(String url)
+	{
+		try
+		{
+			ResultSet rs2 = dbo.executeQuery("SELECT term, weight FROM tf_users WHERE url LIKE '" + url +"'");
+			while(rs2.next())
 			{
-				topicName = rs.getString("topic_name");
-				
-				rs1 = dbo.executeQuery("SELECT weight FROM tf_weight WHERE topic_name LIKE " + topicName);
-				while(rs1.next())
-				{
-					currentWeight = rs.getDouble("weight");
-			        referenceTermsWeights.add(currentWeight);
-				}
+				String currentTerm = rs2.getString("term");
+				double currentWeight = rs2.getDouble("weight");
+				userTerms.add(currentTerm);
+				userTermsWeights.add(currentWeight);
 			}
 		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
+		catch (SQLException e)
+		{
 			e.printStackTrace();
 		}
 	}
 	
-	private static void computeSimilarity() {
-		for(String termName: unionOfTerms) {
-			if(userTerms.contains(termName)) {
-				insertUserWeights();
+	
+	private static void computeSimilarity(int user_id)
+	{
+		try
+		{
+			// Reference ontology
+			ResultSet rs_topics = dbo.executeQuery("SELECT topic_name FROM topics");
+			while(rs_topics.next())
+			{
+				String currentTopic = rs_topics.getString("topic_name");
+				populateReferenceList(currentTopic);
 			}
-			else {
-				userTermsWeights.add(0.0);
+			
+			// User history
+			ResultSet rs_urls = dbo.executeQuery("SELECT url FROM users WHERE user_id = "+user_id);
+			while(rs_urls.next())
+			{
+				String currentURL = rs_urls.getString("url");
+				populateUserList(currentURL);
+				
 			}
-		}
-		
-		for(String termName: unionOfTerms) {
-			if(referenceTerms.contains(termName)) {
-				insertUserWeights();
+			
+			List<String> commonTerms = new ArrayList<>(referenceTerms);
+			commonTerms.retainAll(userTerms);
+			List<Double> commonWeightsReference = new ArrayList<>();
+			List<Double> commonWeightsUser = new ArrayList<>();
+			
+			for(String commonTerm : commonTerms)
+			{
+				int userIndex = userTerms.indexOf(commonTerm);
+				double commonWeight = userTermsWeights.get(userIndex);
+				commonWeightsReference.add(commonWeight);
+				commonWeightsUser.add(commonWeight);
+				
+				// Remove from user
+				userTermsWeights.remove(userIndex);
+				userTerms.remove(userIndex);
+				
+				// Remove this term from reference
+				int referenceIndex = referenceTerms.indexOf(commonTerm);
+				referenceTermsWeights.remove(referenceIndex);
+				referenceTerms.remove(referenceIndex);
 			}
-			else {
-				referenceTermsWeights.add(0.0);
+			
+			// Handle remaining terms in user
+			for(int i = 0; i < userTerms.size(); i++)
+			{
+				commonTerms.add(userTerms.get(i));
+				commonWeightsUser.add(userTermsWeights.get(i));
+				commonWeightsReference.add(0.0);
 			}
+
+			// Handle remaining terms in reference
+			for(int i = 0; i < referenceTerms.size(); i++)
+			{
+				commonTerms.add(referenceTerms.get(i));
+				commonWeightsUser.add(0.0);
+				commonWeightsReference.add(referenceTermsWeights.get(i));
+			}
+			
+			// print
+			System.out.println("\nReady for mapping!");
+			for(int i = 0; i < commonTerms.size(); i++)
+			{
+				System.out.format("%5d %s: UW: %.3f, RW: %.3f\n",
+						i,
+						commonTerms.get(i),
+						commonWeightsUser.get(i),
+						commonWeightsReference.get(i));
+			}
+			
+			// Do the mapping!
+			// TODO INCOMPLETEs
+			
+
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
 		}
 	}
 }

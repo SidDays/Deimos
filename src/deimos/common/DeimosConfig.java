@@ -75,7 +75,7 @@ public class DeimosConfig {
 	/**
 	 * If true, uses the sample xml instead of the full DMOZ data.
 	 */
-	public static final boolean OPTION_USE_EXAMPLE_DMOZ = false;
+	public static final boolean OPTION_USE_EXAMPLE_DMOZ = true;
 
 	/**
 	 * If true, the texts of URLs are stored by using a hashed filename.

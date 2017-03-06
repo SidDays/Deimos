@@ -108,7 +108,7 @@ public class UserOperations {
 	{
 		try
 		{
-			currentURLTermCounts.clear();
+			/*currentURLTermCounts.clear();
 			Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentURLText);
 			for (Map.Entry<String, Integer> entry : porter.entrySet())
 			{
@@ -122,13 +122,15 @@ public class UserOperations {
 					currentURLTermCounts.put(stemmedWord, 1);
 				else
 					currentURLTermCounts.put(stemmedWord, existingCount + porterCount);
-			}
+			}*/
 			
-			// Print currentTopicTermCounts
-			// System.out.println(Collections.singletonList(currentTopicTermCounts));
+			currentURLTermCounts = StemmerApplier.stemmedWordsAndCount(currentURLText);
+			
+			// Print currentURLTermCounts
+			// System.out.println(Collections.singletonList(currentURLTermCounts));
 			
 			// Put this stuff into the table
-			int termsAlreadyInTable = 0;
+			int termsAlreadyInTable = 0; // For better error catching
 			int totalTerms = currentURLTermCounts.size();
 			for (Map.Entry<String, Integer> entry : currentURLTermCounts.entrySet())
 			{

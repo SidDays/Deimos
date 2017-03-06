@@ -1,476 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <RDF xmlns:r="http://www.w3.org/TR/RDF/" xmlns:d="http://purl.org/dc/elements/1.0/" xmlns="http://dmoz.org/rdf/">
-  <!-- Generated at 2010-03-24 03:16:06 EST from DMOZ 2.0 -->
-  <Topic xmlns="" r:id="">
-    <catid>1</catid>
-  </Topic>
-  <Topic xmlns="" r:id="Top/Arts">
-    <catid>238846</catid>
-  </Topic>
-  <Topic xmlns="" r:id="Top/Arts/Animation">
-    <catid>282910</catid>
-    <link1 r:resource="http://www.awn.com"></link1>
-    <link r:resource="http://animation.about.com/"></link>
-    <link r:resource="http://www.toonhound.com"></link>
-    <link r:resource="http://enculturation.gmu.edu/2_1/pisters.html"></link>
-    <link r:resource="http://www.digitalmediafx.com/Features/animationhistory.html"></link>
-    <link r:resource="http://www-viz.tamu.edu/courses/viza615/97spring/pjames/history/main.html"></link>
-    <link r:resource="http://www.spark-online.com/august00/media/romano.html"></link>
-    <link r:resource="http://www.animated-divots.com/"></link>
-  </Topic>
-  
-    
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  <Topic xmlns="" r:id="Top/Arts/Animation/Anime">
-    <catid>284053</catid>
-  </Topic>
-  <Topic xmlns="" r:id="Top/Arts/Animation/Anime/Characters">
-    <catid>285519</catid>
-    <link r:resource="http://www.angelfire.com/anime2/ninisbishonen/"></link>
-    <link r:resource="http://www.angelfire.com/anime2/bestanimecharacters/"></link>
-    <link r:resource="http://valleyofazure.tripod.com/"></link>
-    <link r:resource="http://mousygirl.nekomusume.net/"></link>
-    <link r:resource="http://www.angelfire.com/nv/neko/"></link>
-    <link r:resource="http://www.angelfire.com/grrl/magicshoppe2/"></link>
-    <link r:resource="http://shotani.www2.50megs.com/animen_uno.html"></link>
-  </Topic>
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  <Topic xmlns="" r:id="Top/Arts/Animation/Anime/Clubs_and_Organizations">
-    <catid>284096</catid>
-    <link r:resource="http://www.utarpa.org/"></link>
-    <link r:resource="http://www.fortunecity.com/campus/geography/880/"></link>
-    <link r:resource="http://www.angelfire.com/yt/ahsaa/"></link>
-    <link r:resource="http://anime-alberta.org/"></link>
-    <link r:resource="http://www.yale.edu/anime/"></link>
-    <link r:resource="http://www.nnanime.com/"></link>
-    <link r:resource="http://www.unc.edu/coup/"></link>
-    <link r:resource="http://www.ocf.berkeley.edu/~animage/"></link>
-    <link r:resource="http://web.mit.edu/anime/www/"></link>
-    <link r:resource="http://www.earlham.edu/~anime/"></link>
-    <link r:resource="http://cyberbuzz.gatech.edu/anime/"></link>
-    <link r:resource="http://animetribe.xi.co.nz/"></link>
-    <link r:resource="http://uranime.nekomusume.net/"></link>
-    <link r:resource="http://www.ic.sunysb.edu/Clubs/anime/"></link>
-    <link r:resource="http://carleton.ottawa-anime.org/"></link>
-    <link r:resource="http://soap.ottawa-anime.org/"></link>
-    <link r:resource="http://www.jaco.org/"></link>
-    <link r:resource="http://www.orgs.ttu.edu/muepsilonkappa/"></link>
-    <link r:resource="http://www.yorku.ca/anime/"></link>
-    <link r:resource="http://www.emeraldtokyo.com/"></link>
-    <link r:resource="http://www.novaanime.org/"></link>
-    <link r:resource="http://www.neoanime.org/"></link>
-    <link r:resource="http://www.hcs.harvard.edu/~anime/"></link>
-    <link r:resource="http://www.animeangels.net/"></link>
-    <link r:resource="http://www.haas-online.net"></link>
-    <link r:resource="http://www.thenoodlebowl.com/oav/index.html"></link>
-    <link r:resource="http://www.mun-anime.com"></link>
-    <link r:resource="http://www.umich.edu/~animania/"></link>
-    <link r:resource="http://wpganime.ca/"></link>
-    <link r:resource="http://animeclub.org"></link>
-    <link r:resource="http://www.sa.niu.edu/anime/"></link>
-    <link r:resource="http://groups.yahoo.com/group/AnimeFansWorldwide/"></link>
-    <link r:resource="http://www.ac.wwu.edu/~aiya/"></link>
-    <link r:resource="http://organizations.weber.edu/wyvern/"></link>
-    <link r:resource="http://groups.yahoo.com/group/goddessofloveandbeauty/"></link>
-    <link r:resource="http://www.bumac.org/"></link>
-    <link r:resource="http://www.an-ex.com"></link>
-    <link r:resource="http://www.animenashville.org/"></link>
-    <link r:resource="http://rinoa.nu/axe/axe.html"></link>
-    <link r:resource="http://www.cwu.edu/~anime/"></link>
-    <link r:resource="http://www.auburn.edu/student_info/anime_manga/"></link>
-    <link r:resource="http://www.freewebs.com/shanimeclub/"></link>
-    <link r:resource="http://www.indyanime.org"></link>
-    <link r:resource="http://www.fresnoanime.com"></link>
-    <link r:resource="http://www.otakuanime.org"></link>
-    <link r:resource="http://www.delawareanimesociety.com"></link>
-    <link r:resource="http://www.ctrl-a.org"></link>
-    <link r:resource="http://www.sfanimeclub.com/"></link>
-    <link r:resource="http://www.stevens.edu/anime/"></link>
-    <link r:resource="http://www.jaamke.com/"></link>
-    <link r:resource="http://www.animekurabu.org/"></link>
-    <link r:resource="http://dcanimeclub.org/"></link>
-    <link r:resource="http://uts.cc.utexas.edu/~anime/"></link>
-    <link r:resource="http://ecujapan.org/category/anime/"></link>
-    <link r:resource="http://userwww.sfsu.edu/~animefx/"></link>
-    <link r:resource="http://dampfkraft.com/bas/"></link>
-    <link r:resource="http://www.ohio.edu/orgs/jcon/"></link>
-    <link r:resource="http://tech.groups.yahoo.com/group/pin0yotaku/"></link>
-    <link r:resource="http://www.greenmustard.com/"></link>
-    <link r:resource="http://tech.groups.yahoo.com/group/amrc-l/"></link>
-  </Topic>
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    <uksite>1</uksite>
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
-  
-    
-    
-    
-  
+<!-- Generated at 2010-03-24 03:16:06 EST from DMOZ 2.0 -->
+<Topic r:id="Top/Shopping">
+<catid>964228</catid>
+</Topic>
+<Topic r:id="Top/Shopping/Antiques_and_Collectibles">
+<catid>967240</catid>
+</Topic>
+<Topic r:id="Top/Shopping/Antiques_and_Collectibles/1950s_Memorabilia">
+<catid>967241</catid>
+<link r:resource="http://www.fearsandkahn.co.uk/"></link>
+<link r:resource="http://www.hepcat.se/"></link>
+<link r:resource="http://www.retroplanet.com/"></link>
+<link r:resource="http://www.ohioseeburgrepair.com/"></link>
+<link r:resource="http://www.hulaheaven.net/"></link>
+<link r:resource="http://www.decodan.com/"></link>
+<link r:resource="http://www.decoworld.com/"></link>
+<link r:resource="http://www.dowahdiddy.com/"></link>
+<link r:resource="http://www.trashdaddy.com/"></link>
+<link r:resource="http://www.classicmalt.com/"></link>
+<link r:resource="http://www.munktiki.com/"></link>
+<link r:resource="http://www.barkclothhawaii.com/"></link>
+<link r:resource="http://home.insightbb.com/~pedalit"></link>
+<link r:resource="http://www.deco-world.com/"></link>
+<link r:resource="http://www.hiandlomodern.com/"></link>
+<link r:resource="http://www.classic-modern.co.uk/"></link>
+<link r:resource="http://www.ritasretros.com/"></link>
+<link r:resource="http://www.theglassjunkie.com/"></link>
+<link r:resource="http://betsyvintage.com/"></link>
+<link r:resource="http://www.retrowonders.com/"></link>
+<link r:resource="http://www.beermachines.com/"></link>
+<link r:resource="http://www.rubylane.com/shop/headsupvintage"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Antiques_and_Collectibles/Advertising_Collectibles">
+<catid>967256</catid>
+<link r:resource="http://www.gasolinealleyantiques.com/"></link>
+<link r:resource="http://www.thedoghaus.com/"></link>
+<link r:resource="http://www.hakes.com/"></link>
+<link r:resource="http://www.gotmilk.com/"></link>
+<link r:resource="http://www.imageexchange.com/mvx10/engine.cgi?store=campbells"></link>
+<link r:resource="http://www.tootsieshop.com/"></link>
+<link r:resource="http://www.justplanefun.net/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Consumer_Electronics/Q">
+<catid>966431</catid>
+<link r:resource="http://www.quware.com/"></link>
+<link r:resource="http://www.quikshop.com.au/"></link>
+<link r:resource="http://www.q3i.com/"></link>
+<link r:resource="http://www.qrs.in/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Consumer_Electronics/R">
+<catid>966518</catid>
+<link r:resource="https://www.radioshack.com/"></link>
+<link r:resource="http://www.rezilient.com/"></link>
+<link r:resource="http://www.ritzcamera.com/"></link>
+<link r:resource="http://www.usbsea.com/"></link>
+<link r:resource="http://www.ryda.com.au/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Consumer_Electronics/S">
+<catid>966542</catid>
+<link r:resource="https://www.sony.com/"></link>
+<link r:resource="http://www.sony.co.uk/"></link>
+<link r:resource="http://www.sonycyprus.com/"></link>
+<link r:resource="http://www.soundoffaudio.com/"></link>
+<link r:resource="http://1bestpriceelectronic.tripod.com/"></link>
+<link r:resource="http://www.savinglots.com/"></link>
+<link r:resource="http://www.starlite-intl.com/"></link>
+<link r:resource="http://skyler.theshoppe.com/"></link>
+<link r:resource="http://www.soundprofessionals.com/"></link>
+<link r:resource="http://www.samsungparts.com/"></link>
+<link r:resource="http://www.superclearance.com/"></link>
+<link r:resource="http://shopmazecreator.com/"></link>
+<link r:resource="http://www.samstores.com/"></link>
+<link r:resource="http://www.superphonestore.com/"></link>
+<link r:resource="http://www.sayalkits.com/"></link>
+<link r:resource="http://www.smithgear.com/"></link>
+<link r:resource="http://www.satelliteone.com/"></link>
+<link r:resource="http://www.spydevelopment.com/"></link>
+<link r:resource="http://www.shopramseyelectronics.com/"></link>
+<link r:resource="http://www.sonxplus.com/"></link>
+<link r:resource="http://www.spectrumaudio.com/"></link>
+<link r:resource="http://schematics4you.com/Acart/"></link>
+<link r:resource="http://www.southernadvantage.com/"></link>
+<link r:resource="http://stellatech.com/"></link>
+<link r:resource="http://www.6aveexpress.com/"></link>
+<link r:resource="http://www.saverpoint.com/"></link>
+<link r:resource="http://phoneshop.com.cy/"></link>
+<link r:resource="http://www.scienceofsightandsound.com/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Music">
+<catid>966899</catid>
+</Topic>
+<Topic r:id="Top/Shopping/Music/Equipment">
+<catid>967235</catid>
+<link r:resource="http://www.adamhall.com/"></link>
+<link r:resource="http://www.handheldaudio.co.uk/"></link>
+<link r:resource="http://www.ratsound.com/"></link>
+<link r:resource="http://mwaudio.com/"></link>
+<link r:resource="http://www.cheaplights.com/"></link>
+<link r:resource="http://www.alice.co.uk/"></link>
+<link r:resource="http://www.rawpower.co.uk/"></link>
+<link r:resource="http://www.dv247.com/"></link>
+<link r:resource="http://www.1staudiousa.com/"></link>
+<link r:resource="http://www.grandmas.com/"></link>
+<link r:resource="http://www.stagesmusic.com/"></link>
+<link r:resource="http://www.portlandmusiccompany.com/"></link>
+<link r:resource="http://www.musicesp.com/"></link>
+<link r:resource="http://www.proformance.net/"></link>
+<link r:resource="http://superdigital.com/"></link>
+<link r:resource="http://www.toursupply.com/"></link>
+<link r:resource="http://www.proaudioeurope.com/"></link>
+<link r:resource="http://soundselection.tripod.com/"></link>
+<link r:resource="http://allmanmusic.homestead.com/"></link>
+<link r:resource="http://www.portablesound.com/"></link>
+<link r:resource="http://www.proaudiosuperstore.com/"></link>
+<link r:resource="http://dagexpress.com/"></link>
+<link r:resource="http://www.sound-room.com/"></link>
+<link r:resource="http://www.hwaudio.co.uk/"></link>
+<link r:resource="http://www.red5audio.com/"></link>
+<link r:resource="http://www.mixmasters.com.au/"></link>
+<link r:resource="http://www.pedalgeek.com/"></link>
+<link r:resource="http://www.mercenary.com/"></link>
+<link r:resource="http://www.zzounds.com/"></link>
+<link r:resource="http://www.sweetwater.com/"></link>
+<link r:resource="http://fmasolutions.com/"></link>
+<link r:resource="http://www.voicecrystal.com/"></link>
+<link r:resource="http://www.atlasproaudio.com/"></link>
+<link r:resource="http://www.dcmusicstore.com/"></link>
+<link r:resource="http://www.voxshowroom.com/northcoast/"></link>
+<link r:resource="http://www.proaudiostar.com/"></link>
+<link r:resource="http://www.jpleisure.co.uk/"></link>
+<link r:resource="http://www.misterpatchbay.com/"></link>
+<link r:resource="http://www.pssl.com/"></link>
+<link r:resource="http://www.soundstore.co.nz/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Music/Equipment/Computer">
+<catid>967237</catid>
+<link r:resource="http://www.kellysmusicandcomputers.com/"></link>
+<link r:resource="http://www.studiogem.com/"></link>
+<link r:resource="http://www.musicstudiodirect.com/"></link>
+</Topic>
+<Topic r:id="Top/Shopping/Music/Equipment/DJ">
+<catid>967238</catid>
+<link r:resource="http://www.pegasussl.co.uk/"></link>
+<link r:resource="http://www.prodj.com/"></link>
+<link r:resource="http://www.showtec.co.uk/"></link>
+<link r:resource="http://www.thedjshop.co.uk/"></link>
+<link r:resource="http://www.hollywoodlighting.biz/"></link>
+<link r:resource="http://www.djdeals.com/"></link>
+<link r:resource="http://www.planetdj.com/"></link>
+<link r:resource="http://www.turntablelab.com/"></link>
+<link r:resource="http://www.asoundimage.com/"></link>
+<link r:resource="http://www.123dj.com/"></link>
+<link r:resource="http://www.djtronix.com/"></link>
+<link r:resource="http://www.djdepot.com/"></link>
+<link r:resource="http://www.storedj.com.au/"></link>
+<link r:resource="http://idjnow.com/"></link>
+<link r:resource="http://www.musictrends.com/"></link>
+<link r:resource="http://www.hollywooddj.com/"></link>
+<link r:resource="http://www.pro-mix.com/"></link>
+<link r:resource="http://www.r-s.co.uk/"></link>
+<link r:resource="http://www.jws-uk.co.uk/"></link>
+<link r:resource="http://www.decks.co.uk/"></link>
+<link r:resource="http://www.prodjcase.com/"></link>
+<link r:resource="http://www.enlightenment.co.uk/"></link>
+<link r:resource="http://www.sixstardj.com/"></link>
+<link r:resource="http://djparentals.com/"></link>
+<link r:resource="http://www.jbsmusic.co.uk/"></link>
+<link r:resource="http://www.cheapjackaudio.com/"></link>
+</Topic>
 </RDF>
-

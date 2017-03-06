@@ -44,7 +44,7 @@ public class ExportHistory {
 	
 	public static List<String> retrieveHistory(String historyLocation) throws SQLiteException
 	{
-		// TODO revise history output format 
+		// TODO revise history output format ADD NUMBER OF TIMES VISITED
 		
 		count = 0;
 		
