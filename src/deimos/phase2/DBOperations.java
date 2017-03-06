@@ -21,6 +21,7 @@ import deimos.common.DeimosConfig;
 public class DBOperations
 {
 	public Connection con;
+	private Statement stmt2;
 	private Statement stmt;
 	
 	/**
@@ -31,6 +32,8 @@ public class DBOperations
 	{
 		// Close the connection.
 		try {
+			stmt.close();
+			stmt2.close();
 			con.close();
 			System.out.println("Connection to database closed successfully");
 		}
@@ -67,6 +70,7 @@ public class DBOperations
 			
 			try {
 				stmt = con.createStatement();
+				stmt2 = con.createStatement();
 			} catch (SQLException sqle) {
 				
 				System.err.println("Failed to create statement.");
@@ -100,6 +104,18 @@ public class DBOperations
 	        float f = rs.getFloat("c");
 	    }*/
 	    
+	    return rs;
+	}
+	
+	/**
+	 * For select queries.
+	 * @param query
+	 * @throws SQLException
+	 */
+	public ResultSet executeQueryAgain(String query) throws SQLException
+	{
+	    ResultSet rs =
+	    		stmt2.executeQuery(query);
 	    return rs;
 	}
 	
