@@ -41,6 +41,7 @@ public class WeightCalculation
 		{
 			String query = String.format("UPDATE tf_weight SET weight = null");
 			dbo.executeUpdate(query);
+			System.out.println("Nulled all weights in table.");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -61,6 +62,8 @@ public class WeightCalculation
 		try
 		{
 			System.out.println("Weight calculation and updation started.");
+			
+			// nullAllWeights();
 			
 			// For each term in IDF table
 			ResultSet rs = dbo.executeQuery("SELECT * FROM idf");
