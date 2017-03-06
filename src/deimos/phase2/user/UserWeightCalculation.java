@@ -1,9 +1,6 @@
 package deimos.phase2.user;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import deimos.phase2.DBOperations;
 
@@ -47,54 +44,17 @@ public class UserWeightCalculation {
 	 */
 	public static void updateWeights(int user_id)
 	{
-		String term, query;
-		String topicName;
-		int tf;
-		double idf, weight;
 		try
 		{
-			System.out.println("Weight calculation and updation for user "+user_id+" started.");
+			System.out.println("Weight calculation and updation for tf_users started.");
 
-			// For each term in IDF table
-			ResultSet rs = dbo.executeQuery("SELECT * FROM idf_users WHERE user_id = "+user_id);
-			List<String> terms = new ArrayList<>();
-			List<Double> terms_idf = new ArrayList<>();
-			while(rs.next())
-			{
-				term = rs.getString("term");
-				terms.add(term);
+			// nullAllWeights();
 
-				idf = rs.getDouble("idf");
-				terms_idf.add(idf);
-			}
-			System.out.println(terms.size()+" terms in IDF table.");
+			// Update weights
+			String queryUpdate = "UPDATE tf_users SET tf_users.weight = tf_users.tf * ( SELECT idf FROM idf_users WHERE idf_users.term = tf_users.term ) WHERE user_id = "+user_id;
+			dbo.executeUpdate(queryUpdate);
 
-			for(int i = 0; i < terms.size(); i++)
-			{
-				term = terms.get(i);
-				idf = terms_idf.get(i);
-
-				System.out.format("\nComputing weights for term '%s' with IDF %.3f.\n", term, idf);
-
-				// Find that term in tf_users table
-				ResultSet rs1 = dbo.executeQuery("SELECT * FROM tf_users WHERE term = '" + term + "' AND user_id = "+user_id);
-				while(rs1.next())
-				{
-					tf = rs1.getInt("tf");
-					topicName = rs1.getString("url");
-
-					// Compute weight
-					weight = tf*idf;
-
-					// Update tf_users table
-					query = String.format("UPDATE tf_users SET weight = %f WHERE url = '%s' AND term = '%s' AND user_id = %d",
-							weight, topicName, term, user_id);
-
-					dbo.executeUpdate(query);
-					System.out.format("Computed weight %.3f for topic '%s' with TF %d.\n", weight, topicName, tf);
-				}
-			}
-			System.out.println("\nWeight calculation and updation for user "+user_id+" finished!");
+			System.out.println("Weight calculation and updation finished for tf_users!");
 		}
 		catch(SQLException e)
 		{
