@@ -9,18 +9,19 @@ import deimos.phase2.DBOperations;
 
 public class IDFUser {
 	
-	int totalURLs, URLsWithTerm, user_id = 1;
-	double user_idf;
-	String query;
-	ResultSet rs;
-	DBOperations dbo;
-	long startTime, stopTime;
+	static int totalURLs, URLsWithTerm;
+	static double idf;
+	static String query;
+	static ResultSet rs;
+	static DBOperations dbo;
+	static long startTime, stopTime;
 	
 	public static void main(String[] args) {
-		
+		// TODO remove hardcode
+		computeUserIDF(1);
 	}
 	
-	void computeUserIDF() {
+	static void computeUserIDF(int user_id) {
 		try {
 			dbo = new DBOperations();
 			dbo.truncateTable("idf_users");
@@ -30,8 +31,8 @@ public class IDFUser {
 			List<String> distinctTerms = new ArrayList<String>();
 			while(rs.next())
 			{
-		        String currentURL = rs.getString("url");
-		        distinctTerms.add(currentURL);
+		        String currentTerm = rs.getString("term");
+		        distinctTerms.add(currentTerm);
 			}
 			System.out.println("\nNo. of distinct terms: "+distinctTerms.size());
 			
@@ -39,23 +40,28 @@ public class IDFUser {
 			for(String termName : distinctTerms) {
 				
 				ResultSet rs2 = dbo.executeQuery(
-						"SELECT COUNT(DISTINCT url) AS url_total FROM tf_users WHERE url LIKE '"+termName+"'");
+						"SELECT COUNT(DISTINCT url) AS urls_with_term FROM tf_users WHERE term LIKE '"+termName+"'" +
+				"AND user_id = " + user_id);
 				
 				while(rs2.next()) {
-					URLsWithTerm = rs2.getInt("tf_users");
+					URLsWithTerm = rs2.getInt("urls_with_term");
 				}
 				
 				ResultSet rs1=dbo.executeQuery(
-						"SELECT COUNT(DISTINCT url) AS total FROM topics");
+						"SELECT COUNT(url) AS url_total FROM users WHERE user_id = " + user_id);
 				
 				while(rs1.next()) {
-					totalURLs = rs1.getInt("total");
+					totalURLs = rs1.getInt("url_total");
 				}
 				
-				user_idf = Math.log((double)totalURLs/URLsWithTerm);
-				query = "INSERT INTO idf (user_id, term, idf) VALUES ('"+user_id+"', '"+ termName+"', '"+user_idf +"')";
+				System.out.format("Term = %s, URLsWithTerm = %d, totalURLs = %d\n", termName, URLsWithTerm, totalURLs);
 				
+				idf = Math.log(totalURLs*1.0/URLsWithTerm);
+				query = "INSERT INTO idf_users (user_id, term, idf) VALUES ("+user_id+", '"+ termName+"', "+idf +")";
+				
+				// System.out.println(query);
 				dbo.executeUpdate(query);
+				
 			}
 			
 		}
