@@ -36,7 +36,7 @@ public class UserWeightCalculation {
 	{
 		try
 		{
-			String query = String.format("UPDATE tf_users SET weight = null WHERE user_id = "+user_id);
+			String query = String.format("UPDATE user_tf SET weight = null WHERE user_id = "+user_id);
 			dbo.executeUpdate(query);
 		}
 		catch (SQLException e) {
@@ -46,22 +46,22 @@ public class UserWeightCalculation {
 
 	/**
 	 * For each term in IDF table,
-	 * Find all rows in tf_users of that term,
+	 * Find all rows in user_tf of that term,
 	 * And update their weight as tf*idf.
 	 */
 	public static void updateWeights(int user_id)
 	{
 		try
 		{
-			System.out.println("Weight calculation and updation for tf_users started.");
+			System.out.println("Weight calculation and updation for user_tf started.");
 
 			// nullAllWeights();
 
 			// Update weights
-			String queryUpdate = "UPDATE tf_users SET tf_users.weight = tf_users.tf * ( SELECT idf FROM idf_users WHERE idf_users.term = tf_users.term ) WHERE user_id = "+user_id;
+			String queryUpdate = "UPDATE user_tf SET user_tf.weight = user_tf.tf * ( SELECT idf FROM user_idf WHERE user_idf.term = user_tf.term ) WHERE user_id = "+user_id;
 			dbo.executeUpdate(queryUpdate);
 
-			System.out.println("Weight calculation and updation finished for tf_users!");
+			System.out.println("Weight calculation and updation finished for user_tf!");
 		}
 		catch(SQLException e)
 		{

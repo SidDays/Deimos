@@ -51,7 +51,7 @@ public class DeimosConfig {
 	};
 	public static final String FILE_OUTPUT_ALL_ZIP = "export-all.zip";
 
-	public static final String DELIM = "|";
+	public static final String DELIM = ">";
 
 	public static final String EMAIL_TEAM_SIDDHESH = "siddhesh.karekar@somaiya.edu";
 	public static final String EMAIL_TEAM_AMOGH = "amogh.bhabal@somaiya.edu";
@@ -87,7 +87,7 @@ public class DeimosConfig {
 	 * In Phase 2, download not more than these many texts
 	 * for web pages per history file/URL list.
 	 */
-	public static final int LIMIT_URLS_DOWNLOADED = 10;
+	public static final int LIMIT_URLS_DOWNLOADED = 30;
 	
 	// ----------------------------------------
 	// Credentials

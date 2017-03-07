@@ -65,6 +65,7 @@ public class UserIDF {
 				
 			}
 			
+			System.out.println("\nidf calculation for user_idf complete!");
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

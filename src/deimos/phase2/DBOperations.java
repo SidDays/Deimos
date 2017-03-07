@@ -152,6 +152,21 @@ public class DBOperations
 		}
 	}
 	
+	/** Deletes rows from the specified table for given user Id
+	 * Use with extreme caution! */
+	public void truncateUserTable(String tableName, int user_id)
+	{
+		try {
+			String query = String.format("DELETE FROM %s WHERE user_id = %d", tableName, user_id);
+			// System.out.println(query);
+			this.executeUpdate(query);
+			System.out.println("Deleted all rows in "+ tableName +" for user "+user_id+".");
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/** Truncate all tables used to build the reference ontology.
 	 * Use with extreme caution!
 	 */
@@ -166,10 +181,10 @@ public class DBOperations
 	/** Truncate all tables used in user data processing.
 	 * Use with extreme caution!
 	 */
-	public void truncateAllUserTables()
+	public void truncateAllUserTables(int user_id)
 	{
-		this.truncateTable("user_urls");
-		this.truncateTable("user_tf");
+		this.truncateUserTable("user_urls", user_id);
+		this.truncateUserTable("user_tf", user_id);
 		this.truncateTable("user_ref_similarity");
 	}
 	

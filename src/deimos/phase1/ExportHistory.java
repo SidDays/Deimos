@@ -72,6 +72,8 @@ public class ExportHistory {
 				} else if (urlTitle.length() > LIMIT_LENGTH_TITLE)
 					urlTitle = urlTitle.substring(0, LIMIT_LENGTH_TITLE);
 				
+				urlTitle = urlTitle.replace(DeimosConfig.DELIM, "_");
+				
 				output.add(resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')")
 						+ DeimosConfig.DELIM + resultSet.getString("url")
 						+ DeimosConfig.DELIM + urlTitle

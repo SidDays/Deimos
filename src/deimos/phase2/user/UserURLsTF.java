@@ -48,13 +48,13 @@ public class UserURLsTF
 	private static Map<String, Integer> currentURLTermCounts;
 	
 	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
-	private static int user_id = 1;
 	
 	private static DBOperations dbo;
 
 	/**
 	 * Prepare the List of urls in user browsing history;
 	 * load the history text file and parse it.
+	 * 
 	 * @param historyFileName The location of the history text file.
 	 */
 	private static void prepareHistory(String historyFileName)
@@ -78,15 +78,22 @@ public class UserURLsTF
 			for (int i = 0; i < urls.size(); i++)
 			{
 				// Format
-				String[] urlPieces = urls.get(i).split(DeimosConfig.DELIM);
+				String[] urlPieces;
+				if(DeimosConfig.DELIM.equals("|"))
+					urlPieces = urls.get(i).split("\\|");
+				else
+					urlPieces = urls.get(i).split(DeimosConfig.DELIM);
+				
+				/*System.out.format("%6d: timeStamp = %s, url = %s, title = %s, visitCount = %s, typedCount = %s\n",
+						i, urlPieces[0], urlPieces[1], urlPieces[2], urlPieces[3], urlPieces[4]);*/
 				
 				// Update arrayLists
-
 				urlTimeStamps.add(urlPieces[0]);
 				urls.set(i, urlPieces[1]); // Replace entire text line with only URL
 				urlTitles.add(urlPieces[2]);
 				urlVisitCounts.add(Integer.parseInt(urlPieces[3]));
 				urlTypedCounts.add(Integer.parseInt(urlPieces[4]));
+
 				
 			}
 			System.out.format("Finished parsing user history of %d URL(s).\n", urls.size());
@@ -105,13 +112,17 @@ public class UserURLsTF
 	/**
 	 * Prepare the List of urls in user browsing history,
 	 * by default, use the exported output text file.
+	 * 
+	 * @param user_id NOT USED NOW!!
 	 */
-	public static void prepareHistory()
+	public static void prepareHistory(int user_id)
 	{ 
+		// TODO use the history file of that user id
+		
 		prepareHistory(DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
 	
-	private static void tfTableInsertion()
+	private static void tfTableInsertion(int user_id)
 	{
 		try
 		{			
@@ -158,7 +169,7 @@ public class UserURLsTF
 		}
 	}
 
-	public static void userAndTFTableInsertion()
+	public static void userAndTFTableInsertion(int user_id)
 	{
 		// Initialize everything
 		currentURLTermCounts = new HashMap<>();
@@ -171,10 +182,10 @@ public class UserURLsTF
 		}
 
 		// USE WITH CAUTION!
-		dbo.truncateAllUserTables();
+		dbo.truncateAllUserTables(user_id);
 
 		// Prepare the urls List.
-		prepareHistory();
+		prepareHistory(user_id);
 		
 		System.out.println("\nFetching pages and populating user_urls and user_tf...");
 		for (int i = 0; (i < noOfURLs && i < urls.size()) ; i++)
@@ -186,7 +197,7 @@ public class UserURLsTF
 			currentTypedCount = urlTypedCounts.get(i);
 
 			// Only for printing
-			int displayLen = 30;
+			int displayLen = 40;
 			String displayURL = currentURL.replace("https://","").replace("http://","");
 			if(displayURL.length() < displayLen)
 				displayURL = String.format("%"+displayLen+"s", displayURL);
@@ -194,11 +205,11 @@ public class UserURLsTF
 				displayURL = displayURL.substring(0, displayLen-3)+"...";
 			
 			// only for printing
-			String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
+			// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
 			
 			System.out.format("%6d | ", i);
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
-			System.out.print(displayTitle + " | ");
+			// System.out.print(displayTitle + " | ");
 			
 			try
 			{
@@ -212,7 +223,7 @@ public class UserURLsTF
 
 				String queryUserURL = String.format(
 						"INSERT INTO user_urls (user_id, url_timestamp, url, title, visit_count, typed_count) "
-						+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s')",
+						+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s', '%s', %d, %d)",
 						user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);
 
 				// System.out.println(query);
@@ -225,20 +236,20 @@ public class UserURLsTF
 					System.out.print("Already in user_urls | ");
 				}
 
-				tfTableInsertion();
+				tfTableInsertion(user_id);
 			}
 			catch (SQLException e) {
 				e.printStackTrace();
 			} catch (Exception ex) {
-				System.out.println("Skipping this URL.");
+				System.out.println("Skipping this URL. ");
 			}
 		}
 		
 		System.out.println();
-		System.out.println("\nFinished fetching pages and populating user_urls and user_tf!");
+		System.out.println("Finished fetching pages and populating user_urls and user_tf!");
 	}
 
 	public static void main(String[] args) {
-		userAndTFTableInsertion();
+		userAndTFTableInsertion(1);
 	}
 }

@@ -2,6 +2,7 @@ package deimos.phase2.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class SimilarityMapper
 	{
 		try
 		{
-			ResultSet rs1 = dbo.executeQuery("SELECT term, weight FROM tf_weight "
+			ResultSet rs1 = dbo.executeQuery("SELECT term, weight FROM ref_tf "
 					+ "WHERE topic_name LIKE '" + topicName+"' AND weight != 0");
 
 			referenceTerms.clear();
@@ -62,7 +63,7 @@ public class SimilarityMapper
 	{
 		try
 		{
-			ResultSet rs2 = dbo.executeQuery("SELECT term, weight FROM tf_users "
+			ResultSet rs2 = dbo.executeQuery("SELECT term, weight FROM user_tf "
 					+ "WHERE url LIKE '" + url +"'  AND weight != 0");
 
 			userTerms.clear();
@@ -81,14 +82,15 @@ public class SimilarityMapper
 		}
 	}
 
-
 	private static void computeSimilarity(int user_id)
-	{
+	{		
 		try
 		{
+			dbo.truncateTable("User_ref_similarity");
+			
 			ResultSet rsTest = dbo.executeQuery(
 					"select count(*) "
-					+ "FROM topics CROSS JOIN users "
+					+ "FROM ref_topics CROSS JOIN user_urls "
 					+ "WHERE user_id = 1");
 			rsTest.next();
 			System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
@@ -96,9 +98,9 @@ public class SimilarityMapper
 
 			// Reference ontology
 			ResultSet rsXJoin = dbo.executeQueryAgain(
-					"select topics.topic_name, "
-					+ "users.url "
-					+ "FROM topics CROSS JOIN users "
+					"select ref_topics.topic_name, "
+					+ "user_urls.url "
+					+ "FROM ref_topics CROSS JOIN user_urls "
 					+ "WHERE user_id = 1");
 			while(rsXJoin.next())
 			{
@@ -151,7 +153,7 @@ public class SimilarityMapper
 
 				// print
 				System.out.println("\nReady for mapping!");
-				for(int i = 0; i < commonTerms.size(); i++)
+				/*for(int i = 0; i < commonTerms.size(); i++)
 				{
 					System.out.format("%5d %s: UW: %.1e, RW: %.1e %s\n",
 							i,
@@ -159,7 +161,7 @@ public class SimilarityMapper
 							commonWeightsUser.get(i),
 							commonWeightsReference.get(i),
 							(commonWeightsUser.get(i) == 0 && commonWeightsReference.get(i) == 0)?"(Both are zero)":"");
-				}
+				}*/
 
 				// Do the mapping!
 
@@ -189,12 +191,20 @@ public class SimilarityMapper
 					System.out.println();
 					
 					// Insert into Database
-					String query = String.format("INSERT INTO Similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
+					String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
 							currentURL,
 							currentTopic,
 							similarity);
-					dbo.executeQuery(query);
-					System.out.println("Inserted into database! YAY!");
+					try {
+						dbo.executeQuery(query);
+						System.out.println("Inserted into database! YAY!");
+					}
+					catch (SQLIntegrityConstraintViolationException sicve) {
+						
+						System.out.println(sicve+" Duplicate url-topic combo? url = "+
+						currentURL+", topic = "+currentTopic);
+					}
+					
 				}
 
 			}
