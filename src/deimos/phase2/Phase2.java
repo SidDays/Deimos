@@ -1,42 +1,64 @@
 package deimos.phase2;
 
 import deimos.common.DeimosConfig;
+import deimos.common.TimeUtils;
 import deimos.phase2.collection.StemmerApplier;
 import deimos.phase2.collection.StopWordsRemoval;
 import deimos.phase2.collection.TextFromURL;
+import deimos.phase2.ref.RefIDF;
+import deimos.phase2.ref.RefTopicsHierarchyTFParser;
+import deimos.phase2.ref.RefWeightCalculation;
+import deimos.phase2.similarity.SimilarityMapper;
+import deimos.phase2.user.UserIDF;
+import deimos.phase2.user.UserURLsTF;
+import deimos.phase2.user.UserWeightCalculation;
 
 /**
  * Performs all the actions involved in Phase 2.
- * 
- * Very old at this point!
  * 
  * @author Siddhesh Karekar
  */
 public class Phase2 {
 	
-	/**
-	 * Returns the string with only its alphabetical characters.
-	 * This function should be moved elsewhere later. */
-	public static String getAlphabeticalString(String s) {
-		StringBuilder sb = new StringBuilder();
+	private static void prepareReferenceOntology()
+	{
+		// if true, truncate everything, else resume.
+		RefTopicsHierarchyTFParser.generateTopicsHierarchyAndTF(true);
 		
-		for(int i = 0; i < s.length(); i++)
-		{
-			char c = s.charAt(i);
-			if(Character.isLetter(c))
-				sb.append(c);
-		}
+		RefIDF idf = new RefIDF();
+		idf.computeIDF(-1); // Where to resume from (if -1, truncate and start over)
 		
-		return sb.toString();
+		RefWeightCalculation.updateWeights();
 	}
-
+	
+	private static void prepareUserData(int user_id)
+	{
+		// TODO remove hardcode
+		UserURLsTF.userAndTFTableInsertion(user_id);
+		
+		UserIDF.computeUserIDF(user_id);
+		
+		UserWeightCalculation.updateWeights(user_id);
+	}
+	
+	private static void similarityMapping(int user_id)
+	{
+		SimilarityMapper.computeSimilarity(user_id);
+	}
+	
+	public static void phase2(int user_id) {
+		prepareReferenceOntology();
+		prepareUserData(user_id);
+		similarityMapping(user_id);
+	}
+	
 	/**
 	 * Fetches the URL Texts for each URL in the history dump,
 	 * removes stop words from each of these,
 	 * applies Porter-Stemmer to stopword-free output
 	 */
 	@Deprecated
-	public static void phase2CollectionOld() {
+	public static void phase2Old() {
 		
 		// Make sure to configure DeimosConfig.LIMIT_URLS_DOWNLOADED !
 		
@@ -51,7 +73,16 @@ public class Phase2 {
 	
 	public static void main(String[] args)
 	{	
-		// phase2old();
 		
+		long startTime = System.currentTimeMillis();
+		
+		System.out.println("All Phase 2 operations started together.\n");
+		
+		// TODO remove hardcode
+		phase2(1);
+		
+		long stopTime = System.currentTimeMillis();
+		
+		System.out.println("\nAll Phase 2 operations complete. Took "+TimeUtils.formatHmss(stopTime-startTime));
 	}
 }

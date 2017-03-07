@@ -1,4 +1,4 @@
-package deimos.phase2.user;
+package deimos.phase2.similarity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -82,7 +82,7 @@ public class SimilarityMapper
 		}
 	}
 
-	private static void computeSimilarity(int user_id)
+	public static void computeSimilarity(int user_id)
 	{		
 		try
 		{

@@ -22,8 +22,9 @@ public class TimeUtils {
     }
 	
 	/** Test */
-	/*public static void main(String args[])
+	public static void main(String args[])
 	{
-		System.out.println(formatHmss(111001200));
-	}*/
+		int n = 3600050;
+		System.out.println(n+ " ms = "+formatHmss(n));
+	}
 }

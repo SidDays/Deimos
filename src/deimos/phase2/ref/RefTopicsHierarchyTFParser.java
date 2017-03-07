@@ -10,7 +10,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import deimos.common.DeimosConfig;
 
 /**
- * Parses XML data.
+ * Parses DMOZ data to prepare the reference ontology.
  * 
  * Reference:
  * https://nickcharlton.net/posts/guide-to-sax-in-java.html
@@ -19,8 +19,11 @@ import deimos.common.DeimosConfig;
  */
 public class RefTopicsHierarchyTFParser
 {
-	
-	public static void main(String[] args)
+	/**
+	 * 
+	 * @param startAfresh If true, truncates all reference tables to start afresh
+	 */
+	public static void generateTopicsHierarchyAndTF(boolean startAfresh)
 	{
 		try
 		{
@@ -30,7 +33,7 @@ public class RefTopicsHierarchyTFParser
             );
             
             // setup the handler - true if start fresh (truncates all ref. tables)
-            ContentHandler handler = new DMOZHandler(true);
+            ContentHandler handler = new DMOZHandler(startAfresh);
             parser.setContentHandler(handler);
             
             // open the file
@@ -58,8 +61,14 @@ public class RefTopicsHierarchyTFParser
             in.close();
         }
         catch (Exception e) {
-            System.err.println(e); 
+            e.printStackTrace();
         }
+	}
+	
+	public static void main(String[] args)
+	{
+		// if true, truncate everything, else resume.
+		generateTopicsHierarchyAndTF(false);
 	}
 
 }

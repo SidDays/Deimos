@@ -31,7 +31,7 @@ public class RefWeightCalculation
 	 * optionally clear the weight column before you
 	 * re-compute all the weights.
 	 */
-	public static void nullAllWeights()
+	/*private static void nullAllWeights()
 	{
 		try
 		{
@@ -42,12 +42,13 @@ public class RefWeightCalculation
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	/**
 	 * For each term in ref_idf table,
 	 * Find all rows in ref_tf of that term,
 	 * And update their weight as tf*idf.
+	 * 
 	 */
 	public static void updateWeights()
 	{

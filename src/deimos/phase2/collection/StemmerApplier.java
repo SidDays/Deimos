@@ -25,6 +25,7 @@ import deimos.common.DeimosConfig;
  */
 public class StemmerApplier {
 	
+	@Deprecated
 	final public static String PS_DIR = DeimosConfig.DIR_OUTPUT + "/pstemmedtexts";
 	
 	/**

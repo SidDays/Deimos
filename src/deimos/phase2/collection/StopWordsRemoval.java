@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Set;
 
 import deimos.common.DeimosConfig;
-import deimos.phase2.Phase2;
+import deimos.common.StringUtils;
 
 public class StopWordsRemoval {
 	
+	@Deprecated
 	final public static String DIR_SWFREE = DeimosConfig.DIR_OUTPUT + "/swfreetexts";
+	
 	final public static String FILE_STOPWORDS = "resources/stopwords.txt";
 	
 	// TODO make this a resource
@@ -73,7 +75,7 @@ public class StopWordsRemoval {
 		String[] words = inputText.trim().toLowerCase().split(" ");
 		for(String word : words)
 		{
-			word = Phase2.getAlphabeticalString(word.trim());
+			word = StringUtils.onlyAlphabeticalString(word.trim());
 			if(word.length() > 0 && !stopWords.contains(word))
 			{
 				sb.append(word);
@@ -96,7 +98,7 @@ public class StopWordsRemoval {
 		List<String> inputWithoutStopWords = new ArrayList<>(inputWordsList);
 		for(String word : inputWithoutStopWords)
 		{
-			word = Phase2.getAlphabeticalString(word.toLowerCase().trim());
+			word = StringUtils.onlyAlphabeticalString(word.toLowerCase().trim());
 		}
 		inputWithoutStopWords.removeAll(stopWords);
 

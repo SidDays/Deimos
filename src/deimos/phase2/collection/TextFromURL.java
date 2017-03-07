@@ -25,6 +25,7 @@ import deimos.common.StringUtils;
 
 public class TextFromURL {
 	
+	@Deprecated
 	final public static String DIR_URLS = DeimosConfig.DIR_OUTPUT + "/urltexts";
 	
 	/**

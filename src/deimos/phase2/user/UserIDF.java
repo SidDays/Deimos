@@ -22,7 +22,8 @@ public class UserIDF {
 		computeUserIDF(1);
 	}
 	
-	static void computeUserIDF(int user_id) {
+	public static void computeUserIDF(int user_id)
+	{
 		try {
 			dbo = new DBOperations();
 			dbo.truncateTable("user_idf");

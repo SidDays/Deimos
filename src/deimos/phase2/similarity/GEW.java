@@ -1,4 +1,4 @@
-package deimos.phase2.refine;
+package deimos.phase2.similarity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

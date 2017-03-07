@@ -39,6 +39,22 @@ public class StringUtils {
 
 		return filename;
 	}
+	
+	/**
+	 * Returns the string with only its alphabetical characters.
+	 * This function should be moved elsewhere later. */
+	public static String onlyAlphabeticalString(String s) {
+		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < s.length(); i++)
+		{
+			char c = s.charAt(i);
+			if(Character.isLetter(c))
+				sb.append(c);
+		}
+		
+		return sb.toString();
+	}
 
 
 	/** Replace every character which is not a letter, number,

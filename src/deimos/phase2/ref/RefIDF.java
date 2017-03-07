@@ -80,7 +80,7 @@ public class RefIDF
 	 * If resumeIndex == 0, no change;
 	 * If resumeIndex > 0, it will start only from the index mentioned.
 	 */
-	void computeIDF(int resumeIndexParam) // Resume with CARE!
+	public void computeIDF(int resumeIndexParam) // Resume with CARE!
 	{
 		this.resumeIndex = resumeIndexParam;
 		try {
