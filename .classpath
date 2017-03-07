@@ -11,5 +11,10 @@
 	<classpathentry kind="lib" path="src/resources/SQLite/sqlite-jdbc-3.14.2.1.jar"/>
 	<classpathentry kind="lib" path="src/resources/Javamail/javax.mail.jar"/>
 	<classpathentry kind="lib" path="src/resources/OJDBC/ojdbc6.jar"/>
+	<classpathentry kind="lib" path="src/resources/Kumo/kumo-1.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Deimos/src/resources/Kumo/kumo-1.8-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
