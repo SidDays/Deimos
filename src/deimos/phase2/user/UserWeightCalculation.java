@@ -4,6 +4,13 @@ import java.sql.SQLException;
 
 import deimos.phase2.DBOperations;
 
+/**
+ * Computes the weights as a product of TF and IDF
+ * only for user databases.
+ * 
+ * @author Amogh Bhabal
+ * @author Siddhesh Karekar
+ */
 public class UserWeightCalculation {
 
 	static DBOperations dbo;

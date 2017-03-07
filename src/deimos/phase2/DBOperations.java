@@ -21,8 +21,8 @@ import deimos.common.DeimosConfig;
 public class DBOperations
 {
 	public Connection con;
+	private Statement stmt1;
 	private Statement stmt2;
-	private Statement stmt;
 	
 	/**
 	 * Close the connection before exiting.
@@ -32,7 +32,7 @@ public class DBOperations
 	{
 		// Close the connection.
 		try {
-			stmt.close();
+			stmt1.close();
 			stmt2.close();
 			con.close();
 			System.out.println("Connection to database closed successfully");
@@ -69,11 +69,11 @@ public class DBOperations
 					"'s connection to database established successfully.");
 			
 			try {
-				stmt = con.createStatement();
+				stmt1 = con.createStatement();
 				stmt2 = con.createStatement();
 			} catch (SQLException sqle) {
 				
-				System.err.println("Failed to create statement.");
+				System.err.println("Failed to create statement(s).");
 				sqle.printStackTrace();
 			}
 			
@@ -88,27 +88,21 @@ public class DBOperations
 	}
 	
 	/**
-	 * For select queries.
+	 * For select queries. Use executeQueryAgain if
+	 * you are unable to close this ResultSet.
+	 * 
 	 * @param query
 	 * @throws SQLException
 	 */
 	public ResultSet executeQuery(String query) throws SQLException
 	{
 	    ResultSet rs =
-	    		stmt.executeQuery(query);
-
-	    // Print the output
-	    /*while (rs.next()) {
-	        int x = rs.getInt("a");
-	        String s = rs.getString("b");
-	        float f = rs.getFloat("c");
-	    }*/
-	    
+	    		stmt1.executeQuery(query);	    
 	    return rs;
 	}
 	
 	/**
-	 * For select queries.
+	 * For select queries, where the first resultSet cannot be closed yet.
 	 * @param query
 	 * @throws SQLException
 	 */
@@ -127,7 +121,20 @@ public class DBOperations
 	 */
 	public int executeUpdate(String query) throws SQLException
 	{
-		return stmt.executeUpdate(query);
+		return stmt1.executeUpdate(query);
+	}
+	
+	/**
+	 * For more insert, update or delete queries (first use
+	 * executeUpdate).
+	 * 
+	 * @param query
+	 * @return
+	 * @throws SQLException
+	 */
+	public int executeUpdateAgain(String query) throws SQLException
+	{
+		return stmt2.executeUpdate(query);
 	}
 	
 	/** Truncate the specified table.
@@ -150,10 +157,10 @@ public class DBOperations
 	 */
 	public void truncateAllReferenceTables()
 	{
-		this.truncateTable("topics");
-		this.truncateTable("topics_children");
-		this.truncateTable("tf_weight");
-		this.truncateTable("idf");
+		this.truncateTable("ref_topics");
+		this.truncateTable("ref_hierarchy");
+		this.truncateTable("ref_tf");
+		this.truncateTable("ref_idf");
 	}
 	
 	/** Truncate all tables used in user data processing.
@@ -161,12 +168,13 @@ public class DBOperations
 	 */
 	public void truncateAllUserTables()
 	{
-		this.truncateTable("tf_users");
-		this.truncateTable("users");
-		this.truncateTable("similarity");
+		this.truncateTable("user_urls");
+		this.truncateTable("user_tf");
+		this.truncateTable("user_ref_similarity");
 	}
 	
 	/** Test purposes only... Remove later! */
+	@Deprecated
 	public static void main(String[] args)
 	{
 		try {

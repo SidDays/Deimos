@@ -33,7 +33,7 @@ public class GEW {
 	{
 		try {	
 			DBOperations dbo = new DBOperations();
-			ResultSet rs = dbo.executeQuery("SELECT * FROM topics_children");	//the table which contains the similarity measure
+			ResultSet rs = dbo.executeQuery("SELECT * FROM ref_hierarchy");	//the table which contains the similarity measure
 			ResultSet rs3;
 			int count, i, k, j;	
 			double tempval, tempval1;
@@ -54,7 +54,7 @@ public class GEW {
 					count= counte(topicName);
 					if(count==i)
 					{
-						ResultSet rs2 = dbo.executeQuery("SELECT child_name FROM topics_children WHERE topic_name = '"+topicName+"'");
+						ResultSet rs2 = dbo.executeQuery("SELECT child_name FROM ref_hierarchy WHERE topic_name = '"+topicName+"'");
 						while(rs2.next()) 
 						{
 							childtopic=rs2.getString("child_name");
@@ -93,7 +93,7 @@ public class GEW {
 							//topicsWithTerm = rs2.getInt("tf_total");
 						}
 						//System.out.println("Total topics with term: "+topicsWithTerm);
-						//ResultSet rs1=dbo.executeQuery("SELECT DISTICT COUNT(*) AS total FROM topics");
+						//ResultSet rs1=dbo.executeQuery("SELECT DISTICT COUNT(*) AS total FROM ref_topics");
 						//while(rs1.next()) {
 						//	totalTopics = rs1.getInt("total");
 						//}

@@ -1,4 +1,4 @@
-package deimos.phase2.dmoz;
+package deimos.phase2.ref;
 
 import java.util.List;
 import java.util.Map;
@@ -13,9 +13,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import deimos.phase2.DBOperations;
-import deimos.phase2.PageFetcher;
-import deimos.phase2.StemmerApplier;
-import deimos.phase2.StopWordsRemoval;
+import deimos.phase2.collection.PageFetcher;
+import deimos.phase2.collection.StemmerApplier;
+import deimos.phase2.collection.StopWordsRemoval;
 
 // TODO Split this program into manageable functions
 
@@ -118,7 +118,7 @@ public class DMOZHandler extends DefaultHandler
         		
         		try
         		{
-        			// Populate topics_children (parent-child hierarchy)
+        			// Populate ref_hierarchy (parent-child hierarchy)
         			if(!currentTopicName.isEmpty())
         			{
         				int lastIndexOfSlash = currentTopicName.lastIndexOf("/");
@@ -131,7 +131,7 @@ public class DMOZHandler extends DefaultHandler
 
         				// System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
 
-        				query = "INSERT INTO topics_children (topic_name, child_name) VALUES ('" +
+        				query = "INSERT INTO ref_hierarchy (topic_name, child_name) VALUES ('" +
         						parentName + "','" + currentTopicName+ "')";
         				dbo.executeUpdate(query);
 
@@ -185,7 +185,7 @@ public class DMOZHandler extends DefaultHandler
     				Integer tf = entry.getValue();
 
     				String query = String.format(
-    						"INSERT INTO tf_weight (topic_name, term, tf, weight) VALUES ('%s', '%s', %d, null)",
+    						"INSERT INTO ref_tf (topic_name, term, tf, weight) VALUES ('%s', '%s', %d, null)",
     						currentTopicName,
     						term,
     						tf
@@ -225,9 +225,9 @@ public class DMOZHandler extends DefaultHandler
 
         		// DON'T ADD THE LINK UNLESS EVERYTHING GOES FINE!
 
-        		// Populate topics (topics and URLs)
+        		// Populate ref_topics (topics and URLs)
         		try {
-        			query = "INSERT INTO topics (topic_name, url) VALUES ('" +
+        			query = "INSERT INTO ref_topics (topic_name, url) VALUES ('" +
         					currentTopicName + "','" + currentURL+ "')";
 
         			dbo.executeUpdate(query);

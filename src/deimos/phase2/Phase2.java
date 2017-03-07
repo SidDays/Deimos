@@ -1,9 +1,14 @@
 package deimos.phase2;
 
 import deimos.common.DeimosConfig;
+import deimos.phase2.collection.StemmerApplier;
+import deimos.phase2.collection.StopWordsRemoval;
+import deimos.phase2.collection.TextFromURL;
 
 /**
  * Performs all the actions involved in Phase 2.
+ * 
+ * Very old at this point!
  * 
  * @author Siddhesh Karekar
  */
@@ -30,7 +35,8 @@ public class Phase2 {
 	 * removes stop words from each of these,
 	 * applies Porter-Stemmer to stopword-free output
 	 */
-	public static void phase2() {
+	@Deprecated
+	public static void phase2CollectionOld() {
 		
 		// Make sure to configure DeimosConfig.LIMIT_URLS_DOWNLOADED !
 		
@@ -43,7 +49,9 @@ public class Phase2 {
 		StemmerApplier.applyStemmerOnSWFreeOutput();
 	}
 	
-	public static void main(String[] args) {	
-		phase2();
+	public static void main(String[] args)
+	{	
+		// phase2old();
+		
 	}
 }

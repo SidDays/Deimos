@@ -1,4 +1,4 @@
-package deimos.phase2.dmoz;
+package deimos.phase2.ref;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,12 +15,18 @@ import deimos.phase2.DBOperations;
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
  */
-public class IDF
+public class RefIDF
 {
 	double idf;
 	
 	int idfComputeCount;
+	
+	/** Used to resume IDF calculation from
+	 * a certain index in the list of distinct terms from ref_tf.
+	 * 0 Makes it start over
+	 * -1 Makes it start over and also truncate existing IDF*/
 	int resumeIndex;
+	
 	int totalTopics;
 	int topicsWithTerm;
 	String query;
@@ -28,7 +34,7 @@ public class IDF
 	DBOperations dbo;
 	long startTime, stopTime;
 	
-	public IDF() {
+	public RefIDF() {
 		startTime = System.currentTimeMillis();
 		idfComputeCount = 0;
 		resumeIndex = 0;
@@ -61,13 +67,13 @@ public class IDF
 	}
 	
 	/**
-	 * Selects distinctly all the terms in tf_weight, and prepares a List.
-	 * Computes IDF for all the terms in that list, and inserts them into idf table.
+	 * Selects distinctly all the terms in ref_tf, and prepares a List.
+	 * Computes IDF for all the terms in that list, and inserts them into ref_idf table.
 	 * You can specify a resumeIndex to not have to do the entire process at one go.
 	 * <br>
 	 * <br>
-	 * In any case, the term is a primary key of IDF, so duplicate entries will not be inserted.
-	 * Thus, if the tf_weight table is updated, you MUST specify the resumeIndex as -1 to
+	 * In any case, the term is a primary key of ref_idf, so duplicate entries will not be inserted.
+	 * Thus, if the ref_tf table is updated, you MUST specify the resumeIndex as -1 to
 	 * truncate the table beforehand!
 	 * 
 	 * @param resumeIndex If resumeIndex == -1, truncates the tables and starts afresh;
@@ -80,7 +86,7 @@ public class IDF
 		try {
 			dbo = new DBOperations();
 			
-			rs = dbo.executeQuery("SELECT DISTINCT term FROM tf_weight");
+			rs = dbo.executeQuery("SELECT DISTINCT term FROM ref_tf");
 			
 			List<String> terms = new ArrayList<String>();
 			while(rs.next())
@@ -110,8 +116,8 @@ public class IDF
 			if(resumeIndex > 0) {
 				System.out.format("The processing will resume from term %d of %d (%.2f%s complete).\n",
 						resumeIndex, terms.size(), (resumeIndex*100.0f/terms.size()), "%");
-				System.out.println("idf table was not truncated. "
-						+ "Make sure tf_weight was not changed beforehand!");
+				System.out.println("ref_idf table was not truncated. "
+						+ "Make sure ref_tf was not changed beforehand!");
 			}
 			else if(resumeIndex == -1) {
 				dbo.truncateTable("IDF");
@@ -125,7 +131,7 @@ public class IDF
 				// System.out.println("Term-name: "+termName);
 				
 				ResultSet rs2 = dbo.executeQuery(
-						"SELECT COUNT(DISTINCT topic_name) AS tf_total FROM tf_weight WHERE term LIKE '"+termName+"'");
+						"SELECT COUNT(DISTINCT topic_name) AS tf_total FROM ref_tf WHERE term LIKE '"+termName+"'");
 				
 				while(rs2.next()) {
 					topicsWithTerm = rs2.getInt("tf_total");
@@ -134,7 +140,7 @@ public class IDF
 				// System.out.println("Total topics with term: "+topicsWithTerm);
 				
 				ResultSet rs1=dbo.executeQuery(
-						"SELECT COUNT(DISTINCT topic_name) AS total FROM topics");
+						"SELECT COUNT(DISTINCT topic_name) AS total FROM ref_topics");
 				while(rs1.next()) {
 					totalTopics = rs1.getInt("total");
 				}
@@ -142,7 +148,7 @@ public class IDF
 				// System.out.println("Total topics: "+totalTopics);
 				
 				idf = Math.log((double)totalTopics/topicsWithTerm);
-				query = "INSERT INTO idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
+				query = "INSERT INTO ref_idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
 				
 				try {
 					dbo.executeUpdate(query);
@@ -157,14 +163,16 @@ public class IDF
 
 			}
 			
+			System.out.println("idf calculation for Ref_idf complete!");
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
-	 * Selects distinctly all the terms in tf_weight, and prepares a List.
-	 * Computes IDF for all the terms in that list, and inserts them into idf table.
+	 * Selects distinctly all the terms in ref_tf, and prepares a List.
+	 * Computes IDF for all the terms in that list, and inserts them into ref_idf table.
 	 * <br>
 	 * <br>
 	 * Same as computeIDF(0) - no truncate or resume.
@@ -176,7 +184,7 @@ public class IDF
 	
 	public static void main(String[] args)
 	{
-		IDF idf = new IDF();
+		RefIDF idf = new RefIDF();
 		idf.computeIDF(0); // Where to resume from
 	}
 }

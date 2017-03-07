@@ -1,4 +1,4 @@
-package deimos.phase2;
+package deimos.phase2.collection;
 
 /*
    Porter stemmer in Java. The original paper is in

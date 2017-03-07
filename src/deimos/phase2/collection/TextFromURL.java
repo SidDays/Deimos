@@ -1,32 +1,36 @@
-package deimos.phase2;
+package deimos.phase2.collection;
 
-import deimos.common.DeimosConfig;
-import deimos.common.ProcessFileUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 
 /**
+ * Old implementation where text files were being downloaded
+ * for the URLs into the DIR_URLS.
+ * 
+ * Parses the history input file;
+ * creates a List containing each parsed URL,
+ * uses a MessageDigest to generate MD5 hashes of URLs to use as filenames,
+ * and uses PageFetcher's fetchHTMLAsFile to save URL texts in URLS_DIR.
  * 
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
  */
+
 public class TextFromURL {
 	
 	final public static String DIR_URLS = DeimosConfig.DIR_OUTPUT + "/urltexts";
-	private static MessageDigest md;
-
+	
 	/**
 	 * Deletes all the files exist in the URL texts directory.
 	 */
-	public static void cleanDirectory() throws SecurityException
+	/*private static void cleanDirectory() throws SecurityException
 	{
 		File file = new File(DIR_URLS);
 		String[] myFiles;
@@ -37,32 +41,18 @@ public class TextFromURL {
 				myFile.delete();
 			}
 		}
-	}
-	
-	/** 
-	 * Generates an MD5 Hash to use as a file name.
-	 * This helps to determine whether one URL is visited more than once
-	 * @param name The URL to hash
-	 * @return A legible filename with a hash.
-	 */
-	public static String getHashedFileName(String name) {
-		
-		String filename = "";
-		byte[] digest = md.digest(name.getBytes());
-		filename = (new HexBinaryAdapter()).marshal(digest);
-
-		return filename;
-	}
+	}*/
 	
 	/** 
 	 * Parses the history input file;
 	 * creates a List containing each parsed URL,
-	 * uses a MessageDigest to generate MD5 hashes of URLs to use as filenames,
+	 * (optionally) uses a MessageDigest to generate MD5 hashes of URLs to use as filenames,
 	 * and uses PageFetcher's fetchHTMLAsFile to save URL texts in URLS_DIR.
 	 * 
 	 * @param filename Usually you need 'export-history.txt'
 	 * 
 	 */
+	@Deprecated
 	public static void fetchTextFromHistoryDump(String filename)
 	{
 		try {
@@ -87,17 +77,7 @@ public class TextFromURL {
 			 * following code gets only urls from the above arraylist
 			 */
 			
-			// Initialize the MessageDigest object that lets us produce hashes
-			if(DeimosConfig.OPTION_HASH_P1_OUTPUT_FILENAMES) {
-				try {
-					md = MessageDigest.getInstance("MD5");
 
-				} catch(NoSuchAlgorithmException e) {
-					e.printStackTrace();
-				}
-			}
-
-			
 			// Parse the history dump to get URLs only
 			for (int i = 0; i < urls.size(); i++) {
 				String s = urls.get(i);
@@ -106,13 +86,6 @@ public class TextFromURL {
 				urls.set(i, subst);
 			}
 			
-			// remove duplicates from urls by using sets - NOT REQUIRED
-			/*
-			Set<String> hs = new HashSet<>();
-			hs.addAll(urls);
-			urls.clear();
-			urls.addAll(hs);
-			*/
 
 			noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED; // any value ranging from 1 to urls.size()
 
@@ -135,10 +108,10 @@ public class TextFromURL {
 					
 					String outputfilename;
 					if(DeimosConfig.OPTION_HASH_P1_OUTPUT_FILENAMES) {
-						outputfilename = getHashedFileName(currentURL);
+						outputfilename = StringUtils.hashFilename(currentURL);
 					}
 					else {
-						outputfilename = ProcessFileUtils.sanitizeFilename(currentURL);
+						outputfilename = StringUtils.sanitizeFilename(currentURL);
 						outputfilename = outputfilename.substring(0,
 								Math.min(currentURL.length(), 48));
 					}

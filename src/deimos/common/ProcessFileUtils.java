@@ -49,17 +49,7 @@ public class ProcessFileUtils {
 
 	}
 	
-	/** Replace every character which is not a letter, number,
-	 * underscore or dot with an underscore, using regex.
-	 * 
-	 * Sourced from:
-	 * stackoverflow.com/questions/1184176/
-	 * how-can-i-safely-encode-a-string-in-java-to-use-as-a-filename
-	 * @author JonasCz
-	 */
-	public static String sanitizeFilename(String inputName) {
-	    return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
-	}
+	
 	
 	/**
 	 * Create a directory in the specified location if it doesn't already exist

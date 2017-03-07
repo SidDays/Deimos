@@ -1,16 +1,16 @@
-package deimos.phase2.dmoz;
+package deimos.phase2.ref;
 
 import java.sql.SQLException;
 import deimos.phase2.DBOperations;
 
 /**
  * Computes the weights as a product of TF and IDF
- * Only for Reference ontology for now.
+ * only for Reference ontology.
  * 
  * @author Amogh Bhabal
  * @author Siddhesh Karekar
  */
-public class WeightCalculation
+public class RefWeightCalculation
 {
 	static DBOperations dbo;
 
@@ -27,7 +27,7 @@ public class WeightCalculation
 	}
 
 	/**
-	 * In case the IDF table has changed, you can
+	 * In case the ref_idf table has changed, you can
 	 * optionally clear the weight column before you
 	 * re-compute all the weights.
 	 */
@@ -35,7 +35,7 @@ public class WeightCalculation
 	{
 		try
 		{
-			String query = String.format("UPDATE tf_weight SET weight = null");
+			String query = String.format("UPDATE ref_tf SET weight = null");
 			dbo.executeUpdate(query);
 			System.out.println("Nulled all weights in table.");
 		}
@@ -45,24 +45,24 @@ public class WeightCalculation
 	}
 
 	/**
-	 * For each term in IDF table,
-	 * Find all rows in TF_weight of that term,
+	 * For each term in ref_idf table,
+	 * Find all rows in ref_tf of that term,
 	 * And update their weight as tf*idf.
 	 */
 	public static void updateWeights()
 	{
 		try
 		{
-			System.out.println("Weight calculation and updation for tf_weight started.");
+			System.out.println("Weight calculation and updation for ref_tf started.");
 
 			// nullAllWeights();
 
 			// Update weights
-			String queryUpdate = "UPDATE tf_weight "
-					+ "SET tf_weight.weight = tf_weight.tf * ( SELECT idf FROM idf WHERE idf.term = tf_weight.term )";
+			String queryUpdate = "UPDATE ref_tf "
+					+ "SET ref_tf.weight = ref_tf.tf * ( SELECT idf FROM ref_idf WHERE ref_idf.term = ref_tf.term )";
 			dbo.executeUpdate(queryUpdate);
 
-			System.out.println("Weight calculation and updation finished for tf_weight!");
+			System.out.println("Weight calculation and updation finished for ref_tf!");
 		}
 		catch(SQLException e)
 		{
@@ -72,6 +72,6 @@ public class WeightCalculation
 
 	public static void main(String args[])
 	{
-		WeightCalculation.updateWeights();
+		RefWeightCalculation.updateWeights();
 	}
 }

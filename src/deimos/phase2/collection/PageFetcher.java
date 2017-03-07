@@ -1,4 +1,4 @@
-package deimos.phase2;
+package deimos.phase2.collection;
 
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLProtocolException;
 
 public class PageFetcher {
 	
@@ -25,7 +26,8 @@ public class PageFetcher {
 			throws IOException,
 			IllegalArgumentException, SocketException,
 			SocketTimeoutException, HttpStatusException,
-			UnknownHostException, SSLHandshakeException {
+			UnknownHostException, SSLHandshakeException,
+			SSLProtocolException {
 		
 		// TODO Re-throw all these exceptions
 		String html = "";
@@ -62,6 +64,9 @@ public class PageFetcher {
 		catch (SSLHandshakeException sshe) {
 			System.err.println("SSLHandshakeException.");
 		}
+		catch (SSLProtocolException spe) {
+			System.err.println("SSLProtocolException.");
+		}
 
 		return html;
 	}
@@ -71,7 +76,7 @@ public class PageFetcher {
 	 * @param fileName The name of output file.
 	 * @param url The URL to visit
 	 */
-	
+	@Deprecated
 	public static void fetchHTMLAsFile(String fileName, String url) {
 		PrintStream fileStream;
 		try {
@@ -97,7 +102,7 @@ public class PageFetcher {
 	 * @param args Only the first String is processed as the URL
 	 * @throws IOException
 	 */
-
+	@Deprecated
 	public static void main(String[] args) throws IOException {
 
 		if (args.length > 0) {

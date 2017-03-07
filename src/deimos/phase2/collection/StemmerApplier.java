@@ -1,4 +1,4 @@
-package deimos.phase2;
+package deimos.phase2.collection;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,14 +47,15 @@ public class StemmerApplier {
 	 * finally stems each word it finds.
 	 * 
 	 * This implementation is similar to the 
-	 * main defined in Stemmes.
+	 * main defined in Stemmer.
 	 */
+	@Deprecated
 	public static void applyStemmerOnSWFreeOutput()
 	{
 		int count = 0;
 		
 		// Specifies directory of stopword-free output
-		File directory = new File(deimos.phase2.StopWordsRemoval.DIR_SWFREE);
+		File directory = new File(deimos.phase2.collection.StopWordsRemoval.DIR_SWFREE);
 
 		File[] cleanedFiles = directory.listFiles();
 		String[] files = new String[cleanedFiles.length];

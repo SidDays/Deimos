@@ -1,4 +1,4 @@
-package deimos.phase2.dmoz;
+package deimos.phase2.ref;
 
 import java.io.FileInputStream;
 
@@ -17,7 +17,7 @@ import deimos.common.DeimosConfig;
  * 
  * @author Siddhesh Karekar
  */
-public class XMLParserSAX
+public class RefTopicsHierarchyTFParser
 {
 	
 	public static void main(String[] args)

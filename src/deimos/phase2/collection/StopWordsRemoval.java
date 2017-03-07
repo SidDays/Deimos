@@ -1,4 +1,4 @@
-package deimos.phase2;
+package deimos.phase2.collection;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import deimos.common.DeimosConfig;
+import deimos.phase2.Phase2;
 
 public class StopWordsRemoval {
 	
@@ -107,6 +108,7 @@ public class StopWordsRemoval {
 	 * Goes through each file in URLS_DIR, and creates stopword-free output
 	 * which is stored into SWFREE_DIR
 	 */
+	@Deprecated
 	public static void removeStopWordsFromURLTexts() {
 
 		File folder;
@@ -120,7 +122,7 @@ public class StopWordsRemoval {
 		
 		try {
 			
-			folder = new File(deimos.phase2.TextFromURL.DIR_URLS);
+			folder = new File(TextFromURL.DIR_URLS);
 			listOfFiles = folder.listFiles();
 			fileWords = new ArrayList<>();
 			
@@ -152,7 +154,7 @@ public class StopWordsRemoval {
 					
 					if(filename.endsWith(".txt"))
 					{
-						inputFile = new File(deimos.phase2.TextFromURL.DIR_URLS +
+						inputFile = new File(TextFromURL.DIR_URLS +
 								"/"+filename);
 						outputFile = new File(DIR_SWFREE + "/"+ filename);
 						reader = new BufferedReader(new FileReader(inputFile));

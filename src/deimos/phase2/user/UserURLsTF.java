@@ -14,45 +14,50 @@ import java.util.Map;
 
 import deimos.common.DeimosConfig;
 import deimos.phase2.DBOperations;
-import deimos.phase2.PageFetcher;
-import deimos.phase2.StemmerApplier;
-import deimos.phase2.StopWordsRemoval;
+import deimos.phase2.collection.PageFetcher;
+import deimos.phase2.collection.StemmerApplier;
+import deimos.phase2.collection.StopWordsRemoval;
 
-public class UserOperations {
-	
-	static String urlTimestampSubst;
-	
-	static String timestampFormat = "YYYY-MM-DD HH24:MI:SS";
-	
-	static String urlSubst;
-	
-	static String currentURL;
-	
-	static String currentTimestamp;
-	
-	static String currentURLText;
-	
-	static String query;
+/**
+ * 
+ * Populates user tables for URLs and TF.
+ * Parses user history currently kept in text file.
+ * 
+ * @author Bhushan Pathak
+ * @author Siddhesh Karekar
+ */
+public class UserURLsTF
+{
+	private static String currentURL;
+	private static String currentTimestamp;
+	private static String currentTitle;
+	private static int currentVisitCount;
+	private static int currentTypedCount;
+	private static String currentURLText;
 	
 	/** Store all URLs in user history. */
-	static List<String> urls = new ArrayList<String>();
+	private static List<String> urls = new ArrayList<String>();
 	
 	/** Store all timestamps in user history for respective URLs. */
-	static List<String> urlTimeStamps = new ArrayList<String>();
+	private static List<String> urlTimeStamps = new ArrayList<String>();
 	
-	static Map<String, Integer> currentURLTermCounts;
+	private static List<String> urlTitles = new ArrayList<String>();
+	private static List<Integer> urlVisitCounts = new ArrayList<Integer>();
+	private static List<Integer> urlTypedCounts = new ArrayList<Integer>();
 	
-	static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
-	static int user_id = 1;
+	private static Map<String, Integer> currentURLTermCounts;
 	
-	static DBOperations dbo;
+	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
+	private static int user_id = 1;
+	
+	private static DBOperations dbo;
 
 	/**
 	 * Prepare the List of urls in user browsing history;
 	 * load the history text file and parse it.
 	 * @param historyFileName The location of the history text file.
 	 */
-	public static void prepareHistory(String historyFileName)
+	private static void prepareHistory(String historyFileName)
 	{
 		File historyFile = new File(historyFileName); 
 		
@@ -72,15 +77,17 @@ public class UserOperations {
 			// Convert the URLs into URL + Timestamp
 			for (int i = 0; i < urls.size(); i++)
 			{
-				urlTimestampSubst = urls.get(i).substring(0, urls.get(i).indexOf('|'));
-				urlTimeStamps.add(urlTimestampSubst);
+				// Format
+				String[] urlPieces = urls.get(i).split(DeimosConfig.DELIM);
+				
+				// Update arrayLists
 
-				urlSubst = urls.get(i).substring(urls.get(i).indexOf('|') + 1);
+				urlTimeStamps.add(urlPieces[0]);
+				urls.set(i, urlPieces[1]); // Replace entire text line with only URL
+				urlTitles.add(urlPieces[2]);
+				urlVisitCounts.add(Integer.parseInt(urlPieces[3]));
+				urlTypedCounts.add(Integer.parseInt(urlPieces[4]));
 				
-				// System.out.println(urlTimestampSubst+" "+urlSubst);
-				
-				// Replace the URL+Timestamp with only URL
-				urls.set(i, urlSubst);
 			}
 			System.out.format("Finished parsing user history of %d URL(s).\n", urls.size());
 			
@@ -104,26 +111,10 @@ public class UserOperations {
 		prepareHistory(DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
 	
-	static void tfTableInsertion()
+	private static void tfTableInsertion()
 	{
 		try
-		{
-			/*currentURLTermCounts.clear();
-			Map<String, Integer> porter = StemmerApplier.stemmedWordsAndCount(currentURLText);
-			for (Map.Entry<String, Integer> entry : porter.entrySet())
-			{
-				String stemmedWord = entry.getKey();
-				Integer porterCount = entry.getValue();
-
-				// Update currentTopicTermCounts
-				// If it is not in the HashMap, null will be returned.
-				Integer existingCount = currentURLTermCounts.get(stemmedWord);
-				if(existingCount == null)
-					currentURLTermCounts.put(stemmedWord, 1);
-				else
-					currentURLTermCounts.put(stemmedWord, existingCount + porterCount);
-			}*/
-			
+		{			
 			currentURLTermCounts = StemmerApplier.stemmedWordsAndCount(currentURLText);
 			
 			// Print currentURLTermCounts
@@ -140,8 +131,8 @@ public class UserOperations {
 					term = term.substring(0, 50);
 				
 				Integer tf = entry.getValue();
-				query = String.format(
-						"INSERT INTO tf_users (user_id, url, term, tf, weight) VALUES (%d, '%s', '%s', %d, null)",
+				String queryUserTF = String.format(
+						"INSERT INTO user_tf (user_id, url, term, tf, weight) VALUES (%d, '%s', '%s', %d, null)",
 						user_id,
 						currentURL,
 						term,
@@ -150,21 +141,20 @@ public class UserOperations {
 				
 				try
 				{
-					dbo.executeUpdate(query);
+					dbo.executeUpdate(queryUserTF);
 				}
 				catch (SQLIntegrityConstraintViolationException sicve) {
 					termsAlreadyInTable++;
 				}
 			}
 			if(termsAlreadyInTable > 0)
-				System.out.format("%d/%d URL terms already in tf_users.\n", termsAlreadyInTable, totalTerms);
+				System.out.format("%d/%d URL terms already in user_tf.\n", termsAlreadyInTable, totalTerms);
 			else
-				System.out.println("Inserted into tf_users.");
+				System.out.println("Inserted into user_tf.");
 		}
-		catch (SQLException e) {
-			
-			// e.printStackTrace();
-			System.out.println(e);
+		catch (SQLException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
@@ -186,23 +176,29 @@ public class UserOperations {
 		// Prepare the urls List.
 		prepareHistory();
 		
-		System.out.println("\nFetching pages and populating users and tf_users...");
+		System.out.println("\nFetching pages and populating user_urls and user_tf...");
 		for (int i = 0; (i < noOfURLs && i < urls.size()) ; i++)
 		{
 			currentTimestamp = urlTimeStamps.get(i);
-
 			currentURL = urls.get(i);
+			currentTitle = urlTitles.get(i);
+			currentVisitCount = urlVisitCounts.get(i);
+			currentTypedCount = urlTypedCounts.get(i);
 
 			// Only for printing
-			int displayLen = 40;
+			int displayLen = 30;
 			String displayURL = currentURL.replace("https://","").replace("http://","");
 			if(displayURL.length() < displayLen)
 				displayURL = String.format("%"+displayLen+"s", displayURL);
 			else
 				displayURL = displayURL.substring(0, displayLen-3)+"...";
 			
+			// only for printing
+			String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
+			
 			System.out.format("%6d | ", i);
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
+			System.out.print(displayTitle + " | ");
 			
 			try
 			{
@@ -214,19 +210,19 @@ public class UserOperations {
 
 				// System.out.println("URL Text:"+currentURLText);
 
-				query = String.format(
-						"INSERT INTO users (user_id, url_timestamp, url) "
+				String queryUserURL = String.format(
+						"INSERT INTO user_urls (user_id, url_timestamp, url, title, visit_count, typed_count) "
 						+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s')",
-						user_id, currentTimestamp, currentURL);
+						user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);
 
 				// System.out.println(query);
 				try
 				{
-					dbo.executeUpdate(query);
-					System.out.print("Inserted into users | ");
+					dbo.executeUpdate(queryUserURL);
+					System.out.print("Inserted into user_urls | ");
 				}
 				catch (SQLIntegrityConstraintViolationException sicve) {
-					System.out.print("Already in users | ");
+					System.out.print("Already in user_urls | ");
 				}
 
 				tfTableInsertion();
@@ -239,7 +235,7 @@ public class UserOperations {
 		}
 		
 		System.out.println();
-		System.out.println("\nFinished fetching pages and populating users and tf_users!");
+		System.out.println("\nFinished fetching pages and populating user_urls and user_tf!");
 	}
 
 	public static void main(String[] args) {

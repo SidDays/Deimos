@@ -1,4 +1,4 @@
-package deimos.phase2.dmoz;
+package deimos.phase2.ref;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +25,7 @@ import deimos.common.DeimosConfig;
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
  */
-
+@Deprecated
 public class XMLParserDOM {
 	
 	

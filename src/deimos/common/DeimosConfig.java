@@ -19,8 +19,8 @@ public class DeimosConfig {
 	// ----------------------------------------
 	
 	// Phase 2
-	final public static String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
-	final public static String FILE_XML_DMOZ =
+	public static final String FILE_XML_DMOZ_EXAMPLE = "resources/xmlexample.xml";
+	public static final String FILE_XML_DMOZ =
 			// "E:/Downloads/Padhai/Deimos/Dmoz/content-noExternalPage2.rdf.u8";
 			"resources/shopping.rdf.u8";
 	
