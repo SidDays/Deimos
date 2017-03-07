@@ -28,6 +28,9 @@ import java.io.PrintStream;
 public class ExportHistory {
 	
 	private static final String FILE_CHROME_WIN_HISTORY = DeimosConfig.DIR_CHROME_WIN + "/History";
+	
+	private static final int LIMIT_LENGTH_TITLE = 160;
+	
 	private static Connection connection = null;
 	private static ResultSet resultSet = null;
 	private static Statement statement = null;
@@ -57,11 +60,23 @@ public class ExportHistory {
 					.getConnection("jdbc:sqlite:"+historyLocation);
 			statement = connection.createStatement();
 			resultSet = statement.executeQuery(
-					"SELECT datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime'),url FROM  urls order by last_visit_time desc");
+					"SELECT datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime'),url, visit_count,"
+					+ " title, typed_count FROM  urls order by last_visit_time desc");
 			
 			while (resultSet.next()) {
+				
+				String urlTitle = resultSet.getString("title");
+				
+				if(urlTitle.isEmpty()) {
+					urlTitle=" ";
+				} else if (urlTitle.length() > LIMIT_LENGTH_TITLE)
+					urlTitle = urlTitle.substring(0, LIMIT_LENGTH_TITLE);
+				
 				output.add(resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')")
-						+ DeimosConfig.DELIM + resultSet.getString("url"));
+						+ DeimosConfig.DELIM + resultSet.getString("url")
+						+ DeimosConfig.DELIM + urlTitle
+						+ DeimosConfig.DELIM + resultSet.getInt("visit_count")
+						+ DeimosConfig.DELIM + resultSet.getInt("typed_count"));
 				count++;
 			}
 			
