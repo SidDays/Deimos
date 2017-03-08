@@ -11,7 +11,72 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  * @author Siddhesh Karekar
  * @author Various others (credited)
  */
-public class StringUtils {
+public class StringUtils
+{
+
+	/**
+	 * Convert a String with spaces or
+	 * underscores into camelCase.
+	 * e.g. "Hello World" -> "helloWorld"
+	 * @param str Input String
+	 * @return Output String
+	 */
+	public static String camelCase(String str)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		int length = str.length();
+		for(int i = 0; i < length ; i++)
+		{
+			char ch = str.charAt(i);
+			if(ch == ' ' | ch == '_')
+			{
+				if(i < length-1)
+				{
+					char chNext = str.charAt(i+1);
+					sb.append(Character.toUpperCase(chNext));
+					i ++;
+				}
+			}
+			else sb.append(Character.toLowerCase(ch));
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * Convert a String with spaces or
+	 * underscores into camelCase.
+	 * e.g. "Hello World" -> "HelloWorld"
+	 * @param str Input String
+	 * @return Output String
+	 */
+	public static String titleCase(String str)
+	{
+		StringBuilder sb = new StringBuilder();
+
+		int length = str.length();
+		for(int i = 0; i < length ; i++)
+		{
+			char ch = str.charAt(i);
+			if(ch == ' ' | ch == '_')
+			{
+				if(i == 0) {
+					sb.append(Character.toUpperCase(ch));
+				}
+				else if(i < length-1)
+				{
+					char chNext = str.charAt(i+1);
+					sb.append(Character.toUpperCase(chNext));
+					i ++;
+				}
+			}
+			else sb.append(Character.toLowerCase(ch));
+		}
+
+		return sb.toString();
+	}
+
 
 	private static MessageDigest md;
 
@@ -39,20 +104,20 @@ public class StringUtils {
 
 		return filename;
 	}
-	
+
 	/**
 	 * Returns the string with only its alphabetical characters.
 	 * This function should be moved elsewhere later. */
 	public static String onlyAlphabeticalString(String s) {
 		StringBuilder sb = new StringBuilder();
-		
+
 		for(int i = 0; i < s.length(); i++)
 		{
 			char c = s.charAt(i);
 			if(Character.isLetter(c))
 				sb.append(c);
 		}
-		
+
 		return sb.toString();
 	}
 

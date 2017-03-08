@@ -3,25 +3,20 @@ package deimos.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kennycason.kumo.CollisionMode;
-import com.kennycason.kumo.WordCloud;
-import com.kennycason.kumo.WordFrequency;
-import com.kennycason.kumo.bg.RectangleBackground;
-import com.kennycason.kumo.font.KumoFont;
-import com.kennycason.kumo.font.scale.LinearFontScalar;
-import com.kennycason.kumo.image.AngleGenerator;
-import com.kennycason.kumo.nlp.FrequencyAnalyzer;
-import com.kennycason.kumo.palette.ColorPalette;
+import com.kennycason.kumo.*;
+import com.kennycason.kumo.bg.*;
+import com.kennycason.kumo.font.*;
+import com.kennycason.kumo.font.scale.*;
+import com.kennycason.kumo.nlp.*;
+import com.kennycason.kumo.palette.*;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 import deimos.phase2.DBOperations;
 
 /**
@@ -37,6 +32,7 @@ public class WordCloudTest
 
 	private static final String FILE_CLOUD_OUTPUT = "wordcloud.png";
 	private static final String DIR_CLOUD_OUTPUT = DeimosConfig.DIR_OUTPUT;
+	private static final String FONT = "Monaco";
 
 	private static DBOperations dbo;
 
@@ -59,12 +55,25 @@ public class WordCloudTest
 			ResultSet rs = dbo.executeQuery(query);
 			while(rs.next()) {
 				String currentTopicName = rs.getString("topic_name");
+				String oldTopicName = currentTopicName;
 				// currentTopicName = currentTopicName.replace("Top/", "");
+				int lastIndex = -1;
 				if(currentTopicName.contains("/"))
 				{
-					currentTopicName = currentTopicName.substring(currentTopicName.indexOf("/")+1);
+					lastIndex = currentTopicName.lastIndexOf("/")+1;
+					currentTopicName = currentTopicName.substring(lastIndex);
 				}
-				currentTopicName = currentTopicName.replace("/", " ");
+				
+				if(currentTopicName.length() < 2) {
+					int secondLastIndex = oldTopicName.lastIndexOf("/", lastIndex-2);
+					currentTopicName = oldTopicName.substring(secondLastIndex+1);
+				}
+				
+				// currentTopicName = currentTopicName.replace("_", "");
+				currentTopicName = StringUtils.titleCase(currentTopicName);
+				currentTopicName = currentTopicName.replace("/", "-");
+				
+				
 				topicNames.add(currentTopicName);
 				System.out.print("["+currentTopicName + "] ");
 			}
@@ -73,17 +82,23 @@ public class WordCloudTest
 			rs.close();
 
 			final FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
+			frequencyAnalyzer.setMaxWordLength(100);
+			frequencyAnalyzer.setMinWordLength(1);
+			
+			frequencyAnalyzer.clearNormalizers();
+			
 			List<WordFrequency> wordFrequencies;
 			wordFrequencies = frequencyAnalyzer.load(topicNames);
 			
-			final Dimension dimension = new Dimension(640, 480);
-			final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
+			final Dimension dimension = new Dimension(640, 640);
+			final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
 			wordCloud.setPadding(0);
 			// wordCloud.setAngleGenerator(new AngleGenerator(0));
 			wordCloud.setBackground(new RectangleBackground(dimension));
-			wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.YELLOW, Color.GREEN));
-			wordCloud.setKumoFont(new KumoFont(new Font("Lucida Sans", Font.PLAIN, 8)));
-			wordCloud.setFontScalar(new LinearFontScalar(10, 40));
+			// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
+			wordCloud.setColorPalette(new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW));
+			wordCloud.setKumoFont(new KumoFont(new Font(FONT, Font.PLAIN, 6)));
+			wordCloud.setFontScalar(new LinearFontScalar(8, 60));
 			wordCloud.build(wordFrequencies);
 
 
