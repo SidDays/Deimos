@@ -59,17 +59,19 @@ public class StringUtils
 		for(int i = 0; i < length ; i++)
 		{
 			char ch = str.charAt(i);
+			
 			if(ch == ' ' | ch == '_')
 			{
-				if(i == 0) {
-					sb.append(Character.toUpperCase(ch));
-				}
-				else if(i < length-1)
+				
+				if(i < length-1)
 				{
 					char chNext = str.charAt(i+1);
 					sb.append(Character.toUpperCase(chNext));
 					i ++;
 				}
+			}
+			else if(i == 0) {
+				sb.append(Character.toUpperCase(ch));
 			}
 			else sb.append(Character.toLowerCase(ch));
 		}

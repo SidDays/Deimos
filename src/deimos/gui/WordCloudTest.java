@@ -90,11 +90,12 @@ public class WordCloudTest
 			List<WordFrequency> wordFrequencies;
 			wordFrequencies = frequencyAnalyzer.load(topicNames);
 			
-			final Dimension dimension = new Dimension(640, 640);
+			final Dimension dimension = new Dimension(720, 720);
 			final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
-			wordCloud.setPadding(0);
+			wordCloud.setPadding(1);
 			// wordCloud.setAngleGenerator(new AngleGenerator(0));
 			wordCloud.setBackground(new RectangleBackground(dimension));
+			// wordCloud.setBackground(new CircleBackground(360));
 			// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
 			wordCloud.setColorPalette(new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW));
 			wordCloud.setKumoFont(new KumoFont(new Font(FONT, Font.PLAIN, 6)));
