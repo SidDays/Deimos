@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 
@@ -27,7 +28,7 @@ public class PageFetcher {
 			IllegalArgumentException, SocketException,
 			SocketTimeoutException, HttpStatusException,
 			UnknownHostException, SSLHandshakeException,
-			SSLProtocolException {
+			SSLProtocolException, SSLException {
 		
 		// TODO Re-throw all these exceptions
 		String html = "";
@@ -66,6 +67,17 @@ public class PageFetcher {
 		}
 		catch (SSLProtocolException spe) {
 			System.err.println("SSLProtocolException.");
+		} catch (SSLException sslxe) {
+			System.err.println("SSLException.");
+			/* General_Merchandise/D
+Current URL: http://www.davidmorgan.com/
+javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
+
+Caused by: java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64, and can only range from 512 to 2048 (inclusive)
+	at com.sun.crypto.provider.DHKeyPairGenerator.initialize(DHKeyPairGenerator.java:120)
+	at java.security.K*/
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return html;
