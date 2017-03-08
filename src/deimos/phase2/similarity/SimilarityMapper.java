@@ -87,11 +87,11 @@ public class SimilarityMapper
 		try
 		{
 			dbo.truncateTable("User_ref_similarity");
-			
+
 			ResultSet rsTest = dbo.executeQuery(
 					"select count(*) "
-					+ "FROM ref_topics CROSS JOIN user_urls "
-					+ "WHERE user_id = 1");
+							+ "FROM ref_topics CROSS JOIN user_urls "
+							+ "WHERE user_id = 1");
 			rsTest.next();
 			System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
 			rsTest.close();
@@ -99,15 +99,15 @@ public class SimilarityMapper
 			// Reference ontology
 			ResultSet rsXJoin = dbo.executeQueryAgain(
 					"select ref_topics.topic_name, "
-					+ "user_urls.url "
-					+ "FROM ref_topics CROSS JOIN user_urls "
-					+ "WHERE user_id = 1");
+							+ "user_urls.url "
+							+ "FROM ref_topics CROSS JOIN user_urls "
+							+ "WHERE user_id = 1");
 			while(rsXJoin.next())
 			{
 				String currentTopic = rsXJoin.getString(1);
 				String currentURL = rsXJoin.getString(2);
 				populateReferenceList(currentTopic);
-				
+
 				System.out.println();
 				System.out.println("Populated currentTopic: "+currentTopic);
 				populateUserList(currentURL);
@@ -179,34 +179,42 @@ public class SimilarityMapper
 				denReference = Math.sqrt(denReference);
 				denUsers = Math.sqrt(denUsers);
 
-				// compute similarity!! omg!!
-				double similarity = dotProduct/(denReference * denUsers);
-				System.out.print("Similarity = "+similarity);
-				if(similarity < THRESHOLD)
+				if(!(denUsers == 0 || denReference ==0) )
 				{
-					System.out.println(" (less than threshold!");
-				}
-				else
-				{
-					System.out.println();
-					
-					// Insert into Database
-					String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
-							currentURL,
-							currentTopic,
-							similarity);
-					try {
-						dbo.executeQuery(query);
-						System.out.println("Inserted into database! YAY!");
-					}
-					catch (SQLIntegrityConstraintViolationException sicve) {
-						
-						System.out.println(sicve+" Duplicate url-topic combo? url = "+
-						currentURL+", topic = "+currentTopic);
-					}
-					
-				}
 
+					// compute similarity!! omg!!
+					double similarity = dotProduct/(denReference * denUsers);
+					System.out.print("Similarity = "+similarity);
+					if(similarity < THRESHOLD)
+					{
+						System.out.println(" (less than threshold!");
+					}
+					else
+					{
+						System.out.println();
+
+						// Insert into Database
+						String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
+								currentURL,
+								currentTopic,
+								similarity);
+						try {
+							// System.out.println(query);
+							dbo.executeQuery(query);
+							System.out.println("Inserted into database! YAY!");
+						}
+						catch (SQLIntegrityConstraintViolationException sicve) {
+
+							System.out.println(sicve+" Duplicate url-topic combo? url = "+
+									currentURL+", topic = "+currentTopic);
+						}
+
+					}
+
+				}
+				else {
+					System.out.println("denominator = 0!");
+				}
 			}
 		} 
 		catch (SQLException e) 
