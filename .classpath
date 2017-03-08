@@ -16,5 +16,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/Deimos/src/resources/Kumo/kumo-1.8-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="src/resources/Encog/encog-core-3.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
