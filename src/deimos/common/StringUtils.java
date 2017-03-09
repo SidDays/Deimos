@@ -13,6 +13,23 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  */
 public class StringUtils
 {
+	
+	public static String truncate(String str, int length)
+	{
+		if(str.length() > length)
+			return str.substring(0, length-3)+"...";
+		else
+			return str;
+	}
+	
+	public static String truncateURL(String url)
+	{
+		return url.replace("https://","").replace("http://","");
+	}
+	public static String truncateURL(String url, int length)
+	{
+		return truncate(truncateURL(url), length);
+	}
 
 	/**
 	 * Convert a String with spaces or

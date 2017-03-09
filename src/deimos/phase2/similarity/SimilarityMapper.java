@@ -6,6 +6,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
+import deimos.common.StringUtils;
 import deimos.phase2.DBOperations;
 
 public class SimilarityMapper
@@ -89,8 +90,8 @@ public class SimilarityMapper
 			dbo.truncateTable("User_ref_similarity");
 
 			ResultSet rsTest = dbo.executeQuery(
-					"select count(*) "
-							+ "FROM ref_topics CROSS JOIN user_urls "
+					"SELECT COUNT(*) "
+							+ "FROM (SELECT DISTINCT topic_name FROM ref_topics) CROSS JOIN user_urls "
 							+ "WHERE user_id = 1");
 			rsTest.next();
 			System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
@@ -98,20 +99,24 @@ public class SimilarityMapper
 
 			// Reference ontology
 			ResultSet rsXJoin = dbo.executeQueryAgain(
-					"select ref_topics.topic_name, "
+					"SELECT DISTINCT ref_topics.topic_name, "
 							+ "user_urls.url "
 							+ "FROM ref_topics CROSS JOIN user_urls "
 							+ "WHERE user_id = 1");
+			
+			int currentRow = 0;
+			System.out.println();
 			while(rsXJoin.next())
 			{
 				String currentTopic = rsXJoin.getString(1);
 				String currentURL = rsXJoin.getString(2);
+				
+				System.out.format("%6d", currentRow);
 				populateReferenceList(currentTopic);
-
-				System.out.println();
-				System.out.println("Populated currentTopic: "+currentTopic);
+				System.out.print(" | Topic: "+StringUtils.truncate(currentTopic.substring(4), 30));
+				
 				populateUserList(currentURL);
-				System.out.println("Populated currentURL: "+currentURL);
+				System.out.print(" | URL: "+StringUtils.truncateURL(currentURL, 40));
 
 				List<String> commonTerms = new ArrayList<>(referenceTerms);
 				commonTerms.retainAll(userTerms);
@@ -152,7 +157,7 @@ public class SimilarityMapper
 				}
 
 				// print
-				System.out.println("\nReady for mapping!");
+				// System.out.print(" | Ready for mapping!");
 				/*for(int i = 0; i < commonTerms.size(); i++)
 				{
 					System.out.format("%5d %s: UW: %.1e, RW: %.1e %s\n",
@@ -184,14 +189,14 @@ public class SimilarityMapper
 
 					// compute similarity!! omg!!
 					double similarity = dotProduct/(denReference * denUsers);
-					System.out.print("Similarity = "+similarity);
+					System.out.format(" | Sim. = %.3f",similarity);
 					if(similarity < THRESHOLD)
 					{
-						System.out.println(" (less than threshold!");
+						System.out.print(" (less than threshold!");
 					}
 					else
 					{
-						System.out.println();
+						// System.out.println();
 
 						// Insert into Database
 						String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
@@ -201,7 +206,7 @@ public class SimilarityMapper
 						try {
 							// System.out.println(query);
 							dbo.executeQuery(query);
-							System.out.println("Inserted into database! YAY!");
+							System.out.println(" | Inserted!");
 						}
 						catch (SQLIntegrityConstraintViolationException sicve) {
 
@@ -215,6 +220,7 @@ public class SimilarityMapper
 				else {
 					System.out.println("denominator = 0!");
 				}
+				currentRow++;
 			}
 		} 
 		catch (SQLException e) 
