@@ -47,9 +47,10 @@ public class WordCloudTest
 	public static void main(String[] args)
 	{
 		List<String> topicNames = new ArrayList<>();
+		org.apache.log4j.BasicConfigurator.configure();
 		
 		// Selects the most similar topic_name for each URL
-		String query = "SELECT topic_name, MAX(similarity) FROM user_ref_similarity GROUP BY url, topic_name";
+		String query = "SELECT topic_name, similarity FROM user_ref_similarity ORDER BY similarity DESC";
 		try
 		{
 			ResultSet rs = dbo.executeQuery(query);
@@ -83,7 +84,7 @@ public class WordCloudTest
 
 			final FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();
 			frequencyAnalyzer.setMaxWordLength(100);
-			frequencyAnalyzer.setMinWordLength(1);
+			frequencyAnalyzer.setMinWordLength(0);
 			
 			frequencyAnalyzer.clearNormalizers();
 			

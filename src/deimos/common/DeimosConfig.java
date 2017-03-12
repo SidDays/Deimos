@@ -75,7 +75,7 @@ public class DeimosConfig {
 	/**
 	 * If true, uses the sample xml instead of the full DMOZ data.
 	 */
-	public static final boolean OPTION_USE_EXAMPLE_DMOZ = true;
+	public static final boolean OPTION_USE_EXAMPLE_DMOZ = false;
 
 	/**
 	 * If true, the texts of URLs are stored by using a hashed filename.
@@ -87,7 +87,7 @@ public class DeimosConfig {
 	 * In Phase 2, download not more than these many texts
 	 * for web pages per history file/URL list.
 	 */
-	public static final int LIMIT_URLS_DOWNLOADED = 30;
+	public static final int LIMIT_URLS_DOWNLOADED = 40;
 	
 	// ----------------------------------------
 	// Credentials
