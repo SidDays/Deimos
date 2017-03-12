@@ -185,7 +185,7 @@ public class DBOperations
 	{
 		this.truncateUserTable("user_urls", user_id);
 		this.truncateUserTable("user_tf", user_id);
-		this.truncateTable("user_ref_similarity");
+		this.truncateUserTable("user_ref_similarity", user_id);
 	}
 	
 	/** Test purposes only... Remove later! */

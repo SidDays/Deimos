@@ -199,10 +199,14 @@ public class SimilarityMapper
 						// System.out.println();
 
 						// Insert into Database
-						String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity) VALUES ('%s', '%s', %f)",
+						/*
+						 * Update for user_ref_siilarity: added user_id column
+						 */
+						String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity, user_id) VALUES ('%s', '%s', %f, %d)",
 								currentURL,
 								currentTopic,
-								similarity);
+								similarity,
+								user_id);
 						try {
 							// System.out.println(query);
 							dbo.executeQuery(query);
