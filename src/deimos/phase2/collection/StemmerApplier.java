@@ -207,7 +207,7 @@ public class StemmerApplier {
 	 */
 	public static Map<String,Integer> stemmedWordsAndCount(String input)
 	{
-		HashMap<String,Integer> wordCounts = new HashMap<>();
+		Map<String,Integer> wordCounts = new HashMap<>();
 		
 		String[] words = input.split(" ");
 		for(int i = 0; i < words.length; i++)

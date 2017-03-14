@@ -87,7 +87,7 @@ public class SimilarityMapper
 	{		
 		try
 		{
-			dbo.truncateTable("User_ref_similarity");
+			dbo.truncateUserTable("User_ref_similarity", user_id);
 
 			ResultSet rsTest = dbo.executeQuery(
 					"SELECT COUNT(*) "

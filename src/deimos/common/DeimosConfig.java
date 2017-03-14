@@ -35,7 +35,7 @@ public class DeimosConfig {
 	 * Remember to make sure .gitignore is set accordingly!
 	 */
 	public static final String FILE_CREDENTIALS = "resources/credentials.properties";
-
+	
 	public static final String FILE_OUTPUT_BOOKMARKS = "export-bookmarks.txt";
 	public static final String FILE_OUTPUT_COOKIES = "export-cookies.txt";
 	public static final String FILE_OUTPUT_HISTORY = "export-history.txt";
@@ -87,7 +87,7 @@ public class DeimosConfig {
 	 * In Phase 2, download not more than these many texts
 	 * for web pages per history file/URL list.
 	 */
-	public static final int LIMIT_URLS_DOWNLOADED = 40;
+	public static final int LIMIT_URLS_DOWNLOADED = 1000;
 	
 	// ----------------------------------------
 	// Credentials
