@@ -7,12 +7,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StatisticsUtilsCSV;
+import deimos.common.StringUtils;
 import deimos.phase2.DBOperations;
 import deimos.phase2.collection.PageFetcher;
 import deimos.phase2.collection.StemmerApplier;
@@ -22,6 +25,9 @@ import deimos.phase2.collection.StopWordsRemoval;
  * 
  * Populates user tables for URLs and TF.
  * Parses user history currently kept in text file.
+ * 
+ * References:
+ * www.mkyong.com/java/how-do-calculate-elapsed-execute-time-in-java/
  * 
  * @author Bhushan Pathak
  * @author Siddhesh Karekar
@@ -51,8 +57,21 @@ public class UserURLsTF
 	private static Map<String, Integer> currentURLTermCounts;
 
 	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
-
+	
 	private static DBOperations dbo;
+	
+	// Logging functions
+
+	/** Output the time taken per URL to a *.csv file. */
+	private static final boolean OPTION_RECORD_STATS_URL_TIMES = true;
+	
+	/** If false, blank the csv file */
+	private static final boolean OPTION_RECORD_STATS_APPEND = false;
+
+	/** The name of the CSV file to append info to. */
+	private static final String FILENAME_STATS_URL_TIMES = "stats_url_times.csv";
+	
+	private static StatisticsUtilsCSV csvStats;
 
 	static
 	{
@@ -65,6 +84,15 @@ public class UserURLsTF
 		} catch (SQLException e) {
 
 			e.printStackTrace();
+		}
+
+		// file initialization
+		if(OPTION_RECORD_STATS_URL_TIMES) {
+			csvStats = new StatisticsUtilsCSV(FILENAME_STATS_URL_TIMES, OPTION_RECORD_STATS_APPEND);
+			
+			// Header row
+			/*if(!OPTION_RECORD_STATS_APPEND)
+				csvStats.printAsCSV("URL","Time to fetch (ms)","Fetched successfully?");*/
 		}
 	}
 
@@ -234,10 +262,13 @@ public class UserURLsTF
 		}
 	}
 
-	public static void userAndTFTableInsertion(int user_id)
+	public static void userURLAndTFTableInsertion(int user_id)
 	{
 		// USE WITH CAUTION!
 		dbo.truncateAllUserTables(user_id);
+
+		if(OPTION_RECORD_STATS_URL_TIMES)
+			System.out.println("Logging for UserURLsTF is enabled.");
 
 		// Prepare the urls List.
 		prepareHistory(user_id);
@@ -251,13 +282,11 @@ public class UserURLsTF
 			currentVisitCount = urlVisitCounts.get(i);
 			currentTypedCount = urlTypedCounts.get(i);
 
+
+
 			// Only for printing
 			int displayLen = 40;
-			String displayURL = currentURL.replace("https://","").replace("http://","");
-			if(displayURL.length() < displayLen)
-				displayURL = String.format("%"+displayLen+"s", displayURL);
-			else
-				displayURL = displayURL.substring(0, displayLen-3)+"...";
+			String displayURL = StringUtils.truncateURL(currentURL, displayLen);
 
 			// only for printing
 			// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
@@ -266,6 +295,14 @@ public class UserURLsTF
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
 			// System.out.print(displayTitle + " | ");
 
+			long lStartTime, lEndTime;
+
+			// Log to CSV
+			if(OPTION_RECORD_STATS_URL_TIMES)
+			{
+				lStartTime = Instant.now().toEpochMilli();
+			}
+			
 			try
 			{
 				currentURLText = PageFetcher.fetchHTML(currentURL);
@@ -295,16 +332,36 @@ public class UserURLsTF
 			}
 			catch (SQLException e) {
 				e.printStackTrace();
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				System.out.println("Skipping this URL. ");
+			}
+			finally
+			{
+				if(OPTION_RECORD_STATS_URL_TIMES)
+				{
+					lEndTime = Instant.now().toEpochMilli();
+					String ifFetchSuccess = (currentURLText.isEmpty())?"false":"true";
+					csvStats.printAsCSV(
+							currentURL,
+							String.valueOf(lEndTime-lStartTime),
+							ifFetchSuccess);
+					// System.out.print("Logged | ");
+
+				}
 			}
 		}
 
 		System.out.println();
 		System.out.println("Finished fetching pages and populating user_urls and user_tf!");
+
+		if(OPTION_RECORD_STATS_URL_TIMES) {
+			csvStats.closeOutputStream();
+			System.out.println("Logging for UserURLsTF is finished.");
+		}
 	}
 
 	public static void main(String[] args) {
-		userAndTFTableInsertion(1);
+		userURLAndTFTableInsertion(1);
 	}
 }

@@ -14,7 +14,6 @@ import com.kennycason.kumo.*;
 import com.kennycason.kumo.bg.*;
 import com.kennycason.kumo.font.*;
 import com.kennycason.kumo.font.scale.*;
-import com.kennycason.kumo.image.AngleGenerator;
 import com.kennycason.kumo.nlp.*;
 import com.kennycason.kumo.palette.*;
 
@@ -66,7 +65,9 @@ public class WordCloudTest
 			while(rs.next()) {
 				String currentTopicName = rs.getString("topic_name");
 				int visitCount = rs.getInt("VISIT_COUNT");
-				String oldTopicName = currentTopicName;
+				
+				// String oldTopicName = currentTopicName;
+				
 				currentTopicName = currentTopicName.replace("Top/Shopping/", "");
 				
 				/*int lastIndex = -1;
@@ -82,7 +83,7 @@ public class WordCloudTest
 				}*/
 				
 				// currentTopicName = currentTopicName.replace("_", "");
-				currentTopicName = StringUtils.titleCase(currentTopicName);
+				currentTopicName = StringUtils.toTitleCase(currentTopicName);
 				currentTopicName = currentTopicName.replace("/", "-");
 				
 				for(int i = 0; i < visitCount; i++)

@@ -50,6 +50,8 @@ public class DeimosConfig {
 			FILE_OUTPUT_USERINFO
 	};
 	public static final String FILE_OUTPUT_ALL_ZIP = "export-all.zip";
+	
+	public static final String DIR_STATS = "output/research";
 
 	public static final String DELIM = ">";
 

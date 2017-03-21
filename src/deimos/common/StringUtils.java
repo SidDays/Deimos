@@ -13,7 +13,13 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  */
 public class StringUtils
 {
-	
+
+	/**
+	 * Converts a long string into a format displayable in a fixed size.
+	 * Adds "..." if the length is exceeded.
+	 * @param str
+	 * @param length
+	 */
 	public static String truncate(String str, int length)
 	{
 		if(str.length() > length)
@@ -38,7 +44,7 @@ public class StringUtils
 	 * @param str Input String
 	 * @return Output String
 	 */
-	public static String camelCase(String str)
+	public static String toCamelCase(String str)
 	{
 		StringBuilder sb = new StringBuilder();
 
@@ -68,7 +74,7 @@ public class StringUtils
 	 * @param str Input String
 	 * @return Output String
 	 */
-	public static String titleCase(String str)
+	public static String toTitleCase(String str)
 	{
 		StringBuilder sb = new StringBuilder();
 
@@ -151,5 +157,30 @@ public class StringUtils
 	 */
 	public static String sanitizeFilename(String inputName) {
 		return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
+	}
+	
+
+	
+
+	
+	/**
+	 * Returns a CSV row string containing each of the input
+	 * parameter strings. Escapes double quotes with underscores.
+	 * @param strings an array of Strings e.g. Apple, Ball, "Poop"
+	 * @return "Apple", "Ball", "_Poop_"
+	 */
+	public static String toCSV(String ...strings)
+	{
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < strings.length; i++)
+		{
+			String current = strings[i].replace("\"", "");
+			sb.append("\""+current+"\"");
+			if(i != strings.length-1)
+			{
+				sb.append(",");
+			}
+		}
+		return sb.toString();
 	}
 }

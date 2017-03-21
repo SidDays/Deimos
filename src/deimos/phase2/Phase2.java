@@ -34,7 +34,7 @@ public class Phase2 {
 	private static void prepareUserData(int user_id)
 	{
 		// TODO remove hardcode
-		UserURLsTF.userAndTFTableInsertion(user_id);
+		UserURLsTF.userURLAndTFTableInsertion(user_id);
 		
 		UserIDF.computeUserIDF(user_id);
 		
