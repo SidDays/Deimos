@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
@@ -12,6 +15,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLProtocolException;
+
+import org.jsoup.HttpStatusException;
 
 import deimos.common.DeimosConfig;
 import deimos.common.StatisticsUtilsCSV;
@@ -63,7 +72,7 @@ public class UserURLsTF
 	// Logging functions
 
 	/** Output the time taken per URL to a *.csv file. */
-	private static final boolean OPTION_RECORD_STATS_URL_TIMES = true;
+	private static boolean OPTION_RECORD_STATS_URL_TIMES = true;
 	
 	/** If false, blank the csv file */
 	private static final boolean OPTION_RECORD_STATS_APPEND = false;
@@ -88,11 +97,25 @@ public class UserURLsTF
 
 		// file initialization
 		if(OPTION_RECORD_STATS_URL_TIMES) {
-			csvStats = new StatisticsUtilsCSV(FILENAME_STATS_URL_TIMES, OPTION_RECORD_STATS_APPEND);
 			
-			// Header row
-			/*if(!OPTION_RECORD_STATS_APPEND)
-				csvStats.printAsCSV("URL","Time to fetch (ms)","Fetched successfully?");*/
+			System.out.println("Logging for UserURLsTF is enabled.");
+			
+			try {
+				csvStats = new StatisticsUtilsCSV(FILENAME_STATS_URL_TIMES, OPTION_RECORD_STATS_APPEND);
+
+				// Header row
+				if(!OPTION_RECORD_STATS_APPEND)
+					csvStats.printAsCSV("Sr. No",
+							"URL",
+							"Time to fetch (ms)",
+							"Success?",
+							"Exception");
+			}
+			catch (IOException fnfe) {
+				System.out.println(fnfe);
+				System.out.println("Logging will be disabled.");
+				OPTION_RECORD_STATS_URL_TIMES = false;
+			}
 		}
 	}
 
@@ -266,9 +289,7 @@ public class UserURLsTF
 	{
 		// USE WITH CAUTION!
 		dbo.truncateAllUserTables(user_id);
-
-		if(OPTION_RECORD_STATS_URL_TIMES)
-			System.out.println("Logging for UserURLsTF is enabled.");
+			
 
 		// Prepare the urls List.
 		prepareHistory(user_id);
@@ -298,16 +319,17 @@ public class UserURLsTF
 			long lStartTime, lEndTime;
 
 			// Log to CSV
-			if(OPTION_RECORD_STATS_URL_TIMES)
-			{
-				lStartTime = Instant.now().toEpochMilli();
-			}
-			
+			lStartTime = Instant.now().toEpochMilli();
+
+			Exception caughtEx = null;
 			try
 			{
+				
+				// All these exceptions!
+				currentURLText = "";
 				currentURLText = PageFetcher.fetchHTML(currentURL);
 				if(currentURLText.isEmpty())
-					throw new Exception();
+					throw new Exception("Text is Empty");
 
 				currentURLText = StopWordsRemoval.removeStopWordsFromString(currentURLText);
 
@@ -330,11 +352,56 @@ public class UserURLsTF
 
 				tfTableInsertion(user_id);
 			}
-			catch (SQLException e) {
-				e.printStackTrace();
+			catch (SQLException sqle) {
+				sqle.printStackTrace();
+				
+				caughtEx = sqle;
+				System.out.println(caughtEx);
+				
+			}
+			catch (IllegalArgumentException ile) {				
+				caughtEx = ile;
+				System.out.println(caughtEx+ ", Invalid URL - missed a protocol?");
+			}
+			catch (SocketException se) {				
+				caughtEx = se;
+				System.out.println(caughtEx);
+			}
+			catch (SocketTimeoutException ste) {
+				caughtEx = ste;
+				System.out.println(caughtEx);
+			}
+			catch (HttpStatusException hse) {
+				caughtEx = hse;
+				System.out.println(caughtEx);
+			}
+			catch (UnknownHostException uhe) {
+				caughtEx = uhe;
+				System.out.println(caughtEx);
+			}
+			catch (SSLHandshakeException sshe) {
+				System.err.println(sshe);
+				caughtEx = sshe;
+			}
+			catch (SSLProtocolException spe) {
+				caughtEx = spe;
+				System.out.println(caughtEx);
+			}
+			catch (SSLException sslxe){				
+				/* General_Merchandise/D
+				Current URL: http://www.davidmorgan.com/
+				javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
+				
+				Caused by: java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64,
+				and can only range from 512 to 2048 (inclusive)
+				*/
+				
+				caughtEx = sslxe;
+				System.out.println(caughtEx);
 			}
 			catch (Exception ex) {
-				System.out.println("Skipping this URL. ");
+				caughtEx = ex;
+				System.out.println(caughtEx);
 			}
 			finally
 			{
@@ -342,11 +409,13 @@ public class UserURLsTF
 				{
 					lEndTime = Instant.now().toEpochMilli();
 					String ifFetchSuccess = (currentURLText.isEmpty())?"false":"true";
+					String exceptString = (caughtEx == null)?"":caughtEx.toString();
 					csvStats.printAsCSV(
+							String.valueOf(i),
 							currentURL,
 							String.valueOf(lEndTime-lStartTime),
-							ifFetchSuccess);
-					// System.out.print("Logged | ");
+							ifFetchSuccess,
+							exceptString);
 
 				}
 			}

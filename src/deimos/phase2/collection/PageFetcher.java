@@ -15,70 +15,45 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 
+/**
+ * Reference:
+ * stackoverflow.com/questions/17031003/jsoup-throws-url-status-503-in-eclipse-but-url-works-fine-in-browser
+ * 
+ * @author Siddhesh Karekar
+ *
+ */
 public class PageFetcher {
+	
+	public static final int SECONDS_TO_WAIT = 2;
 	
 	/**
 	 * Returns a String containing only the textual contents of a web page.
+	 * 
 	 * @param url The URL to visit
 	 * @return a String containing the text of that web page.
-	 * @throws IOException while trying to get the Document for the Connection
+	 * @throws Exception A large number of exceptions - these must be handled externally
+	 * to avoid interruption!
+	 * 
+	 * @author Siddhesh Karekar
+	 * @author faster2b
 	 */
 	public static String fetchHTML(String url)
 			throws IOException,
 			IllegalArgumentException, SocketException,
 			SocketTimeoutException, HttpStatusException,
 			UnknownHostException, SSLHandshakeException,
-			SSLProtocolException, SSLException {
-		
-		// TODO Re-throw all these exceptions
+			SSLProtocolException, SSLException
+	{
+
 		String html = "";
-		
-		try {
-			Document doc = Jsoup.connect(url).get();
-
-			// String html = doc.html();
-			// This above, returns the entire html
-
-			
-			html = doc.text();
-			// This returns only the text
-
-			// further stripping required for stuff like '?'
-			
-		} catch (IllegalArgumentException e) {
-			System.out.println("Invalid URL - missed a protocol?\n");
-			e.printStackTrace();
-		}
-		catch (SocketException se) {
-			
-			System.err.println("SocketException, Malformed or blank URL?");
-		}
-		catch (SocketTimeoutException ste) {
-			System.err.println("SocketTimeout - text took too long to access.");
-		}
-		catch (HttpStatusException hse) {
-			System.err.println("HttpStatusException.");
-		}
-		catch (UnknownHostException uhe) {
-			System.err.println("UnknownHostException.");
-		}
-		catch (SSLHandshakeException sshe) {
-			System.err.println("SSLHandshakeException.");
-		}
-		catch (SSLProtocolException spe) {
-			System.err.println("SSLProtocolException.");
-		} catch (SSLException sslxe) {
-			System.err.println("SSLException.");
-			/* General_Merchandise/D
-Current URL: http://www.davidmorgan.com/
-javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
-
-Caused by: java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64, and can only range from 512 to 2048 (inclusive)
-	at com.sun.crypto.provider.DHKeyPairGenerator.initialize(DHKeyPairGenerator.java:120)
-	at java.security.K*/
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Document doc = Jsoup.connect(url)
+				.userAgent("Mozilla/5.0 Chrome/26.0.1410.64 Safari/537.31")
+				  .timeout(SECONDS_TO_WAIT*1000)
+				  .followRedirects(true)
+				  .maxBodySize(1024*1024*3)    //3Mb Max
+				  //.ignoreContentType(true) //for download xml, json, etc
+				  .get();
+		html = doc.text();
 
 		return html;
 	}

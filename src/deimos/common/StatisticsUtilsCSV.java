@@ -38,24 +38,20 @@ public class StatisticsUtilsCSV
 	 * @param filename The name (include the extension!)
 	 * @param appendMode Specify whether it should be
 	 * appended to (true) or overwritten (false). Default append mode is true
+	 * @throws FileNotFoundException Usually if the output file can't be opened.
 	 */
-	public StatisticsUtilsCSV(String filename, boolean appendMode)
+	public StatisticsUtilsCSV(String filename, boolean appendMode) throws
+		FileNotFoundException, IOException
 	{
 		this.appendMode = appendMode;
 		
 		String fullPath = DeimosConfig.DIR_STATS + "/" + StringUtils.sanitizeFilename(filename);
 
-		try
-		{
-			fileWriter = new FileWriter(
-					new File(fullPath),
-					this.appendMode);
-			writer = new PrintWriter(fileWriter);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fileWriter = new FileWriter(
+				new File(fullPath),
+				this.appendMode);
+		writer = new PrintWriter(fileWriter);
+
 	}
 	
 	/**
@@ -63,8 +59,9 @@ public class StatisticsUtilsCSV
 	 * a CSV file, opening it in append mode.
 	 * 
 	 * @param filename The name (include the extension!)
+	 * @throws FileNotFoundException Usually if the output file can't be opened.
 	 */
-	public StatisticsUtilsCSV(String filename)
+	public StatisticsUtilsCSV(String filename) throws FileNotFoundException, IOException
 	{
 		this(filename, true);
 	}
@@ -124,9 +121,15 @@ public class StatisticsUtilsCSV
 	/** Testing */
 	public static void main(String args[])
 	{
-		StatisticsUtilsCSV csv = new StatisticsUtilsCSV("test.csv", false);
-		csv.printAsCSV("Hello", "World");
-		csv.closeOutputStream();
+		StatisticsUtilsCSV csv;
+		try {
+			csv = new StatisticsUtilsCSV("test.csv", false);
+			csv.printAsCSV("Hello", "World");
+			csv.closeOutputStream();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }

@@ -2,12 +2,20 @@ package deimos.phase2.ref;
 
 import java.util.List;
 import java.util.Map;
-import java.io.IOException;
+
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLProtocolException;
+
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.jsoup.HttpStatusException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -240,6 +248,7 @@ public class DMOZHandler extends DefaultHandler
         		}
 
         		// Fetch current web page text
+        		Exception caughtEx = null;
         		try
         		{
         			// System.out.println();
@@ -275,12 +284,58 @@ public class DMOZHandler extends DefaultHandler
         			// System.out.println("Added all its Porter-Stemmer pairs.");
 
 
-        		} catch (IOException e) {
-
-        			e.printStackTrace();
-        		} catch (Exception ex) {
-        			System.err.println("Skipping this URL.");
         		}
+        		catch (SQLException sqle) {
+    				sqle.printStackTrace();
+    				
+    				caughtEx = sqle;
+    				System.out.println(caughtEx);
+    				
+    			}
+    			catch (IllegalArgumentException ile) {				
+    				caughtEx = ile;
+    				System.out.println(caughtEx+ ", Invalid URL - missed a protocol?");
+    			}
+    			catch (SocketException se) {				
+    				caughtEx = se;
+    				System.out.println(caughtEx);
+    			}
+    			catch (SocketTimeoutException ste) {
+    				caughtEx = ste;
+    				System.out.println(caughtEx);
+    			}
+    			catch (HttpStatusException hse) {
+    				caughtEx = hse;
+    				System.out.println(caughtEx);
+    			}
+    			catch (UnknownHostException uhe) {
+    				caughtEx = uhe;
+    				System.out.println(caughtEx);
+    			}
+    			catch (SSLHandshakeException sshe) {
+    				System.err.println(sshe);
+    				caughtEx = sshe;
+    			}
+    			catch (SSLProtocolException spe) {
+    				caughtEx = spe;
+    				System.out.println(caughtEx);
+    			}
+    			catch (SSLException sslxe){				
+    				/* General_Merchandise/D
+    				Current URL: http://www.davidmorgan.com/
+    				javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
+    				
+    				Caused by: java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64,
+    				and can only range from 512 to 2048 (inclusive)
+    				*/
+    				
+    				caughtEx = sslxe;
+    				System.out.println(caughtEx);
+    			}
+    			catch (Exception ex) {
+    				caughtEx = ex;
+    				System.out.println(caughtEx);
+    			}
 
         		countURLs++;
         	}
