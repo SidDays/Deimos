@@ -189,7 +189,21 @@ public class SimilarityMapper
 
 					// compute similarity!! omg!!
 					double similarity = dotProduct/(denReference * denUsers);
-					System.out.format(" | Sim. = %.3f",similarity);
+					
+					// find visit count vagaira
+					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = "+currentURL;
+					// executeQueryAgain has already been used before
+					ResultSet rsVisit = dbo.executeQuery(queryVisitCount); 
+					int visitCount = 0;
+					if(rsVisit.next())
+						visitCount = rsVisit.getInt("visit_count");
+					rsVisit.close();
+					
+					similarity = similarity * visitCount;
+					
+					System.out.format(" (%d) | Sim. = %.3f", visitCount, similarity);
+					
+					
 					if(similarity < THRESHOLD)
 					{
 						System.out.print(" (less than threshold!");
