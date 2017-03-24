@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
@@ -43,12 +44,26 @@ import deimos.phase2.collection.StopWordsRemoval;
  */
 public class UserURLsTF
 {
+	private static int currentURLNumber;
 	private static String currentURL;
 	private static String currentTimestamp;
 	private static String currentTitle;
 	private static int currentVisitCount;
 	private static int currentTypedCount;
 	private static String currentURLText;
+	
+	public static int getCurrentURLNumber()
+	{
+		return currentURLNumber;
+	}
+	
+	public static int getURLsSize() {
+		if(urls == null) {
+			return -1;
+		}
+		else
+			return urls.size();
+	}
 
 	/** Store all URLs in user history. */
 	private static List<String> urls = new ArrayList<String>();
@@ -85,6 +100,7 @@ public class UserURLsTF
 	static
 	{
 		// Initialize everything
+		currentURLNumber = -1;
 		currentURLTermCounts = new HashMap<>();
 		loadAllowedWebsiteFilter();
 
@@ -118,7 +134,30 @@ public class UserURLsTF
 			}
 		}
 	}
+	
+	/**
+	 * Checks whether user with given user-ID exists in database
+	 * returns true if exists
+	 * @param id
+	 * @return
+	 */
 
+	public static boolean doesUserIdExist(int id) {
+		boolean userIdFound = false;
+		String queryCheck = "SELECT count(*) from user_urls WHERE user_id = "+id;
+		try {
+			ResultSet rs = dbo.executeQuery(queryCheck);
+			int count = rs.getInt(1);
+			if(count > 0) {
+				userIdFound = true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return userIdFound;
+	}
+	
 	private static boolean isAnAllowedWebsite(String url)
 	{
 		for(String site : allowedWebsites)
@@ -295,13 +334,13 @@ public class UserURLsTF
 		prepareHistory(user_id);
 
 		System.out.println("\nFetching pages and populating user_urls and user_tf...");
-		for (int i = 0; (i < noOfURLs && i < urls.size()) ; i++)
+		for (currentURLNumber = 0; (currentURLNumber < noOfURLs && currentURLNumber < urls.size()) ; currentURLNumber++)
 		{
-			currentTimestamp = urlTimeStamps.get(i);
-			currentURL = urls.get(i);
-			currentTitle = urlTitles.get(i);
-			currentVisitCount = urlVisitCounts.get(i);
-			currentTypedCount = urlTypedCounts.get(i);
+			currentTimestamp = urlTimeStamps.get(currentURLNumber);
+			currentURL = urls.get(currentURLNumber);
+			currentTitle = urlTitles.get(currentURLNumber);
+			currentVisitCount = urlVisitCounts.get(currentURLNumber);
+			currentTypedCount = urlTypedCounts.get(currentURLNumber);
 
 
 
@@ -312,7 +351,7 @@ public class UserURLsTF
 			// only for printing
 			// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
 
-			System.out.format("%6d | ", i);
+			System.out.format("%6d | ", currentURLNumber);
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
 			// System.out.print(displayTitle + " | ");
 
@@ -411,7 +450,7 @@ public class UserURLsTF
 					String ifFetchSuccess = (currentURLText.isEmpty())?"false":"true";
 					String exceptString = (caughtEx == null)?"":caughtEx.toString();
 					csvStats.printAsCSV(
-							String.valueOf(i),
+							String.valueOf(currentURLNumber),
 							currentURL,
 							String.valueOf(lEndTime-lStartTime),
 							ifFetchSuccess,

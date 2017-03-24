@@ -2,6 +2,7 @@ package deimos.gui;
 
 import java.io.IOException;
 
+import deimos.common.DeimosImages;
 import deimos.gui.view.DeimosAppOverviewController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -35,7 +36,8 @@ public class DeimosApp extends Application {
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setTitle(title);
 			primaryStage.setScene(scene);
-			primaryStage.setResizable(false);
+			primaryStage.setResizable(true);
+			primaryStage.getIcons().add(DeimosImages.IMG_DEIMOS);
 
 			primaryStage.show();
 

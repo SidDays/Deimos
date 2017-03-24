@@ -6,159 +6,116 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="451.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
    <children>
-      <Label text="Deimos App">
-         <font>
-            <Font size="24.0" />
-         </font>
-         <VBox.margin>
-            <Insets bottom="10.0" left="130.0" right="110.0" top="10.0" />
-         </VBox.margin>
-      </Label>
-      <VBox prefHeight="295.0" prefWidth="400.0">
+      <HBox spacing="6.0" style="-fx-background-color: #FFFFFF;">
          <children>
-            <Separator prefWidth="200.0" />
-            <HBox prefHeight="50.0" prefWidth="400.0">
-               <children>
-                  <Label text="User ID">
-                     <HBox.margin>
-                        <Insets left="80.0" top="15.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="userIDTextField">
-                     <HBox.margin>
-                        <Insets left="15.0" top="12.5" />
-                     </HBox.margin>
-                  </TextField>
-               </children>
-            </HBox>
-            <HBox prefHeight="38.0" prefWidth="400.0">
-               <children>
-                  <Label text="Output file">
-                     <HBox.margin>
-                        <Insets left="60.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <TextField fx:id="outputFileTextField">
-                     <HBox.margin>
-                        <Insets left="15.0" />
-                     </HBox.margin>
-                  </TextField>
-                  <Button fx:id="browseButton" mnemonicParsing="false" text="Browse...">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </Button>
-               </children>
-            </HBox>
-            <Separator prefWidth="200.0" />
-            <HBox prefHeight="47.0" prefWidth="400.0">
-               <children>
-                  <ProgressBar fx:id="progressURLsBar" prefHeight="18.0" prefWidth="303.0" progress="0.0">
-                     <HBox.margin>
-                        <Insets left="60.0" top="25.0" />
-                     </HBox.margin>
-                  </ProgressBar>
-                  <Label text="URLs">
-                     <HBox.margin>
-                        <Insets left="-302.0" top="5.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox prefHeight="51.0" prefWidth="400.0">
-               <children>
-                  <ProgressBar fx:id="progressIDFBar" prefHeight="18.0" prefWidth="303.0" progress="0.0">
-                     <HBox.margin>
-                        <Insets left="60.0" top="25.0" />
-                     </HBox.margin>
-                  </ProgressBar>
-                  <Label text="IDF">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="-302.0" top="5.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox prefHeight="48.0" prefWidth="400.0">
-               <children>
-                  <ProgressBar fx:id="progressWeightBar" prefHeight="18.0" prefWidth="303.0" progress="0.0">
-                     <HBox.margin>
-                        <Insets left="60.0" top="25.0" />
-                     </HBox.margin>
-                  </ProgressBar>
-                  <Label text="Weight">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets left="-302.0" top="5.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox prefHeight="50.0" prefWidth="400.0">
-               <children>
-                  <ProgressBar fx:id="progressSimilarityBar" prefHeight="18.0" prefWidth="303.0" progress="0.0">
-                     <HBox.margin>
-                        <Insets left="60.0" top="25.0" />
-                     </HBox.margin>
-                  </ProgressBar>
-                  <Label text="Similarity">
-                     <HBox.margin>
-                        <Insets left="-302.0" top="5.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-      <Separator prefWidth="200.0" />
-      <HBox prefHeight="50.0" prefWidth="400.0">
-         <children>
-            <Label text="Status">
+            <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../resources/images/Deimos_48x48.png" />
+               </image>
+            </ImageView>
+            <Label maxHeight="1.7976931348623157E308" text="Deimos">
                <font>
-                  <Font size="14.0" />
+                  <Font size="24.0" />
                </font>
-               <HBox.margin>
-                  <Insets left="60.0" top="10.0" />
-               </HBox.margin>
-            </Label>
-            <Label fx:id="statusLabel" prefHeight="17.0" prefWidth="241.0" text="Current topic...">
-               <HBox.margin>
-                  <Insets left="20.0" top="10.0" />
-               </HBox.margin>
-               <font>
-                  <Font size="14.0" />
-               </font>
+               <padding>
+                  <Insets bottom="-6.0" top="-6.0" />
+               </padding>
             </Label>
          </children>
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
       </HBox>
       <Separator prefWidth="200.0" />
-      <Button fx:id="startButton" mnemonicParsing="false" onAction="#handleStartButton" text="Start">
-         <VBox.margin>
-            <Insets left="350.0" top="7.5" />
-         </VBox.margin>
-      </Button>
+      <VBox spacing="8.0">
+         <children>
+            <HBox spacing="6.0">
+               <children>
+                  <Label maxWidth="1.7976931348623157E308" text="User ID">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="userIDTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </TextField>
+                  <Separator orientation="VERTICAL" />
+                  <Label text="Output file">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="outputFileTextField" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" text="Browse..." />
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+            <Label text="URLs">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+            <Label text="IDF">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progressIDFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+            <Label text="Weight">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progressWeightBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+            <Label text="Similarity">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progressSimilarityBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="12.0" />
+         </padding>
+      </VBox>
+      <Separator prefWidth="200.0" />
+      <HBox spacing="12.0">
+         <children>
+            <Label maxHeight="1.7976931348623157E308" text="Status:" HBox.hgrow="NEVER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Current topic..." HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Button fx:id="startButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleStartButton" text="Start!" HBox.hgrow="NEVER" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+      </HBox>
    </children>
 </VBox>
