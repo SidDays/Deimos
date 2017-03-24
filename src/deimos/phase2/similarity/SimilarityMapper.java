@@ -18,8 +18,22 @@ public class SimilarityMapper
 	private static List<Double> userWeights = new ArrayList<>();
 
 	private static final double THRESHOLD = Float.MIN_VALUE;
+	private static final double BASE = Math.E;
 
 	private static DBOperations dbo;
+	
+	/**
+	 * Factor visit count into similarity calculation
+	 * Use a function to transform the base of the visit count calculation
+	 * Current function f(n) = n*(1+ln(n))
+	 * 
+	 * @param visitCount
+	 * @return
+	 */
+	private static double transformVisitCount(double visitCount)
+	{
+		return visitCount * (1 + Math.log(visitCount)/Math.log(BASE));
+	}
 
 	static
 	{
@@ -191,7 +205,7 @@ public class SimilarityMapper
 					double similarity = dotProduct/(denReference * denUsers);
 					
 					// find visit count vagaira
-					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = "+currentURL;
+					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = '"+currentURL+"'";
 					// executeQueryAgain has already been used before
 					ResultSet rsVisit = dbo.executeQuery(queryVisitCount); 
 					int visitCount = 0;
@@ -199,7 +213,7 @@ public class SimilarityMapper
 						visitCount = rsVisit.getInt("visit_count");
 					rsVisit.close();
 					
-					similarity = similarity * visitCount;
+					similarity = similarity * transformVisitCount(visitCount);
 					
 					System.out.format(" (%d) | Sim. = %.3f", visitCount, similarity);
 					
