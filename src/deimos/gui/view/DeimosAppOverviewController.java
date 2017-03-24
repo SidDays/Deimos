@@ -1,6 +1,7 @@
 package deimos.gui.view;
 
 import java.io.File;
+import java.io.IOException;
 
 import deimos.common.DeimosConfig;
 import deimos.gui.DeimosApp;
@@ -21,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -47,11 +49,13 @@ public class DeimosAppOverviewController {
 	@FXML
 	private Label statusLabel;
 	@FXML
+	private Label truncateLabel;
+	@FXML
 	private Button browseButton;
 	@FXML
 	private Button startButton;
 
-	private String regex = "\\d+";
+	private String truncateText;
 
 	private URLsTFService serviceURLsTF;
 	private IDFService serviceIDf;
@@ -72,7 +76,7 @@ public class DeimosAppOverviewController {
 	@FXML
 	private void initialize() {
 		initializeURLsTF();
-
+		initializeTruncate();
 	}
 
 	private void initializeURLsTF() {
@@ -119,10 +123,40 @@ public class DeimosAppOverviewController {
 		alertTosAgree.setTitle("You must agree to the Deimos Helper ToS");
 		alertTosAgree.showAndWait();
 	}
+	
+	private void initializeTruncate() {
 
-	@FXML
-	private void handleBrowseButton() {
+		truncateLabel.setOnMouseClicked(e -> {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Truncate User tables");
+			//alert.setHeaderText("Deimos Helper Terms of Service");
 
+			Label label = new Label("Please read the following..");
+
+			truncateText = "To provide a total control of GUI to the user, "
+					+ "this checkbox is provided using which you can truncate"
+					+ "the user table for the given user-ID if it already exists";
+
+			TextArea textArea = new TextArea(truncateText);
+			textArea.setEditable(false);
+			textArea.setWrapText(true);
+
+			textArea.setMaxWidth(380);
+			textArea.setMaxHeight(Double.MAX_VALUE);
+			GridPane.setVgrow(textArea, Priority.ALWAYS);
+			GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+			GridPane content = new GridPane();
+			content.setMaxWidth(Double.MAX_VALUE);
+			content.add(label, 0, 0);
+			content.add(textArea, 0, 1);
+
+			// Set expandable Exception into the dialog pane.
+			alert.getDialogPane().setContent(content);
+
+			alert.showAndWait();
+		});
+		truncateLabel.setTooltip(new Tooltip("To truncate tables, check the checkbox."));
 	}
 
 	@FXML

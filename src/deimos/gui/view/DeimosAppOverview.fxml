@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
@@ -53,12 +54,16 @@
                         <Insets />
                      </HBox.margin>
                   </TextField>
-                  <HBox alignment="CENTER_RIGHT" prefWidth="80.0" spacing="4.0" HBox.hgrow="NEVER">
+                  <HBox alignment="CENTER_RIGHT" prefWidth="90.0" spacing="4.0" HBox.hgrow="NEVER">
                      <children>
-                        <Label maxHeight="1.7976931348623157E308" text="Truncate">
+                        <Label text="*" textFill="RED" />
+                        <Label fx:id="truncateLabel" maxHeight="1.7976931348623157E308" text="Truncate" underline="true">
                            <font>
                               <Font size="14.0" />
                            </font>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </Label>
                         <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" />
                      </children>
@@ -73,7 +78,7 @@
                      </font>
                   </Label>
                   <TextField fx:id="outputFileTextField" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="80.0" text="Browse..." />
+                  <Button fx:id="browseButton" mnemonicParsing="false" prefWidth="90.0" text="Browse..." />
                </children>
             </HBox>
             <Separator prefWidth="200.0" />
