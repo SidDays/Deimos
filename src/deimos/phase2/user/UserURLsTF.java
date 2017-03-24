@@ -142,16 +142,20 @@ public class UserURLsTF
 	 * @return
 	 */
 
-	public static boolean doesUserIdExist(int id) {
+	public static boolean doesUserIdExist(int id)
+	{
 		boolean userIdFound = false;
 		String queryCheck = "SELECT count(*) from user_urls WHERE user_id = "+id;
-		try {
+		try
+		{
 			ResultSet rs = dbo.executeQuery(queryCheck);
-			int count = rs.getInt(1);
-			if(count > 0) {
+			if(rs.next() == true)
+			{
 				userIdFound = true;
 			}
-		} catch (SQLException e) {
+		}
+		catch (SQLException e)
+		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -323,12 +327,19 @@ public class UserURLsTF
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static void userURLAndTFTableInsertion(int user_id)
 	{
-		// USE WITH CAUTION!
-		dbo.truncateAllUserTables(user_id);
-			
+		userURLAndTFTableInsertion(user_id, true);
+	}
+
+	public static void userURLAndTFTableInsertion(int user_id, boolean truncate)
+	{
+		if(truncate)
+		{
+			// USE WITH CAUTION!
+			dbo.truncateAllUserTables(user_id);
+		}	
 
 		// Prepare the urls List.
 		prepareHistory(user_id);
