@@ -26,7 +26,14 @@ import deimos.common.ProcessFileUtils;
 public class ExportAll {
 	
 	public static final String PROCESS_CHROME_WIN = "chrome.exe";
-
+	
+	public static boolean isChromeRunning() {
+		try {
+			return ProcessFileUtils.isProcessRunning(ExportAll.PROCESS_CHROME_WIN);
+		} catch (IOException e) {
+			return false;
+		}
+	}
 	
 	public static boolean killChrome() {
 		System.out.print("Ensuring Chrome is not running: ");
