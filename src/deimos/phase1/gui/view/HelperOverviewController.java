@@ -6,21 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.sqlite.SQLiteException;
-
-import deimos.common.BrowserCheck;
 import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
 import deimos.common.Mailer;
 import deimos.phase1.ExportAll;
-import deimos.phase1.ExportBookmarks;
-import deimos.phase1.ExportCookies;
-import deimos.phase1.ExportHistory;
-import deimos.phase1.ExportIP;
 import deimos.phase1.ExportUserInfo;
 import deimos.phase1.Zipper;
 import deimos.phase1.gui.HelperApp;
@@ -772,145 +764,27 @@ public class HelperOverviewController {
     	}
     }
     
-    private class BookmarkService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-	            @Override
-	            public Void call(){
-	            
-	            	ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
-	               	return null;
-	            }
-			};
-		}
-    	
-    }
-    
-    private class CookieService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-			
-			return new Task<Void>() {
-	            @Override
-	            public Void call() throws SQLiteException
-	            {
-	            	ExportCookies.retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
-	               	return null;
-	            }
-	        };
-		}
-
-    }
-
-    private class HistoryService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-	            @Override
-	            public Void call() throws SQLiteException
-	            {
-	            	ExportHistory.retreiveHistoryAsFile(DeimosConfig.FILE_OUTPUT_HISTORY);
-	            	return null;
-	            }
-	        };
-		}
-    	
-    }
-    
-    private class PublicIPService extends Service<Void> {
-
-    	@Override
-    	protected Task<Void> createTask() {
-
-    		return new Task<Void>() {
-    			@Override
-    			public Void call() throws UnknownHostException {
-    				ExportIP.retrievePublicIPAsFile(DeimosConfig.FILE_OUTPUT_PUBLICIP);
-
-    				return null;
-    			}
-    		};
-    	}
-
-    }
+    // The services that can't be separated into different files.
+    // TODO try to 'generalize' them so they can be put into different files.
     
     private class UserInfoService extends Service<Void> {
     	
     	@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-				
-	            @Override
-	            public Void call(){
-	            	ExportUserInfo.retrieveUserInfoAsFile(firstNameTextField.getText(),
-	            			lastNameTextField.getText(),
-	            			genderChoiceBox.getSelectionModel().getSelectedItem(),
-	            			Integer.parseInt(yearOfBirthTextField.getText()),
-	            			DeimosConfig.FILE_OUTPUT_USERINFO);
-	               	return null;
-	            }
-	        };
-		}
-    }
-
-    private class KillChromeService extends Service<Void> {
-
-    	@Override
     	protected Task<Void> createTask() {
 
     		return new Task<Void>() {
-
-    			@Override
-    			public Void call(){
-    				
-    				ExportAll.killChrome();
-    				
-    				return null;
-    			}
-    		};
+    			
+                @Override
+                public Void call(){
+                	ExportUserInfo.retrieveUserInfoAsFile(firstNameTextField.getText(),
+                			lastNameTextField.getText(),
+                			genderChoiceBox.getSelectionModel().getSelectedItem(),
+                			Integer.parseInt(yearOfBirthTextField.getText()),
+                			DeimosConfig.FILE_OUTPUT_USERINFO);
+                   	return null;
+                }
+            };
     	}
-    }
-    
-    /**
-     * uses BrowserCheck to check if a browser is available,
-     * if it is, controls should be enabled on its success.
-     * Not a Usage Service
-     */
-    private class BrowserCheckService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-	        	
-	        	// Check if Google Chrome can be used
-	            public Void call(){
-	            	
-	            	// TODO Remove this later! Used to simulate a delay
-	            	try {
-	    				Thread.sleep(1000);
-	    			} catch (InterruptedException e) {
-	    				
-	    				e.printStackTrace();
-	    			}
-	            	if(BrowserCheck.isChromeAvailable()) {
-	            		
-	            		System.out.println("Google Chrome is available.");
-	            	}
-	            	else {
-	            		this.cancel();
-	            	}
-	               	return null;
-	            }
-	        };
-		}
     }
     
     /**
