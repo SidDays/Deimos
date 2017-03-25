@@ -70,7 +70,7 @@
                   </HBox>
                </children>
             </HBox>
-            <HBox disable="true" spacing="6.0">
+            <HBox spacing="6.0">
                <children>
                   <Label prefWidth="70.0" text="Output file">
                      <font>
@@ -78,7 +78,7 @@
                      </font>
                   </Label>
                   <TextField fx:id="outputFileTextField" HBox.hgrow="ALWAYS" />
-                  <Button fx:id="browseButton" mnemonicParsing="false" prefWidth="90.0" text="Browse..." />
+                  <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="90.0" text="Browse..." />
                </children>
             </HBox>
             <Separator prefWidth="200.0" />

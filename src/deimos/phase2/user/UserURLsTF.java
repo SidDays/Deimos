@@ -274,11 +274,11 @@ public class UserURLsTF
 	 * 
 	 * @param user_id NOT USED NOW!!
 	 */
-	private static void prepareHistory(int user_id)
+	private static void prepareHistory(int user_id, String filePath)
 	{ 
 		// TODO use the history file of that user id
 
-		prepareHistory(DeimosConfig.FILE_OUTPUT_HISTORY);
+		prepareHistory(filePath);
 	}
 
 	private static void tfTableInsertion(int user_id)
@@ -330,10 +330,10 @@ public class UserURLsTF
 	
 	public static void userURLAndTFTableInsertion(int user_id)
 	{
-		userURLAndTFTableInsertion(user_id, true);
+		userURLAndTFTableInsertion(user_id, true, DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
 
-	public static void userURLAndTFTableInsertion(int user_id, boolean truncate)
+	public static void userURLAndTFTableInsertion(int user_id, boolean truncate, String filePath)
 	{
 		if(truncate)
 		{
@@ -342,7 +342,7 @@ public class UserURLsTF
 		}	
 
 		// Prepare the urls List.
-		prepareHistory(user_id);
+		prepareHistory(user_id, filePath);
 
 		System.out.println("\nFetching pages and populating user_urls and user_tf...");
 		for (currentURLNumber = 0; (currentURLNumber < noOfURLs && currentURLNumber < urls.size()) ; currentURLNumber++)
