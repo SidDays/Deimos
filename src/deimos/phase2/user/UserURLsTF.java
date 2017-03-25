@@ -145,7 +145,7 @@ public class UserURLsTF
 	public static boolean doesUserIdExist(int id)
 	{
 		boolean userIdFound = false;
-		String queryCheck = "SELECT count(*) from user_urls WHERE user_id = "+id;
+		String queryCheck = "SELECT * from user_urls WHERE user_id = "+id;
 		try
 		{
 			ResultSet rs = dbo.executeQuery(queryCheck);
