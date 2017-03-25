@@ -1,9 +1,6 @@
 package deimos.gui.view;
 
-import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
-
 import deimos.common.DeimosConfig;
 import deimos.gui.DeimosApp;
 import deimos.phase2.similarity.SimilarityMapper;
@@ -65,7 +62,6 @@ public class DeimosAppOverviewController {
 	private WeightService serviceWeights;
 	private SimilarityService serviceSimilarity;
 	private SelectDefaultHistoryFileService defaultFileService;
-	private Desktop desktop = Desktop.getDesktop();
 	private File file;
 	public DeimosAppOverviewController() {
 
@@ -102,7 +98,7 @@ public class DeimosAppOverviewController {
 			progressURLsTFBar.setProgress(0);
 		});
 	}
-	
+
 	private void initializeIDF() {
 		serviceIDf = new IDFService();
 
@@ -119,7 +115,7 @@ public class DeimosAppOverviewController {
 			progressIDFBar.setProgress(0);
 		});
 	}
-	
+
 	private void initializeWeights() {
 		serviceWeights = new WeightService();
 
@@ -136,7 +132,7 @@ public class DeimosAppOverviewController {
 			progressWeightBar.setProgress(0);
 		});
 	}
-	
+
 	private void initializeSimilarity() {
 		serviceSimilarity = new SimilarityService();
 
@@ -181,7 +177,7 @@ public class DeimosAppOverviewController {
 		alertTosAgree.setTitle("Something is not right!!!");
 		alertTosAgree.showAndWait();
 	}
-	
+
 	private void initializeTruncate() {
 
 		truncateLabel.setOnMouseClicked(e -> {
@@ -223,45 +219,45 @@ public class DeimosAppOverviewController {
 		try
 		{
 			browseButton.setOnAction(new EventHandler<ActionEvent>(){
-	            @Override
-	           public void handle(ActionEvent event) {
-	               FileChooser fileChooser = new FileChooser();
-	               fileChooser.setTitle("Open Resource File");
-	               fileChooser.getExtensionFilters().addAll(
-	            	         new ExtensionFilter("Text Files", "*.txt"));
-	               file = fileChooser.showOpenDialog(new Stage());
+				@Override
+				public void handle(ActionEvent event) {
+					outputFileTextField.setText("");
+					FileChooser fileChooser = new FileChooser();
+					fileChooser.setTitle("Open Resource File");
+					fileChooser.getExtensionFilters().addAll(
+							new ExtensionFilter("Text Files", "*.txt"));
+					file = fileChooser.showOpenDialog(new Stage());
 
-	               filePath = "";
-	               
-	               if(file != null)
-	               {
-	            	   filePath = file.toString();
-		               outputFileTextField.setText(filePath);
-		               openFile(file);
-	               }
-	               else
-	               {
-	            	   Alert alert = new Alert(AlertType.CONFIRMATION);
-	            	   alert.setTitle("File not found");
-	            	   alert.setHeaderText("Selected file should be of chrome history only");
-	            	   alert.setContentText("Choose the default file? click on 'Cancel' if you don't wish to.");
-	            	   alert.showAndWait().ifPresent(response -> {
-	            		   if (response == ButtonType.OK) {
-	            			   System.out.println("Tried to select default history file");
-	            			   defaultFileService.start();
-	            		   }
-	            	   });
-	               }	               
-	           }
-	       });
-			
+					filePath = "";
+
+					if(file != null)
+					{
+						filePath = file.toString();
+						outputFileTextField.setText(filePath);
+					}
+					else
+					{
+						Alert alert = new Alert(AlertType.CONFIRMATION);
+						alert.setTitle("File not found");
+						alert.setHeaderText("Selected file should be of chrome history only");
+						alert.setContentText("Choose the default file? click on 'Cancel' if you don't wish to.");
+						alert.showAndWait().ifPresent(response -> {
+							if (response == ButtonType.OK) {
+								System.out.println("Tried to select default history file");
+								defaultFileService.start();
+							}
+						});
+					}	               
+				}
+			});
+
 		}
 		catch(NullPointerException e)
 		{
-			
+
 		}
 	}
-	
+
 	@FXML
 	private void handleStartButton() {
 		String message = "";
@@ -291,20 +287,8 @@ public class DeimosAppOverviewController {
 						progressURLsTFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 						statusLabel.setText("user_url and user_tf insertion");
 						startAgain(serviceURLsTF);
-
-						/*progressIDFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-						statusLabel.setText("IDF insertion");
-	        			startAgain(serviceIDf);
-
-	        			progressWeightBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-	        			statusLabel.setText("Weights insertion");
-	        			startAgain(serviceWeights);
-
-	        			progressSimilarityBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-	        			statusLabel.setText("Similarity insertion");
-	        			startAgain(serviceSimilarity);*/
 					}
-					
+
 				}
 			}
 			catch(NumberFormatException e) 
@@ -320,14 +304,6 @@ public class DeimosAppOverviewController {
 		}
 	}
 
-	private void openFile(File file) {
-        try {
-            desktop.open(file);
-        } catch (IOException ex) {
-            
-        }
-    }
-	
 	private class URLsTFService extends Service<Void> {
 
 		@Override
@@ -395,7 +371,7 @@ public class DeimosAppOverviewController {
 		}
 
 	}
-	
+
 	public class SelectDefaultHistoryFileService extends Service<Void> {
 
 		@Override
@@ -405,7 +381,7 @@ public class DeimosAppOverviewController {
 
 				@Override
 				public Void call(){
-					
+
 					filePath = DeimosConfig.FILE_OUTPUT_HISTORY;
 					outputFileTextField.setText(filePath);
 					return null;
