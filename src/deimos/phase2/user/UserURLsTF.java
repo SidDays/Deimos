@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLSyntaxErrorException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +52,13 @@ public class UserURLsTF
 	private static int currentVisitCount;
 	private static int currentTypedCount;
 	private static String currentURLText;
+	private static String currentStatus;
 	
+	
+	public static String getStatus() {
+		return currentStatus;
+	}
+
 	public static int getCurrentURLNumber()
 	{
 		return currentURLNumber;
@@ -145,7 +152,7 @@ public class UserURLsTF
 	public static boolean doesUserIdExist(int id)
 	{
 		boolean userIdFound = false;
-		String queryCheck = "SELECT * from user_urls WHERE user_id = "+id;
+		String queryCheck = "SELECT * FROM user_urls WHERE user_id = "+id;
 		try
 		{
 			ResultSet rs = dbo.executeQuery(queryCheck);
@@ -365,6 +372,8 @@ public class UserURLsTF
 			System.out.format("%6d | ", currentURLNumber);
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
 			// System.out.print(displayTitle + " | ");
+			
+			currentStatus = (String.format("%d | %s", currentURLNumber, StringUtils.truncateURL(currentURL, 60)));
 
 			long lStartTime, lEndTime;
 
@@ -398,6 +407,9 @@ public class UserURLsTF
 				}
 				catch (SQLIntegrityConstraintViolationException sicve) {
 					System.out.print("Already in user_urls | ");
+				}
+				catch (SQLSyntaxErrorException sqlsyn) { // TODO might fix by PreparedStatement
+					System.out.println(sqlsyn + " | ");
 				}
 
 				tfTableInsertion(user_id);

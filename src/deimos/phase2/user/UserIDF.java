@@ -9,12 +9,12 @@ import deimos.phase2.DBOperations;
 
 public class UserIDF {
 	
-	static int totalURLs, URLsWithTerm;
-	static double idf;
-	static String query;
-	static ResultSet rs;
-	static DBOperations dbo;
-	static long startTime, stopTime;
+	private static int totalURLs, URLsWithTerm;
+	private static double idf;
+	private static String query;
+	private static ResultSet rs;
+	private static DBOperations dbo;
+	
 	
 	public static void main(String[] args) {
 		
@@ -56,7 +56,8 @@ public class UserIDF {
 					totalURLs = rs1.getInt("url_total");
 				}
 				
-				System.out.format("Term = %s, URLsWithTerm = %d, totalURLs = %d\n", termName, URLsWithTerm, totalURLs);
+				String str = String.format("Term = %s, URLsWithTerm = %d, totalURLs = %d\n", termName, URLsWithTerm, totalURLs);
+				System.out.println(str);
 				
 				idf = Math.log(totalURLs*1.0/URLsWithTerm);
 				query = "INSERT INTO user_idf (user_id, term, idf) VALUES ("+user_id+", '"+ termName+"', "+idf +")";

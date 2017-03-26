@@ -15,11 +15,93 @@ import deimos.common.DeimosConfig;
  * Reference:
  * www.javatpoint.com/example-to-connect-to-the-oracle-database
  * docs.oracle.com/javase/tutorial/jdbc/overview/index.html
+ * www.tutorialspoint.com/jdbc/preparestatement-object-example.htm
  * 
  * @author Siddhesh Karekar
  */
 public class DBOperations
 {
+
+	public static Connection getConnectionToDatabase(String ... caller) throws SQLException
+	{
+		Connection conn = DriverManager.getConnection(
+				"jdbc:oracle:thin:@localhost:1521:xe",
+				DeimosConfig.DB_USER,
+				DeimosConfig.DB_PASSWORD);
+		
+		if(caller.length > 0)
+			System.out.println(caller[0]+"'s connection to database established successfully.");
+		else
+			System.out.println("Connection to database established successfully.");
+		
+		return conn;
+	}	
+	
+	/** Truncate the specified table.
+	 * Use with extreme caution! */
+	public static void truncateTable(Statement stmt, String tableName)
+	{
+		try {
+			String query = String.format("TRUNCATE TABLE %s", tableName);
+			// System.out.println(query);
+			stmt.executeUpdate(query);
+			System.out.println("Truncated the table "+ tableName +".");
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/** Deletes rows from the specified table for given user Id
+	 * Use with extreme caution! */
+	public static void truncateUserTable(Statement stmt, String tableName, int user_id)
+	{
+		try {
+			String query = String.format("DELETE FROM %s WHERE user_id = %d", tableName, user_id);
+			// System.out.println(query);
+			stmt.executeUpdate(query);
+			System.out.println("Deleted all rows in "+ tableName +" for user "+user_id+".");
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/** Truncate all tables used to build the reference ontology.
+	 * Use with extreme caution!
+	 */
+	public static void truncateAllReferenceTables(Statement stmt)
+	{
+		truncateTable(stmt, "ref_topics");
+		truncateTable(stmt, "ref_hierarchy");
+		truncateTable(stmt, "ref_tf");
+		truncateTable(stmt, "ref_idf");
+	}
+	
+	/** Truncate all tables used in user data processing.
+	 * Use with extreme caution!
+	 */
+	public static void truncateAllUserTables(Statement stmt, int user_id)
+	{
+		truncateUserTable(stmt, "user_urls", user_id);
+		truncateUserTable(stmt, "user_tf", user_id);
+		truncateUserTable(stmt, "user_ref_similarity", user_id);
+	}
+	
+
+	// TODO deprecate the entire old implementation
+	// OLD OLD OLD
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+	///////////////////////////////////////////////
+
+
 	public Connection con;
 	private Statement stmt1;
 	private Statement stmt2;
@@ -32,9 +114,14 @@ public class DBOperations
 	{
 		// Close the connection.
 		try {
-			stmt1.close();
-			stmt2.close();
-			con.close();
+			if(stmt1 != null)
+				stmt1.close();
+
+			if(stmt2 != null)
+				stmt2.close();
+
+			if(con != null)
+				con.close();
 			System.out.println("Connection to database closed successfully");
 		}
 		catch (SQLException e)
@@ -62,8 +149,6 @@ public class DBOperations
 			        "jdbc:oracle:thin:@localhost:1521:xe",
 			        username,
 			        password);
-			
-			
 			
 			System.out.println(username +
 					"'s connection to database established successfully.");

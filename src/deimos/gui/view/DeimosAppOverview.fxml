@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
    <children>
       <HBox spacing="6.0" style="-fx-background-color: #FFFFFF;">
          <children>
@@ -37,7 +37,7 @@
          </padding>
       </HBox>
       <Separator prefWidth="200.0" />
-      <VBox spacing="8.0">
+      <VBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
             <HBox spacing="6.0">
                <children>
@@ -77,16 +77,21 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="outputFileTextField" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="outputFileTextField" promptText="Leave blank for default" HBox.hgrow="ALWAYS" />
                   <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="90.0" text="Browse..." />
                </children>
             </HBox>
             <Separator prefWidth="200.0" />
-            <Label text="URLs">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
+            <HBox spacing="4.0">
+               <children>
+                  <Label maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Status" textFill="#0055f0" HBox.hgrow="SOMETIMES" />
+               </children>
+            </HBox>
             <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
             <Label text="IDF">
                <font>
@@ -110,6 +115,9 @@
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="12.0" />
          </padding>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
       </VBox>
       <Separator prefWidth="200.0" />
       <HBox spacing="12.0">
