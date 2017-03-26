@@ -53,7 +53,7 @@ public class UserWeightCalculation {
 	{
 		try
 		{
-			System.out.println("Weight calculation and updation for user_tf started.");
+			System.out.println("Weight calculation and updation for user_tf started for user "+user_id+".");
 
 			// nullAllWeights();
 
@@ -61,7 +61,8 @@ public class UserWeightCalculation {
 			String queryUpdate = "UPDATE user_tf SET user_tf.weight = user_tf.tf * ( SELECT idf FROM user_idf WHERE user_idf.term = user_tf.term ) WHERE user_id = "+user_id;
 			dbo.executeUpdate(queryUpdate);
 
-			System.out.println("Weight calculation and updation finished for user_tf!");
+			System.out.println("Weight calculation and updation finished for user_tf for user "+user_id+"!");
+			System.out.println();
 		}
 		catch(SQLException e)
 		{

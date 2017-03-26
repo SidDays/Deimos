@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.kennycason.kumo.*;
 import com.kennycason.kumo.bg.*;
 import com.kennycason.kumo.font.*;
@@ -49,7 +51,7 @@ public class WordCloudTest
 	public static void outputWordCloud(int user_id)
 	{
 		List<String> topicNames = new ArrayList<>();
-		org.apache.log4j.BasicConfigurator.configure();
+		BasicConfigurator.configure();
 		
 		// Selects the most similar topic_name for each URL
 		String query = "SELECT URL, topic_name, visit_count "

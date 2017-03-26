@@ -89,7 +89,8 @@ public class DeimosConfig {
 	 * In Phase 2, download not more than these many texts
 	 * for web pages per history file/URL list.
 	 */
-	public static final int LIMIT_URLS_DOWNLOADED = 1000;
+	public static final int LIMIT_URLS_DOWNLOADED = Integer.MAX_VALUE;
+	// public static final int LIMIT_URLS_DOWNLOADED = 10;
 	
 	// ----------------------------------------
 	// Credentials

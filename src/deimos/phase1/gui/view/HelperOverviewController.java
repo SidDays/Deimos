@@ -11,6 +11,7 @@ import java.util.Date;
 
 import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
+import deimos.common.GUIUtils;
 import deimos.common.Mailer;
 import deimos.phase1.ExportAll;
 import deimos.phase1.ExportUserInfo;
@@ -216,7 +217,7 @@ public class HelperOverviewController {
 			// Begin mailing
 			progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			setMailControlsDisabled(false);
-			startAgain(serviceMailer);
+			GUIUtils.startAgain(serviceMailer);
 		}
 	}
 	private void setInputControlsStartDisabled(boolean disable) {
@@ -640,22 +641,7 @@ public class HelperOverviewController {
 
 		return errors.toString();
 	}
-
-	/**
-	 * An alternative to the factory restart() method.
-	 * Avoids the cancellation of the service if it never started.
-	 * Functionally near-equivalent to restart().
-	 * @param s The service to start again
-	 */
-	private void startAgain(Service<?> s) {
-		if(s.isRunning())
-			s.restart();
-		else {
-			s.reset();
-			s.start();
-		}
-	}
-
+	
 	private void handleRemailbutton() {
 
 		// Check if the export-all.zip exists
@@ -672,7 +658,7 @@ public class HelperOverviewController {
 			// Begin mailing
 			progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			setMailControlsDisabled(false);
-			startAgain(serviceMailer);
+			GUIUtils.startAgain(serviceMailer);
 
 		}
 		catch (FileNotFoundException e) {
@@ -715,18 +701,18 @@ public class HelperOverviewController {
 				flags[i] = false;
 
 			progressCookiesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-			startAgain(serviceCookies);
+			GUIUtils.startAgain(serviceCookies);
 
 			progressBookmarksBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-			startAgain(serviceBookmarks);
+			GUIUtils.startAgain(serviceBookmarks);
 
 			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-			startAgain(serviceHistory);
+			GUIUtils.startAgain(serviceHistory);
 
 			progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-			startAgain(servicePublicIP);
+			GUIUtils.startAgain(servicePublicIP);
 
-			startAgain(serviceUserInfo);
+			GUIUtils.startAgain(serviceUserInfo);
 
 			setInputControlsStartDisabled(true);
 

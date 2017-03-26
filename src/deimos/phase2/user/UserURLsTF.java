@@ -52,16 +52,20 @@ public class UserURLsTF
 	private static int currentVisitCount;
 	private static int currentTypedCount;
 	private static String currentURLText;
-	private static String currentStatus;
+	private static String status;
 	
 	
 	public static String getStatus() {
-		return currentStatus;
+		return status;
 	}
 
 	public static int getCurrentURLNumber()
 	{
 		return currentURLNumber;
+	}
+	public static double getProgress()
+	{
+		return currentURLNumber*1.0/noOfURLs;
 	}
 	
 	public static int getURLsSize() {
@@ -163,7 +167,6 @@ public class UserURLsTF
 		}
 		catch (SQLException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return userIdFound;
@@ -352,15 +355,19 @@ public class UserURLsTF
 		prepareHistory(user_id, filePath);
 
 		System.out.println("\nFetching pages and populating user_urls and user_tf...");
-		for (currentURLNumber = 0; (currentURLNumber < noOfURLs && currentURLNumber < urls.size()) ; currentURLNumber++)
+		status = "Starting...";
+		
+		// set the max limit to the smaller number of the predefined URL limit and the no of urls available.
+		if(urls.size() < noOfURLs)
+			noOfURLs = urls.size();
+		
+		for (currentURLNumber = 0; (currentURLNumber < noOfURLs) ; currentURLNumber++)
 		{
 			currentTimestamp = urlTimeStamps.get(currentURLNumber);
 			currentURL = urls.get(currentURLNumber);
 			currentTitle = urlTitles.get(currentURLNumber);
 			currentVisitCount = urlVisitCounts.get(currentURLNumber);
 			currentTypedCount = urlTypedCounts.get(currentURLNumber);
-
-
 
 			// Only for printing
 			int displayLen = 40;
@@ -373,7 +380,7 @@ public class UserURLsTF
 			System.out.print(currentTimestamp+" | "+displayURL + " | ");
 			// System.out.print(displayTitle + " | ");
 			
-			currentStatus = (String.format("%d | %s", currentURLNumber, StringUtils.truncateURL(currentURL, 60)));
+			status = (String.format("(%d/%d) %s", currentURLNumber, noOfURLs, StringUtils.truncateURL(currentURL)));
 
 			long lStartTime, lEndTime;
 
@@ -449,8 +456,10 @@ public class UserURLsTF
 				caughtEx = spe;
 				System.out.println(caughtEx);
 			}
-			catch (SSLException sslxe){				
-				/* General_Merchandise/D
+			catch (SSLException sslxe){	
+				
+				/* Wtf is this shit LMAO
+				General_Merchandise/D
 				Current URL: http://www.davidmorgan.com/
 				javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
 				
@@ -485,6 +494,7 @@ public class UserURLsTF
 
 		System.out.println();
 		System.out.println("Finished fetching pages and populating user_urls and user_tf!");
+		status = "Finished!";
 
 		if(OPTION_RECORD_STATS_URL_TIMES) {
 			csvStats.closeOutputStream();

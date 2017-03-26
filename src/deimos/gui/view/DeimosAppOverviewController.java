@@ -3,6 +3,7 @@ package deimos.gui.view;
 import java.io.File;
 
 import deimos.common.DeimosConfig;
+import deimos.common.GUIUtils;
 import deimos.gui.DeimosApp;
 import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserIDF;
@@ -53,6 +54,9 @@ public class DeimosAppOverviewController {
 	private Label urlsTFStatusLabel;
 	@FXML
 	private ProgressBar progressURLsTFBar;
+	
+	private Timeline urlsTFTimeline;
+	
 	@FXML
 	private ProgressBar progressIDFBar;
 	@FXML
@@ -88,7 +92,6 @@ public class DeimosAppOverviewController {
 	@FXML
 	private void initialize() {
 		initializeURLsTF();
-		bindURLsTFLabelToStatus();
 		initializeTruncateHint();
 		initializeIDF();
 		initializeWeights();
@@ -99,41 +102,60 @@ public class DeimosAppOverviewController {
 
 	private void initializeURLsTF() {
 		
-		serviceURLsTF = new URLsTFService();
+		urlsTFTimeline = new Timeline(
+				new KeyFrame(Duration.seconds(0),
+						new EventHandler<ActionEvent>() {
+					@Override public void handle(ActionEvent actionEvent) {
 
+						urlsTFStatusLabel.setText(UserURLsTF.getStatus());
+						progressURLsTFBar.setProgress(UserURLsTF.getProgress());
+					}
+				}),
+				new KeyFrame(Duration.seconds(1))
+				);
+		
+		serviceURLsTF = new URLsTFService();
+		
+		serviceURLsTF.setOnRunning(e1 -> {
+			bindURLsTFLabelToStatus();
+		});
 		serviceURLsTF.setOnSucceeded(e1 -> {
 			progressURLsTFBar.setProgress(1);
 			progressIDFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("IDF insertion");
-			startAgain(serviceIDf);
+			GUIUtils.startAgain(serviceIDf);
 		});
 		serviceURLsTF.setOnFailed(e1 -> {
 			progressURLsTFBar.setProgress(0);
+			
+			clearURLsTFBinding();
 		});
 		serviceURLsTF.setOnCancelled(e1 -> {
 			progressURLsTFBar.setProgress(0);
+			
+			clearURLsTFBinding();
 		});
 	}
 	/**
 	 * Bind the URL status to the text above the progress bar.
-	 * */
+	 */
 	private void bindURLsTFLabelToStatus() {
-		
-	    Timeline timeline = new Timeline(
-	      new KeyFrame(Duration.seconds(0),
-	        new EventHandler<ActionEvent>() {
-	          @Override public void handle(ActionEvent actionEvent) {
 
-	            urlsTFStatusLabel.setText(UserURLsTF.getStatus());
-	          }
-	        }
-	      ),
-	      new KeyFrame(Duration.seconds(1))
-	    );
-	    timeline.setCycleCount(Animation.INDEFINITE);
-	    timeline.play();
-	  }
+		
+		urlsTFTimeline.setCycleCount(Animation.INDEFINITE);
+		urlsTFTimeline.play();
+	}
 	
+	/**
+	 * If URLs TF population fails, stop the status and progress bar updation.
+	 */
+	private void clearURLsTFBinding() {
+		// if(urlsTFTimeline != null)
+			urlsTFTimeline.stop();
+		
+		progressURLsTFBar.setProgress(0);
+	}
+
 	private void initializeIDF() {
 		serviceIDf = new IDFService();
 
@@ -141,7 +163,7 @@ public class DeimosAppOverviewController {
 			progressIDFBar.setProgress(1);
 			progressWeightBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Weights insertion");
-			startAgain(serviceWeights);
+			GUIUtils.startAgain(serviceWeights);
 		});
 		serviceIDf.setOnFailed(e1 -> {
 			progressIDFBar.setProgress(0);
@@ -158,7 +180,7 @@ public class DeimosAppOverviewController {
 			progressWeightBar.setProgress(1);
 			progressSimilarityBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Similarity insertion");
-			startAgain(serviceSimilarity);
+			GUIUtils.startAgain(serviceSimilarity);
 		});
 		serviceWeights.setOnFailed(e1 -> {
 			progressWeightBar.setProgress(0);
@@ -190,29 +212,6 @@ public class DeimosAppOverviewController {
 		this.mainApp = mainApp;
 	}
 
-	/**
-	 * An alternative to the factory restart() method.
-	 * Avoids the cancellation of the service if it never started.
-	 * Functionally near-equivalent to restart().
-	 * @param s The service to start again
-	 */
-	private void startAgain(Service<?> s) {
-		if(s.isRunning())
-			s.restart();
-		else {
-			s.reset();
-			s.start();
-		}
-	}
-
-	private void generateAlerts(String s) {
-		Alert alertTosAgree = new Alert(AlertType.ERROR);
-		alertTosAgree.initOwner(mainApp.getPrimaryStage());
-		alertTosAgree.setContentText(s);
-		alertTosAgree.setTitle("Oops, something went wrong.");
-		alertTosAgree.showAndWait();
-	}
-	
 	private void initializeTruncateHint() {
 
 		truncateLabel.setOnMouseClicked(e -> {
@@ -279,7 +278,7 @@ public class DeimosAppOverviewController {
 				if(!truncateCheckBox.isSelected() && UserURLsTF.doesUserIdExist(userId)) {
 
 					message = "User-ID already exists!";
-					generateAlerts(message);
+					GUIUtils.generateErrorAlert(message, mainApp.getPrimaryStage());
 				}
 				else
 				{
@@ -292,22 +291,24 @@ public class DeimosAppOverviewController {
 
 					userIDTextField.setDisable(true);
 					startButton.setDisable(true);
-
+					
+					urlsTFStatusLabel.setText("Initializing...");
 					progressURLsTFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+					
 					statusLabel.setText("user_url and user_tf insertion");
-					startAgain(serviceURLsTF); // The others cascade from this one.				
+					GUIUtils.startAgain(serviceURLsTF); // The others cascade from this one.				
 				}
 			}
 			catch(NumberFormatException e) 
 			{
 				message = "Invalid User-ID, please enter a number!";
-				generateAlerts(message);
+				GUIUtils.generateErrorAlert(message, mainApp.getPrimaryStage());
 
 			}
 		}
 		else {
 			message = "User-ID field can't be empty!";
-			generateAlerts(message);
+			GUIUtils.generateErrorAlert(message, mainApp.getPrimaryStage());
 		}
 	}
 	

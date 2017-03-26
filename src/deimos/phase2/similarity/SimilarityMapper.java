@@ -106,7 +106,7 @@ public class SimilarityMapper
 			ResultSet rsTest = dbo.executeQuery(
 					"SELECT COUNT(*) "
 							+ "FROM (SELECT DISTINCT topic_name FROM ref_topics) CROSS JOIN user_urls "
-							+ "WHERE user_id = 1");
+							+ "WHERE user_id = "+user_id);
 			rsTest.next();
 			System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
 			rsTest.close();
@@ -116,7 +116,7 @@ public class SimilarityMapper
 					"SELECT DISTINCT ref_topics.topic_name, "
 							+ "user_urls.url "
 							+ "FROM ref_topics CROSS JOIN user_urls "
-							+ "WHERE user_id = 1");
+							+ "WHERE user_id = "+user_id);
 			
 			int currentRow = 0;
 			System.out.println();
@@ -205,7 +205,7 @@ public class SimilarityMapper
 					double similarity = dotProduct/(denReference * denUsers);
 					
 					// find visit count vagaira
-					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = '"+currentURL+"'";
+					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = '"+currentURL+"' AND user_id = "+user_id;
 					// executeQueryAgain has already been used before
 					ResultSet rsVisit = dbo.executeQuery(queryVisitCount); 
 					int visitCount = 0;
@@ -254,6 +254,8 @@ public class SimilarityMapper
 				}
 				currentRow++;
 			}
+			
+			System.out.println("Finished computing similarity for user "+user_id+"!");
 		} 
 		catch (SQLException e) 
 		{

@@ -92,6 +92,7 @@ public class ExportHistory {
 		return output;
 	}
 
+	@Deprecated
 	public static void retreiveHistoryAsFile(String fileName) throws SQLiteException {
 
 		List<String> output = retrieveHistory(FILE_CHROME_WIN_HISTORY);

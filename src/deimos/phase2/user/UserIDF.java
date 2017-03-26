@@ -2,6 +2,7 @@ package deimos.phase2.user;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class UserIDF {
 			dbo = new DBOperations();
 			dbo.truncateTable("user_idf");
 			
-			rs = dbo.executeQuery("SELECT DISTINCT term FROM user_tf");
+			rs = dbo.executeQuery("SELECT DISTINCT term FROM user_tf WHERE user_id = "+user_id);
 			
 			List<String> distinctTerms = new ArrayList<String>();
 			while(rs.next())
@@ -56,14 +57,21 @@ public class UserIDF {
 					totalURLs = rs1.getInt("url_total");
 				}
 				
-				String str = String.format("Term = %s, URLsWithTerm = %d, totalURLs = %d\n", termName, URLsWithTerm, totalURLs);
+				String str = String.format("Term = %s, URLsWithTerm = %d, totalURLs = %d", termName, URLsWithTerm, totalURLs);
 				System.out.println(str);
 				
 				idf = Math.log(totalURLs*1.0/URLsWithTerm);
 				query = "INSERT INTO user_idf (user_id, term, idf) VALUES ("+user_id+", '"+ termName+"', "+idf +")";
 				
-				// System.out.println(query);
-				dbo.executeUpdate(query);
+				try { // TODO replace this by preparedStatement
+					// System.out.println(query); 
+					dbo.executeUpdate(query);
+					
+				} catch (SQLSyntaxErrorException e) {
+					System.err.println(e);
+				} catch (SQLException sqle) {
+					sqle.printStackTrace();
+				}
 				
 			}
 			
