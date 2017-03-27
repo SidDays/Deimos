@@ -3,6 +3,7 @@ package deimos.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +38,8 @@ public class WordCloudTest
 	private static final String FILE_CLOUD_OUTPUT = "wordcloud.png";
 	private static final String DIR_CLOUD_OUTPUT = DeimosConfig.DIR_OUTPUT;
 	private static final String FONT = "Monaco";
+	
+	public static BufferedImage wordCloudImage;
 
 	private static DBOperations dbo;
 
@@ -46,6 +49,8 @@ public class WordCloudTest
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		wordCloudImage = null;
 	}
 	
 	public static void outputWordCloud(int user_id)
@@ -127,18 +132,25 @@ public class WordCloudTest
 			List<WordFrequency> wordFrequencies;
 			wordFrequencies = frequencyAnalyzer.load(topicNames);
 			
-			final Dimension dimension = new Dimension(720, 720);
+			final Dimension dimension = new Dimension(900, 900);
 			final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
 			wordCloud.setPadding(1);
 			// wordCloud.setAngleGenerator(new AngleGenerator(90));
+			
 			wordCloud.setBackground(new RectangleBackground(dimension));
 			// wordCloud.setBackground(new CircleBackground(360));
 			// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
-			wordCloud.setColorPalette(new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW));
-			wordCloud.setKumoFont(new KumoFont(new Font(FONT, Font.PLAIN, 4)));
-			wordCloud.setFontScalar(new LinearFontScalar(4, 60));
+			wordCloud.setBackgroundColor(new Color(244, 244, 244));
+			
+			// ColorPalette lightPalette = new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW);
+			ColorPalette darkPalette = new LinearGradientColorPalette(new Color(243, 12, 19), new Color(17, 31, 200), 30);
+			
+			wordCloud.setColorPalette(darkPalette);
+			wordCloud.setKumoFont(new KumoFont(new Font(FONT, Font.PLAIN, 32)));
+			wordCloud.setFontScalar(new LinearFontScalar(16, 80));
 			wordCloud.build(wordFrequencies);
-
+			
+			wordCloudImage = wordCloud.getBufferedImage();
 
 			wordCloud.writeToFile(DIR_CLOUD_OUTPUT + "/" + FILE_CLOUD_OUTPUT);
 			System.out.println("Word cloud created and stored in "+(DIR_CLOUD_OUTPUT+ "/" + FILE_CLOUD_OUTPUT)+".");

@@ -36,7 +36,7 @@ public class DeimosApp extends Application {
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setTitle(title);
 			primaryStage.setScene(scene);
-			primaryStage.setResizable(false);
+			// primaryStage.setResizable(false);
 			primaryStage.getIcons().add(DeimosImages.IMG_DEIMOS);
 
 			primaryStage.show();
