@@ -2,6 +2,11 @@ package deimos.common;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -159,8 +164,32 @@ public class StringUtils
 		return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
 	}
 	
+	/**
+	 * Convert a String in the format yyyy-MM-dd HH:mm:ss to a TimeStamp.
+	 * 
+	 * Ref: 
+	 * stackoverflow.com/questions/18915075/java-convert-string-to-timestamp
+	 * 
+	 * @param str
+	 * @return
+	 * @author Harsh
+	 */
+	public static Timestamp toTimestamp(String str)
+	{
+		try {
+			DateFormat formatter;
+			formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // YYYY-MM-DD HH24:MI:SS
+			// you can change format of date
+			Date date = formatter.parse(str);
+			java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
 
-	
+			return timeStampDate;
+		}
+		catch (ParseException e) {
+			System.err.println(e);
+			return null;
+		}
+	}
 
 	
 	/**

@@ -1,5 +1,6 @@
 package deimos.phase2.ref;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -17,46 +18,29 @@ import deimos.phase2.DBOperations;
  */
 public class RefIDF
 {
-	double idf;
+	private double idf;
 	
-	int idfComputeCount;
+	private int idfComputeCount;
 	
 	/** Used to resume IDF calculation from
 	 * a certain index in the list of distinct terms from ref_tf.
 	 * 0 Makes it start over
 	 * -1 Makes it start over and also truncate existing IDF*/
-	int resumeIndex;
+	private int resumeIndex;
 	
-	int totalTopics;
-	int topicsWithTerm;
-	String query;
-	ResultSet rs;
-	DBOperations dbo;
-	long startTime, stopTime;
+	private int totalTopics;
+	private int topicsWithTerm;
+	private String query;
+	private ResultSet rs;
+	private DBOperations dbo;
+	private Connection db_conn;
+	private long startTime, stopTime;
 	
 	public RefIDF() {
 		startTime = System.currentTimeMillis();
 		idfComputeCount = 0;
 		resumeIndex = 0;
 	}
-	
-	@Override
-	protected void finalize() {
-		stopTime = System.currentTimeMillis();
-		System.out.format("IDF Calculation completed for %d terms in %s.\n",
-				idfComputeCount, TimeUtils.formatHmss(stopTime-startTime));
-	}
-	
-	/*private String getETA()
-	{
-		// TODO SOMETHING IS WRONG!!
-		
-		stopTime = System.currentTimeMillis();
-		long elapsed = stopTime-startTime;
-		long totalTimeRequired = (elapsed * totalTopics)/idfComputeCount;
-		
-		return "ETA: "+TimeUtils.formatHmss(totalTimeRequired - elapsed);
-	}*/
 	
 	private String getRatePerMinute()
 	{
@@ -83,8 +67,11 @@ public class RefIDF
 	public void computeIDF(int resumeIndexParam) // Resume with CARE!
 	{
 		this.resumeIndex = resumeIndexParam;
-		try {
+		try
+		{
 			dbo = new DBOperations();
+			
+			db_conn = DBOperations.getConnectionToDatabase("RefIDF");
 			
 			rs = dbo.executeQuery("SELECT DISTINCT term FROM ref_tf");
 			
@@ -120,7 +107,7 @@ public class RefIDF
 						+ "Make sure ref_tf was not changed beforehand!");
 			}
 			else if(resumeIndex == -1) {
-				dbo.truncateTable("IDF");
+				DBOperations.truncateTable(db_conn, "IDF");
 				resumeIndex++;
 			}
 			System.out.println();
@@ -163,7 +150,9 @@ public class RefIDF
 
 			}
 			
-			System.out.println("idf calculation for Ref_idf complete!");
+			stopTime = System.currentTimeMillis();
+			System.out.format("IDF Calculation completed for %d terms in %s.\n",
+					idfComputeCount, TimeUtils.formatHmss(stopTime-startTime));
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

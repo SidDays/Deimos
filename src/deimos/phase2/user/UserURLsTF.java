@@ -9,10 +9,13 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLSyntaxErrorException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,8 +57,8 @@ public class UserURLsTF
 	private static int currentTypedCount;
 	private static String currentURLText;
 	private static String status;
-	
-	
+
+
 	/** Store all URLs in user history. */
 	private static List<String> urls = new ArrayList<String>();
 
@@ -70,29 +73,28 @@ public class UserURLsTF
 	public static final String FILE_URL_FILTER = "resources/shoppingWebsites.txt";
 
 	private static Map<String, Integer> currentURLTermCounts;
-	
-	/* Limit the number of URLs downloaded successfully. */
+
+	/** Limit the number of URLs downloaded successfully. */
 	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
-	
-	private static DBOperations dbo;
-	
+
+	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
-	
+
 	// Logging functions
 
 	/** Output the time taken per URL to a *.csv file. */
 	private static boolean OPTION_RECORD_STATS_URL_TIMES = true;
-	
+
 	/** If false, blank the csv file */
 	private static final boolean OPTION_RECORD_STATS_APPEND = false;
 
 	/** The name of the CSV file to append info to. */
 	private static final String FILENAME_STATS_URL_TIMES = "stats_url_times.csv";
-	
+
 	private static StatisticsUtilsCSV csvStats;
-	
+
 	// Functions for UI
-	
+
 	public static String getStatus() {
 		return status;
 	}
@@ -105,7 +107,7 @@ public class UserURLsTF
 	{
 		return currentURLNumber*1.0/noOfURLs;
 	}
-	
+
 	public static int getURLsSize() {
 		if(urls == null) {
 			return -1;
@@ -113,30 +115,20 @@ public class UserURLsTF
 		else
 			return urls.size();
 	}
-	
+
 	// Initialize everything
 	static
 	{
-		
+
 		currentURLNumber = -1;
 		currentURLTermCounts = new HashMap<>();
 		loadAllowedWebsiteFilter();
 
-		try {
-			dbo = new DBOperations();
-			
-			db_conn = DBOperations.getConnectionToDatabase();
-			
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-		}
-
 		// file initialization
 		if(OPTION_RECORD_STATS_URL_TIMES) {
-			
+
 			System.out.println("Logging for UserURLsTF is enabled.");
-			
+
 			try {
 				csvStats = new StatisticsUtilsCSV(FILENAME_STATS_URL_TIMES, OPTION_RECORD_STATS_APPEND);
 
@@ -155,7 +147,7 @@ public class UserURLsTF
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks whether user with given user-ID exists in database
 	 * returns true if exists
@@ -169,11 +161,17 @@ public class UserURLsTF
 		String queryCheck = "SELECT * FROM user_urls WHERE user_id = "+id;
 		try
 		{
-			ResultSet rs = dbo.executeQuery(queryCheck);
+			Statement stmt = db_conn.createStatement();
+			ResultSet rs = stmt.executeQuery(queryCheck);
+
 			if(rs.next() == true)
 			{
 				userIdFound = true;
 			}
+
+			rs.close();
+			stmt.close();
+
 		}
 		catch (SQLException e)
 		{
@@ -181,7 +179,13 @@ public class UserURLsTF
 		}
 		return userIdFound;
 	}
-	
+
+	/**
+	 * Check if a URL contains one of the given shopping website
+	 * domains as a substring.
+	 * @param url
+	 * @return
+	 */
 	private static boolean isAnAllowedWebsite(String url)
 	{
 		for(String site : allowedWebsites)
@@ -191,6 +195,10 @@ public class UserURLsTF
 		return false;
 	}
 
+	/**
+	 * Populate the List allowedWebsites with all the site
+	 * filters defined in an external file.
+	 */
 	private static void loadAllowedWebsiteFilter()
 	{
 		allowedWebsites = new ArrayList<String>();
@@ -297,7 +305,6 @@ public class UserURLsTF
 	private static void prepareHistory(int user_id, String filePath)
 	{ 
 		// TODO use the history file of that user id
-
 		prepareHistory(filePath);
 	}
 
@@ -310,6 +317,10 @@ public class UserURLsTF
 			// Print currentURLTermCounts
 			// System.out.println(Collections.singletonList(currentURLTermCounts));
 
+			// Prepare statement
+			String queryUserTF = "INSERT INTO user_tf (user_id, url, term, tf, weight) VALUES (?, ?, ?, ?, ?)";
+			PreparedStatement pstmt = db_conn.prepareStatement(queryUserTF);
+
 			// Put this stuff into the table
 			int termsAlreadyInTable = 0; // For better error catching
 			int totalTerms = currentURLTermCounts.size();
@@ -321,185 +332,231 @@ public class UserURLsTF
 					term = term.substring(0, 50);
 
 				Integer tf = entry.getValue();
-				String queryUserTF = String.format(
+				/*String queryUserTF = String.format(
 						"INSERT INTO user_tf (user_id, url, term, tf, weight) VALUES (%d, '%s', '%s', %d, null)",
 						user_id,
 						currentURL,
 						term,
 						tf
-						);
+						);*/
+
+				pstmt.setInt(1, user_id);
+				pstmt.setString(2, currentURL);
+				pstmt.setString(3, term);
+				pstmt.setInt(4, tf);
+				pstmt.setNull(5, Types.INTEGER);
 
 				try
 				{
-					dbo.executeUpdate(queryUserTF);
+					pstmt.executeUpdate();
 				}
 				catch (SQLIntegrityConstraintViolationException sicve) {
 					termsAlreadyInTable++;
 				}
 			}
+
 			if(termsAlreadyInTable > 0)
 				System.out.format("%d/%d URL terms already in user_tf.\n", termsAlreadyInTable, totalTerms);
 			else
 				System.out.println("Inserted into user_tf.");
+
+			pstmt.close();
 		}
 		catch (SQLException e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void userURLAndTFTableInsertion(int user_id)
 	{
-		userURLAndTFTableInsertion(user_id, true, DeimosConfig.FILE_OUTPUT_HISTORY);
+		userURLAndTFTableInsertion(user_id, false, DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
 
+	/**
+	 * Parses the history file specified.
+	 * Fills the user_urls table for the user_id specified.
+	 * (Removes all of that user's existing data if specified.)
+	 * @param user_id
+	 * @param truncate
+	 * @param filePath
+	 */
 	public static void userURLAndTFTableInsertion(int user_id, boolean truncate, String filePath)
 	{
-		if(truncate)
-		{
-			// USE WITH CAUTION!
-			dbo.truncateAllUserTables(user_id);
-		}	
-
 		// Prepare the urls List.
 		prepareHistory(user_id, filePath);
 
 		System.out.println("\nFetching pages and populating user_urls and user_tf...");
 		status = "Starting...";
-		
+
 		// set the max limit to the smaller number of the predefined URL limit and the no of urls available.
 		if(urls.size() < noOfURLs)
 			noOfURLs = urls.size();
-		
-		for (currentURLNumber = 0; (currentURLNumber < noOfURLs) ; currentURLNumber++)
+
+
+		try
 		{
-			currentTimestamp = urlTimeStamps.get(currentURLNumber);
-			currentURL = urls.get(currentURLNumber);
-			currentTitle = urlTitles.get(currentURLNumber);
-			currentVisitCount = urlVisitCounts.get(currentURLNumber);
-			currentTypedCount = urlTypedCounts.get(currentURLNumber);
+			// Open connection to Database
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
 
-			// Only for printing
-			int displayLen = 40;
-			String displayURL = StringUtils.truncateURL(currentURL, displayLen);
-
-			// only for printing
-			// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
-
-			System.out.format("%6d | ", currentURLNumber);
-			System.out.print(currentTimestamp+" | "+displayURL + " | ");
-			// System.out.print(displayTitle + " | ");
-			
-			status = (String.format("(%d/%d) %s", currentURLNumber, noOfURLs, StringUtils.truncateURL(currentURL)));
-
-			long lStartTime, lEndTime;
-
-			// Log to CSV
-			lStartTime = Instant.now().toEpochMilli();
-
-			Exception caughtEx = null;
-			try
+			if(truncate)
 			{
-				
-				// All these exceptions!
-				currentURLText = "";
-				currentURLText = PageFetcher.fetchHTML(currentURL);
-				if(currentURLText.isEmpty())
-					throw new Exception("Text is Empty");
+				// USE WITH CAUTION!
+				DBOperations.truncateAllUserTables(db_conn, user_id);
+			}
 
-				currentURLText = StopWordsRemoval.removeStopWordsFromString(currentURLText);
+			String queryUserURL = String.format(
+					"INSERT INTO user_urls (user_id, url_timestamp, url, title, visit_count, typed_count) "
+							+ "VALUES (?, ?, ?, ?, ?, ?)",
+							user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);
 
-				// System.out.println("URL Text:"+currentURLText);
+			// Prepare the statements in advance
+			PreparedStatement pstmt = db_conn.prepareStatement(queryUserURL);
+			pstmt.setInt(1, user_id);
 
-				String queryUserURL = String.format(
-						"INSERT INTO user_urls (user_id, url_timestamp, url, title, visit_count, typed_count) "
-								+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s', '%s', %d, %d)",
-								user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);
+			for (currentURLNumber = 0; (currentURLNumber < noOfURLs) ; currentURLNumber++)
+			{
+				currentTimestamp = urlTimeStamps.get(currentURLNumber);
+				currentURL = urls.get(currentURLNumber);
+				currentTitle = urlTitles.get(currentURLNumber);
+				currentVisitCount = urlVisitCounts.get(currentURLNumber);
+				currentTypedCount = urlTypedCounts.get(currentURLNumber);
 
-				// System.out.println(query);
+				// Only for printing
+				int displayLen = 40;
+				String displayURL = StringUtils.truncateURL(currentURL, displayLen);
+				// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
+
+				System.out.format("%6d | ", currentURLNumber);
+				System.out.print(currentTimestamp+" | "+displayURL + " | ");
+				// System.out.print(displayTitle + " | ");
+
+				// For the GUI
+				status = (String.format("(%d/%d) %s", currentURLNumber, noOfURLs, StringUtils.truncateURL(currentURL)));
+
+				// Log to CSV
+				long lStartTime, lEndTime;
+				lStartTime = Instant.now().toEpochMilli();
+
+				Exception caughtEx = null;
 				try
 				{
-					dbo.executeUpdate(queryUserURL);
-					System.out.print("Inserted into user_urls | ");
-				}
-				catch (SQLIntegrityConstraintViolationException sicve) {
-					System.out.print("Already in user_urls | ");
-				}
-				catch (SQLSyntaxErrorException sqlsyn) { // TODO might fix by PreparedStatement
-					System.out.println(sqlsyn + " | ");
-				}
 
-				tfTableInsertion(user_id);
-			}
-			catch (SQLException sqle) {
-				sqle.printStackTrace();
-				
-				caughtEx = sqle;
-				System.out.println(caughtEx);
-				
-			}
-			catch (IllegalArgumentException ile) {				
-				caughtEx = ile;
-				System.out.println(caughtEx+ ", Invalid URL - missed a protocol?");
-			}
-			catch (SocketException se) {				
-				caughtEx = se;
-				System.out.println(caughtEx);
-			}
-			catch (SocketTimeoutException ste) {
-				caughtEx = ste;
-				System.out.println(caughtEx);
-			}
-			catch (HttpStatusException hse) {
-				caughtEx = hse;
-				System.out.println(caughtEx);
-			}
-			catch (UnknownHostException uhe) {
-				caughtEx = uhe;
-				System.out.println(caughtEx);
-			}
-			catch (SSLHandshakeException sshe) {
-				System.err.println(sshe);
-				caughtEx = sshe;
-			}
-			catch (SSLProtocolException spe) {
-				caughtEx = spe;
-				System.out.println(caughtEx);
-			}
-			catch (SSLException sslxe){	
-				
-				/* Wtf is this shit LMAO
+					// All these exceptions!
+					currentURLText = "";
+					currentURLText = PageFetcher.fetchHTML(currentURL);
+					if(currentURLText.isEmpty())
+						throw new Exception("Text is Empty");
+
+					currentURLText = StopWordsRemoval.removeStopWordsFromString(currentURLText);
+
+					// System.out.println("URL Text: "+currentURLText);
+
+					/*String queryUserURL = String.format(
+						"INSERT INTO user_urls (user_id, url_timestamp, url, title, visit_count, typed_count) "
+								+ "VALUES (%d, TO_TIMESTAMP('%s', 'YYYY-MM-DD HH24:MI:SS'), '%s', '%s', %d, %d)",
+								user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);*/
+
+					// User ID already set
+					pstmt.setTimestamp(2, StringUtils.toTimestamp(currentTimestamp));
+					pstmt.setString(3, currentURL);
+					pstmt.setString(4, currentTitle);
+					pstmt.setInt(5, currentVisitCount);
+					pstmt.setInt(6, currentTypedCount);
+
+					try
+					{
+						// dbo.executeUpdate(queryUserURL);
+						pstmt.executeUpdate();
+
+						System.out.print("Inserted into user_urls | ");
+					}
+					catch (SQLIntegrityConstraintViolationException sicve) {
+						System.out.print("Already in user_urls | ");
+					}
+					catch (SQLSyntaxErrorException sqlsyn) { // Might be fixed by PreparedStatement
+						System.out.println(sqlsyn + " | ");
+					}
+
+					tfTableInsertion(user_id);
+				}
+				catch (SQLException sqle) {
+					// sqle.printStackTrace();
+
+					caughtEx = sqle;
+					System.out.println(caughtEx);
+
+				}
+				catch (IllegalArgumentException ile) {				
+					caughtEx = ile;
+					System.out.println(caughtEx+ ", Invalid URL - missed a protocol?");
+				}
+				catch (SocketException se) {				
+					caughtEx = se;
+					System.out.println(caughtEx);
+				}
+				catch (SocketTimeoutException ste) {
+					caughtEx = ste;
+					System.out.println(caughtEx);
+				}
+				catch (HttpStatusException hse) {
+					caughtEx = hse;
+					System.out.println(caughtEx);
+				}
+				catch (UnknownHostException uhe) {
+					caughtEx = uhe;
+					System.out.println(caughtEx);
+				}
+				catch (SSLHandshakeException sshe) {
+					System.err.println(sshe);
+					caughtEx = sshe;
+				}
+				catch (SSLProtocolException spe) {
+					caughtEx = spe;
+					System.out.println(caughtEx);
+				}
+				catch (SSLException sslxe){	
+
+					/* Wtf is this shit LMAO
 				General_Merchandise/D
 				Current URL: http://www.davidmorgan.com/
 				javax.net.ssl.SSLException: java.lang.RuntimeException: Could not generate DH keypair
-				
+
 				Caused by: java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64,
 				and can only range from 512 to 2048 (inclusive)
-				*/
-				
-				caughtEx = sslxe;
-				System.out.println(caughtEx);
-			}
-			catch (Exception ex) {
-				caughtEx = ex;
-				System.out.println(caughtEx);
-			}
-			finally
-			{
-				if(OPTION_RECORD_STATS_URL_TIMES)
-				{
-					lEndTime = Instant.now().toEpochMilli();
-					String ifFetchSuccess = (currentURLText.isEmpty())?"false":"true";
-					String exceptString = (caughtEx == null)?"":caughtEx.toString();
-					csvStats.printAsCSV(
-							String.valueOf(currentURLNumber),
-							currentURL,
-							String.valueOf(lEndTime-lStartTime),
-							ifFetchSuccess,
-							exceptString);
+					 */
 
+					caughtEx = sslxe;
+					System.out.println(caughtEx);
 				}
-			}
+				catch (Exception ex) {
+					caughtEx = ex;
+					System.out.println(caughtEx);
+				}
+				finally
+				{
+					if(OPTION_RECORD_STATS_URL_TIMES)
+					{
+						lEndTime = Instant.now().toEpochMilli();
+						String ifFetchSuccess = (currentURLText.isEmpty())?"false":"true";
+						String exceptString = (caughtEx == null)?"":caughtEx.toString();
+						csvStats.printAsCSV(
+								String.valueOf(currentURLNumber),
+								currentURL,
+								String.valueOf(lEndTime-lStartTime),
+								ifFetchSuccess,
+								exceptString);
+
+					}
+				}
+			} 
+
+			pstmt.close();
+			db_conn.close();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
 		}
 
 		System.out.println();

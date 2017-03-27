@@ -21,7 +21,8 @@ public class DeimosApp extends Application {
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) throws Exception
+	{
 		// TODO Auto-generated method stub
 		this.primaryStage = primaryStage;
 

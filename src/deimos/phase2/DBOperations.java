@@ -39,13 +39,18 @@ public class DBOperations
 	
 	/** Truncate the specified table.
 	 * Use with extreme caution! */
-	public static void truncateTable(Statement stmt, String tableName)
+	public static void truncateTable(Connection conn, String tableName)
 	{
+		
 		try {
 			String query = String.format("TRUNCATE TABLE %s", tableName);
 			// System.out.println(query);
+			Statement stmt = conn.createStatement();
+			
 			stmt.executeUpdate(query);
 			System.out.println("Truncated the table "+ tableName +".");
+			
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -54,13 +59,15 @@ public class DBOperations
 	
 	/** Deletes rows from the specified table for given user Id
 	 * Use with extreme caution! */
-	public static void truncateUserTable(Statement stmt, String tableName, int user_id)
+	public static void truncateUserTable(Connection conn, String tableName, int user_id)
 	{
 		try {
 			String query = String.format("DELETE FROM %s WHERE user_id = %d", tableName, user_id);
 			// System.out.println(query);
+			Statement stmt = conn.createStatement();
 			stmt.executeUpdate(query);
 			System.out.println("Deleted all rows in "+ tableName +" for user "+user_id+".");
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -70,22 +77,22 @@ public class DBOperations
 	/** Truncate all tables used to build the reference ontology.
 	 * Use with extreme caution!
 	 */
-	public static void truncateAllReferenceTables(Statement stmt)
+	public static void truncateAllReferenceTables(Connection conn)
 	{
-		truncateTable(stmt, "ref_topics");
-		truncateTable(stmt, "ref_hierarchy");
-		truncateTable(stmt, "ref_tf");
-		truncateTable(stmt, "ref_idf");
+		truncateTable(conn, "ref_topics");
+		truncateTable(conn, "ref_hierarchy");
+		truncateTable(conn, "ref_tf");
+		truncateTable(conn, "ref_idf");
 	}
 	
 	/** Truncate all tables used in user data processing.
 	 * Use with extreme caution!
 	 */
-	public static void truncateAllUserTables(Statement stmt, int user_id)
+	public static void truncateAllUserTables(Connection conn, int user_id)
 	{
-		truncateUserTable(stmt, "user_urls", user_id);
-		truncateUserTable(stmt, "user_tf", user_id);
-		truncateUserTable(stmt, "user_ref_similarity", user_id);
+		truncateUserTable(conn, "user_urls", user_id);
+		truncateUserTable(conn, "user_tf", user_id);
+		truncateUserTable(conn, "user_ref_similarity", user_id);
 	}
 	
 

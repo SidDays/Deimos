@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.Instant;
@@ -190,6 +191,8 @@ public class RefTopicsHierarchyTFParser
 		 */
 		private StringBuilder content;
 		private DBOperations dbo;
+		
+		private Connection db_conn;
 
 		public DMOZHandler(boolean startAfresh) throws SQLException
 		{

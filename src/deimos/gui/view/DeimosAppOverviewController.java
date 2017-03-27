@@ -6,16 +6,15 @@ import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
 import deimos.gui.DeimosApp;
+import deimos.gui.view.services.IDFService;
+import deimos.gui.view.services.SimilarityService;
+import deimos.gui.view.services.URLsTFService;
+import deimos.gui.view.services.WeightService;
 import deimos.gui.view.services.WordCloudService;
-import deimos.phase2.similarity.SimilarityMapper;
-import deimos.phase2.user.UserIDF;
 import deimos.phase2.user.UserURLsTF;
-import deimos.phase2.user.UserWeightCalculation;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -268,6 +267,34 @@ public class DeimosAppOverviewController {
 		});
 		truncateLabel.setTooltip(new Tooltip("Truncate existing user tables for this ID."));
 	}
+	
+	/**
+	 * Many services require parameters.
+	 * @param id Sends the specified user Id to them for use.
+	 * @param truncate Boolean value for truncate checkbox is used for URLsTFService.
+	 * @param filepath FilePath is used for URLsTFService.
+	 */
+	private void setParamsForServices(int id, boolean truncate, String filepath)
+	{
+		serviceURLsTF.setUserId(id);
+		serviceURLsTF.setTruncate(truncate);
+		serviceURLsTF.setFilePath(filepath);
+		serviceIDf.setUserId(id);
+		serviceWeights.setUserId(id);
+		serviceSimilarity.setUserId(id);
+	}
+	
+	/**
+	 * Sends default parameters from the UI to the services for use.
+	 * Among these are userId, the boolean value of truncate checkbox,
+	 * and the filePath specified in text box.
+	 * 
+	 * @param id
+	 */
+	private void setParamsForServices()
+	{
+		setParamsForServices(userId, truncateCheckBox.isSelected(), filePath);
+	}
 
 	@FXML
 	private void handleBrowseButton() 
@@ -349,10 +376,13 @@ public class DeimosAppOverviewController {
 					}
 
 					userIDTextField.setDisable(true);
+					outputFileTextField.setDisable(true);
 					startButton.setDisable(true);
 					
 					urlsTFStatusLabel.setText("Initializing...");
 					progressURLsTFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+					
+					setParamsForServices();
 					
 					statusLabel.setText("user_url and user_tf insertion");
 					GUIUtils.startAgain(serviceURLsTF); // The others cascade from this one.				
@@ -369,72 +399,5 @@ public class DeimosAppOverviewController {
 			message = "User-ID field can't be empty!";
 			GUIUtils.generateErrorAlert(message, mainApp.getPrimaryStage());
 		}
-	}
-	
-	private class URLsTFService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-				@Override
-				public Void call(){
-
-					UserURLsTF.userURLAndTFTableInsertion(userId, truncateCheckBox.isSelected(), filePath);
-					return null;
-				}
-			};
-		}
-
-	}
-
-	private class IDFService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-				@Override
-				public Void call(){
-
-					UserIDF.computeUserIDF(userId);
-					return null;
-				}
-			};
-		}
-
-	}
-
-	private class WeightService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-				@Override
-				public Void call(){
-
-					UserWeightCalculation.updateWeights(userId);
-					return null;
-				}
-			};
-		}
-	}
-
-	private class SimilarityService extends Service<Void> {
-
-		@Override
-		protected Task<Void> createTask() {
-
-			return new Task<Void>() {
-				@Override
-				public Void call(){
-
-					SimilarityMapper.computeSimilarity(userId);
-					return null;
-				}
-			};
-		}
-
 	}
 }

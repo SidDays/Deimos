@@ -1,6 +1,8 @@
 package deimos.phase2.user;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import deimos.phase2.DBOperations;
 
@@ -13,19 +15,7 @@ import deimos.phase2.DBOperations;
  */
 public class UserWeightCalculation {
 
-	static DBOperations dbo;
-
-	static
-	{
-		try
-		{
-			dbo = new DBOperations();
-		}
-		catch(SQLException e)
-		{
-			e.printStackTrace();
-		}
-	}
+	private static Connection db_conn;
 
 	/**
 	 * In case the IDF table has changed, you can
@@ -36,8 +26,10 @@ public class UserWeightCalculation {
 	{
 		try
 		{
-			String query = String.format("UPDATE user_tf SET weight = null WHERE user_id = "+user_id);
-			dbo.executeUpdate(query);
+			Statement stmt = db_conn.createStatement();
+			String query = String.format("UPDATE user_tf SET weight = NULL WHERE user_id = "+user_id);
+			stmt.executeUpdate(query);
+			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -54,12 +46,18 @@ public class UserWeightCalculation {
 		try
 		{
 			System.out.println("Weight calculation and updation for user_tf started for user "+user_id+".");
+			
+			db_conn = DBOperations.getConnectionToDatabase("UserWeightCalculation");
 
 			// nullAllWeights();
 
 			// Update weights
+			Statement stmt = db_conn.createStatement();
 			String queryUpdate = "UPDATE user_tf SET user_tf.weight = user_tf.tf * ( SELECT idf FROM user_idf WHERE user_idf.term = user_tf.term ) WHERE user_id = "+user_id;
-			dbo.executeUpdate(queryUpdate);
+			stmt.executeUpdate(queryUpdate);
+			stmt.close();
+			
+			db_conn.close();
 
 			System.out.println("Weight calculation and updation finished for user_tf for user "+user_id+"!");
 			System.out.println();

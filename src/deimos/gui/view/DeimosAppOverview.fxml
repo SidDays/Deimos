@@ -27,10 +27,18 @@
             </ImageView>
             <Label maxHeight="1.7976931348623157E308" text="Deimos">
                <font>
-                  <Font size="24.0" />
+                  <Font size="28.0" />
                </font>
                <padding>
-                  <Insets bottom="-6.0" top="-6.0" />
+                  <Insets bottom="-6.0" />
+               </padding>
+            </Label>
+            <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" text="(version 1.05)" textFill="#5e5e5e">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <padding>
+                  <Insets bottom="-2.0" />
                </padding>
             </Label>
          </children>
@@ -179,7 +187,7 @@
                <content>
                   <VBox alignment="CENTER" spacing="8.0">
                      <children>
-                        <ImageView fx:id="wordCloudImage" fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+                        <ImageView fx:id="wordCloudImage" fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" />
                         <Button fx:id="generateWordCloudButton" mnemonicParsing="false" onAction="#handleWordCloudGenerateButton" text="Generate" />
                      </children>
                   </VBox>
