@@ -7,6 +7,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -14,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.DeimosAppOverviewController">
    <children>
       <HBox spacing="6.0" style="-fx-background-color: #FFFFFF;" VBox.vgrow="NEVER">
          <children>
@@ -36,136 +38,154 @@
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
          </padding>
       </HBox>
-      <Separator prefWidth="200.0" />
-      <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
-         <children>
-            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Mapping">
+               <content>
+                  <VBox>
                      <children>
-                        <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="User ID">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="userIDTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" text="1" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                        </TextField>
-                        <HBox alignment="CENTER_RIGHT" prefWidth="90.0" spacing="4.0" HBox.hgrow="NEVER">
+                        <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
                            <children>
-                              <Label text="*" textFill="RED" />
-                              <Label fx:id="truncateLabel" maxHeight="1.7976931348623157E308" text="Truncate" underline="true">
+                              <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="User ID">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="userIDTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" text="1" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </TextField>
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="90.0" spacing="4.0" HBox.hgrow="NEVER">
+                                             <children>
+                                                <Label text="*" textFill="RED" />
+                                                <Label fx:id="truncateLabel" maxHeight="1.7976931348623157E308" text="Truncate" underline="true">
+                                                   <font>
+                                                      <Font size="14.0" />
+                                                   </font>
+                                                   <cursor>
+                                                      <Cursor fx:constant="HAND" />
+                                                   </cursor>
+                                                </Label>
+                                                <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                    <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Output file">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="outputFileTextField" promptText="Leave blank to use default file." HBox.hgrow="ALWAYS" />
+                                          <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="90.0" text="Browse..." />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <Separator prefWidth="200.0" />
+                              <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                                       <children>
+                                          <Label maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
+                                             <font>
+                                                <Font size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0055f0" HBox.hgrow="SOMETIMES" />
+                                       </children>
+                                    </HBox>
+                                    <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                                 </children>
+                              </VBox>
+                              <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="IDF">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ProgressBar fx:id="progressIDFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                                 </children>
+                              </VBox>
+                              <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Weight">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ProgressBar fx:id="progressWeightBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                                 </children>
+                              </VBox>
+                              <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Similarity">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ProgressBar fx:id="progressSimilarityBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                                 </children>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="12.0" />
+                           </padding>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </VBox>
+                        <Separator />
+                        <HBox spacing="12.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" text="Status:" HBox.hgrow="NEVER">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
                               </Label>
-                              <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" />
+                              <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="startButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleStartButton" text="Start!" HBox.hgrow="NEVER" />
                            </children>
+                           <padding>
+                              <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+                           </padding>
                         </HBox>
                      </children>
-                  </HBox>
-                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                  </VBox>
+               </content>
+          </Tab>
+          <Tab text="Word Cloud">
+               <content>
+                  <VBox alignment="CENTER" spacing="8.0">
                      <children>
-                        <Label prefWidth="70.0" text="Output file">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="outputFileTextField" promptText="Leave blank to use default file." HBox.hgrow="ALWAYS" />
-                        <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="90.0" text="Browse..." />
+                        <ImageView fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+                        <Button mnemonicParsing="false" text="Generate" />
                      </children>
-                  </HBox>
-               </children>
-            </VBox>
-            <Separator prefWidth="200.0" />
-            <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-               <children>
-                  <HBox spacing="4.0">
-                     <children>
-                        <Label maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0055f0" HBox.hgrow="SOMETIMES" />
-                     </children>
-                  </HBox>
-                  <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-               </children>
-            </VBox>
-            <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label text="IDF">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <ProgressBar fx:id="progressIDFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-               </children>
-            </VBox>
-            <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label text="Weight">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <ProgressBar fx:id="progressWeightBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-               </children>
-            </VBox>
-            <VBox maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label text="Similarity">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <ProgressBar fx:id="progressSimilarityBar" maxWidth="1.7976931348623157E308" progress="0.0" />
-               </children>
-            </VBox>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="12.0" />
-         </padding>
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-      </VBox>
-      <Separator prefWidth="200.0" />
-      <HBox spacing="12.0" VBox.vgrow="NEVER">
-         <children>
-            <Label maxHeight="1.7976931348623157E308" text="Status:" HBox.hgrow="NEVER">
-               <font>
-                  <Font size="14.0" />
-               </font>
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
-            </Label>
-            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
-               <HBox.margin>
-                  <Insets />
-               </HBox.margin>
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <Button fx:id="startButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleStartButton" text="Start!" HBox.hgrow="NEVER" />
-         </children>
-         <padding>
-            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
-         </padding>
-      </HBox>
+                  </VBox>
+               </content>
+          </Tab>
+        </tabs>
+      </TabPane>
    </children>
 </VBox>
