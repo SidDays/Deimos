@@ -13,4 +13,7 @@ public class DeimosImages {
 	public static final Image IMG_STATE_FAILED = new Image("file:resources/images/RedExclamation_64x64.png");
 	public static final Image IMG_STATE_WARNING = new Image("file:resources/images/YellowExclamation_64x64.png");
 	public static final Image IMG_STATE_MAILED = new Image("file:resources/images/Greentickmail_64x64.png");
+	public static final Image IMG_WORDCLOUD_PLACEHOLDER = new Image("file:resources/images/WordCloud_Placeholder_900x900.png");
+	public static final Image IMG_WORDCLOUD_INPROGRESS = new Image("file:resources/images/WordCloud_inProgress.gif");
+
 }

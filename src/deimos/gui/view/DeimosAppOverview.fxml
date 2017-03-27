@@ -179,8 +179,8 @@
                <content>
                   <VBox alignment="CENTER" spacing="8.0">
                      <children>
-                        <ImageView fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
-                        <Button mnemonicParsing="false" text="Generate" />
+                        <ImageView fx:id="wordCloudImage" fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+                        <Button fx:id="generateWordCloudButton" mnemonicParsing="false" onAction="#handleWordCloudGenerateButton" text="Generate" />
                      </children>
                   </VBox>
                </content>

@@ -16,12 +16,10 @@ public class UserIDF {
 	private static ResultSet rs;
 	private static DBOperations dbo;
 	
-	
-	public static void main(String[] args) {
+	static {
 		
-		// TODO remove hardcode
-		computeUserIDF(1);
 	}
+
 	
 	public static void computeUserIDF(int user_id)
 	{
@@ -80,5 +78,11 @@ public class UserIDF {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		
+		// TODO remove hardcode
+		computeUserIDF(1);
 	}
 }

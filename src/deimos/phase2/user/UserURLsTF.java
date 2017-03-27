@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -55,6 +56,43 @@ public class UserURLsTF
 	private static String status;
 	
 	
+	/** Store all URLs in user history. */
+	private static List<String> urls = new ArrayList<String>();
+
+	/** Store all timestamps in user history for respective URLs. */
+	private static List<String> urlTimeStamps = new ArrayList<String>();
+
+	private static List<String> urlTitles = new ArrayList<String>();
+	private static List<Integer> urlVisitCounts = new ArrayList<Integer>();
+	private static List<Integer> urlTypedCounts = new ArrayList<Integer>();
+
+	private static List<String> allowedWebsites;
+	public static final String FILE_URL_FILTER = "resources/shoppingWebsites.txt";
+
+	private static Map<String, Integer> currentURLTermCounts;
+	
+	/* Limit the number of URLs downloaded successfully. */
+	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
+	
+	private static DBOperations dbo;
+	
+	private static Connection db_conn;
+	
+	// Logging functions
+
+	/** Output the time taken per URL to a *.csv file. */
+	private static boolean OPTION_RECORD_STATS_URL_TIMES = true;
+	
+	/** If false, blank the csv file */
+	private static final boolean OPTION_RECORD_STATS_APPEND = false;
+
+	/** The name of the CSV file to append info to. */
+	private static final String FILENAME_STATS_URL_TIMES = "stats_url_times.csv";
+	
+	private static StatisticsUtilsCSV csvStats;
+	
+	// Functions for UI
+	
 	public static String getStatus() {
 		return status;
 	}
@@ -75,48 +113,20 @@ public class UserURLsTF
 		else
 			return urls.size();
 	}
-
-	/** Store all URLs in user history. */
-	private static List<String> urls = new ArrayList<String>();
-
-	/** Store all timestamps in user history for respective URLs. */
-	private static List<String> urlTimeStamps = new ArrayList<String>();
-
-	private static List<String> urlTitles = new ArrayList<String>();
-	private static List<Integer> urlVisitCounts = new ArrayList<Integer>();
-	private static List<Integer> urlTypedCounts = new ArrayList<Integer>();
-
-	private static List<String> allowedWebsites;
-	public static final String FILE_URL_FILTER = "resources/shoppingWebsites.txt";
-
-	private static Map<String, Integer> currentURLTermCounts;
-
-	private static int noOfURLs = DeimosConfig.LIMIT_URLS_DOWNLOADED;
 	
-	private static DBOperations dbo;
-	
-	// Logging functions
-
-	/** Output the time taken per URL to a *.csv file. */
-	private static boolean OPTION_RECORD_STATS_URL_TIMES = true;
-	
-	/** If false, blank the csv file */
-	private static final boolean OPTION_RECORD_STATS_APPEND = false;
-
-	/** The name of the CSV file to append info to. */
-	private static final String FILENAME_STATS_URL_TIMES = "stats_url_times.csv";
-	
-	private static StatisticsUtilsCSV csvStats;
-
+	// Initialize everything
 	static
 	{
-		// Initialize everything
+		
 		currentURLNumber = -1;
 		currentURLTermCounts = new HashMap<>();
 		loadAllowedWebsiteFilter();
 
 		try {
 			dbo = new DBOperations();
+			
+			db_conn = DBOperations.getConnectionToDatabase();
+			
 		} catch (SQLException e) {
 
 			e.printStackTrace();

@@ -142,6 +142,8 @@ public class WordCloudTest
 			// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
 			wordCloud.setBackgroundColor(new Color(244, 244, 244));
 			
+			// wordCloud.setBackgroundColor(Color.WHITE);
+			
 			// ColorPalette lightPalette = new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW);
 			ColorPalette darkPalette = new LinearGradientColorPalette(new Color(243, 12, 19), new Color(17, 31, 200), 30);
 			

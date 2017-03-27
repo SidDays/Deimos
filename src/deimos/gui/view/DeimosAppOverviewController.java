@@ -3,8 +3,10 @@ package deimos.gui.view;
 import java.io.File;
 
 import deimos.common.DeimosConfig;
+import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
 import deimos.gui.DeimosApp;
+import deimos.gui.view.services.WordCloudService;
 import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserIDF;
 import deimos.phase2.user.UserURLsTF;
@@ -26,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -71,6 +74,8 @@ public class DeimosAppOverviewController {
 	private Button browseButton;
 	@FXML
 	private Button startButton;
+	@FXML
+	private Button generateWordCloudButton;
 
 	private String truncateText;
 	private String filePath;
@@ -78,11 +83,17 @@ public class DeimosAppOverviewController {
 	private IDFService serviceIDf;
 	private WeightService serviceWeights;
 	private SimilarityService serviceSimilarity;
+	private WordCloudService serviceWordCloud;
 	private File file;
+	
+	@FXML
+	ImageView wordCloudImage;
 	
 	public DeimosAppOverviewController() {
 
 		System.out.println("Started Deimos Application GUI.");
+		
+		userId = -1;
 	}
 
 	/**
@@ -98,6 +109,8 @@ public class DeimosAppOverviewController {
 		initializeSimilarity();
 		
 		browseButton.setTooltip(new Tooltip("Select the output file of Phase 1 data collection."));
+		
+		initializeWordCloud();
 	}
 
 	private void initializeURLsTF() {
@@ -203,6 +216,32 @@ public class DeimosAppOverviewController {
 			progressSimilarityBar.setProgress(0);
 		});
 	}
+	
+	private void initializeWordCloud() {
+		wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_PLACEHOLDER);
+		
+		serviceWordCloud = new WordCloudService();
+		
+		serviceWordCloud.setOnSucceeded(e -> {
+			wordCloudImage.setImage(serviceWordCloud.bi);
+			System.out.print("Image successfully set.");
+			resetWordCloud();
+		});
+		serviceWordCloud.setOnRunning(e -> {
+			
+			generateWordCloudButton.setDisable(true);
+			generateWordCloudButton.setText("Generating...");
+			wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_INPROGRESS);
+
+		});
+		serviceWordCloud.setOnCancelled(e -> {
+			resetWordCloud();
+		});
+		serviceWordCloud.setOnFailed(e -> {
+			resetWordCloud();
+		});
+
+	}
 
 	/**
 	 * Is called by the main application to give a reference back to itself.
@@ -264,6 +303,26 @@ public class DeimosAppOverviewController {
 			});
 		}
 
+	}
+	
+	@FXML
+	private void handleWordCloudGenerateButton() {
+		
+		try {
+			userId = Integer.parseInt(userIDTextField.getText());
+			serviceWordCloud.setUserId(userId);
+			GUIUtils.startAgain(serviceWordCloud); // TODO more error handling
+			
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+
+		
+	}
+	
+	private void resetWordCloud() {
+		generateWordCloudButton.setText("Generate");
+		generateWordCloudButton.setDisable(false);
 	}
 	
 	@FXML

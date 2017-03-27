@@ -101,9 +101,13 @@ public class DBOperations
 	///////////////////////////////////////////////
 	///////////////////////////////////////////////
 
-
+	@Deprecated
 	public Connection con;
+	
+	@Deprecated
 	private Statement stmt1;
+	
+	@Deprecated
 	private Statement stmt2;
 	
 	/**
@@ -131,6 +135,7 @@ public class DBOperations
 	}
 	
 	/** By default, connect using configured username/pw */
+	@Deprecated
 	public DBOperations() throws SQLException {
 		connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
 	}
@@ -141,6 +146,7 @@ public class DBOperations
 	 * @param password
 	 * @return
 	 */
+	@Deprecated
 	public boolean connectToDatabase(String username, String password)
 	{
 		try
@@ -179,6 +185,7 @@ public class DBOperations
 	 * @param query
 	 * @throws SQLException
 	 */
+	@Deprecated
 	public ResultSet executeQuery(String query) throws SQLException
 	{
 	    ResultSet rs =
@@ -191,6 +198,7 @@ public class DBOperations
 	 * @param query
 	 * @throws SQLException
 	 */
+	@Deprecated
 	public ResultSet executeQueryAgain(String query) throws SQLException
 	{
 	    ResultSet rs =
@@ -204,26 +212,16 @@ public class DBOperations
 	 * @return
 	 * @throws SQLException
 	 */
+	@Deprecated
 	public int executeUpdate(String query) throws SQLException
 	{
 		return stmt1.executeUpdate(query);
 	}
 	
-	/**
-	 * For more insert, update or delete queries (first use
-	 * executeUpdate).
-	 * 
-	 * @param query
-	 * @return
-	 * @throws SQLException
-	 */
-	public int executeUpdateAgain(String query) throws SQLException
-	{
-		return stmt2.executeUpdate(query);
-	}
 	
 	/** Truncate the specified table.
 	 * Use with extreme caution! */
+	@Deprecated
 	public void truncateTable(String tableName)
 	{
 		try {
@@ -239,6 +237,7 @@ public class DBOperations
 	
 	/** Deletes rows from the specified table for given user Id
 	 * Use with extreme caution! */
+	@Deprecated
 	public void truncateUserTable(String tableName, int user_id)
 	{
 		try {
@@ -255,6 +254,7 @@ public class DBOperations
 	/** Truncate all tables used to build the reference ontology.
 	 * Use with extreme caution!
 	 */
+	@Deprecated
 	public void truncateAllReferenceTables()
 	{
 		this.truncateTable("ref_topics");
@@ -266,6 +266,7 @@ public class DBOperations
 	/** Truncate all tables used in user data processing.
 	 * Use with extreme caution!
 	 */
+	@Deprecated
 	public void truncateAllUserTables(int user_id)
 	{
 		this.truncateUserTable("user_urls", user_id);
