@@ -92,7 +92,12 @@ public class ExportHistory {
 		return output;
 	}
 
-	@Deprecated
+	/**
+	 * Outputs the Google Chrome history to a file with the 
+	 * name specified.
+	 * @param fileName
+	 * @throws SQLiteException
+	 */
 	public static void retreiveHistoryAsFile(String fileName) throws SQLiteException {
 
 		List<String> output = retrieveHistory(FILE_CHROME_WIN_HISTORY);
