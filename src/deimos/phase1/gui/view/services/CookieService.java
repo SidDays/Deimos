@@ -1,4 +1,4 @@
-package deimos.phase1.gui.view;
+package deimos.phase1.gui.view.services;
 
 import org.sqlite.SQLiteException;
 

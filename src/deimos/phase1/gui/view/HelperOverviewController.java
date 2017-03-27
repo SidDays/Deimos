@@ -19,6 +19,7 @@ import deimos.phase1.Zipper;
 import deimos.phase1.gui.HelperApp;
 import deimos.phase1.gui.view.services.BookmarkService;
 import deimos.phase1.gui.view.services.BrowserCheckService;
+import deimos.phase1.gui.view.services.CookieService;
 import deimos.phase1.gui.view.services.HistoryService;
 import deimos.phase1.gui.view.services.KillChromeService;
 import deimos.phase1.gui.view.services.PublicIPService;
