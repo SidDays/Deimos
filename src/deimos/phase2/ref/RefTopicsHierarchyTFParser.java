@@ -46,7 +46,6 @@ import deimos.phase2.collection.StopWordsRemoval;
 public class RefTopicsHierarchyTFParser
 {
 
-
 	// Logging functions
 
 	/** Output the time taken per URL to a *.csv file. */
@@ -59,30 +58,18 @@ public class RefTopicsHierarchyTFParser
 	private static final String FILENAME_STATS_URL_TIMES = "stats_ref_url_times.csv";
 
 	private static StatisticsUtilsCSV csvStats;
-
-	public RefTopicsHierarchyTFParser()
+	
+	/** Create Statements and preparedStatements on this connection. */
+	private static Connection db_conn;
+	
+	
+	/** Testing */
+	public static void main(String[] args)
 	{
-
-		// Use DMOZHandler constructor for other stuff
-
-
+		// if true, truncate everything, else resume.
+		generateTopicsHierarchyAndTF(false);
 	}
-
-	public static int getDepth(String topicName)
-	{
-		int level = 0;
-
-		for(int i = 0; i < topicName.length(); i++)
-		{
-			char ch = topicName.charAt(i);
-			if(ch == '/')
-			{
-				level++;
-			}
-		}
-
-		return level;
-	}
+	
 
 	/**
 	 * @param startAfresh If true, truncates all reference tables to start afresh
@@ -110,7 +97,10 @@ public class RefTopicsHierarchyTFParser
 			InputSource source = new InputSource(in);
 
 			long startTime = System.currentTimeMillis();
-
+			
+			// Open connection to Database
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
+			
 			// parse the data
 			parser.parse(source);
 
@@ -120,22 +110,24 @@ public class RefTopicsHierarchyTFParser
 			long stopTime = System.currentTimeMillis();
 			System.out.format("Link insertion, page fetching and TF calculation completed in %.3fs.\n",
 					(stopTime-startTime)/1000f);
-
+			
+			// close connection
+			db_conn.close();
+			
 			// close the file
 			in.close();
 
 			
 		}
-		catch (Exception e) {
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		catch (IOException | SAXException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void main(String[] args)
-	{
-		// if true, truncate everything, else resume.
-		generateTopicsHierarchyAndTF(false);
-	}
+	
 
 	/**
 	 * 
@@ -180,7 +172,6 @@ public class RefTopicsHierarchyTFParser
 		private Map<String, Integer> currentTopicTermCounts;
 
 		private String parentName;
-		private String query;
 
 		private boolean inTopic = false;
 		// private boolean inLink = false;
@@ -192,7 +183,30 @@ public class RefTopicsHierarchyTFParser
 		private StringBuilder content;
 		private DBOperations dbo;
 		
-		private Connection db_conn;
+		/**
+		 * Counts the number of slashes in a DMOZ topic-name to
+		 * return its depth/level (starting 0).
+		 * 
+		 * e.g. Topic/Shopping/Dolls has a depth of 2.
+		 * 
+		 * @param topicName
+		 * @return depth
+		 */
+		public static int getDepth(String topicName)
+		{
+			int level = 0;
+
+			for(int i = 0; i < topicName.length(); i++)
+			{
+				char ch = topicName.charAt(i);
+				if(ch == '/')
+				{
+					level++;
+				}
+			}
+
+			return level;
+		}
 
 		public DMOZHandler(boolean startAfresh) throws SQLException
 		{
@@ -203,8 +217,9 @@ public class RefTopicsHierarchyTFParser
 			dbo = new DBOperations();
 
 			// CAREFUL!
-			if(startAfresh)
-				dbo.truncateAllReferenceTables();
+			if(startAfresh) {
+				DBOperations.truncateAllReferenceTables(db_conn);
+			}
 
 			currentTopicTermCounts = new HashMap<>();
 
@@ -270,7 +285,7 @@ public class RefTopicsHierarchyTFParser
 
 							// System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
 
-							query = "INSERT INTO ref_hierarchy (topic_name, child_name) VALUES ('" +
+							String query = "INSERT INTO ref_hierarchy (topic_name, child_name) VALUES ('" +
 									parentName + "','" + currentTopicName+ "')";
 							dbo.executeUpdate(query);
 
@@ -366,7 +381,7 @@ public class RefTopicsHierarchyTFParser
 
 					// Populate ref_topics (topics and URLs)
 					try {
-						query = "INSERT INTO ref_topics (topic_name, url) VALUES ('" +
+						String query = "INSERT INTO ref_topics (topic_name, url) VALUES ('" +
 								currentTopicName + "','" + currentURL+ "')";
 
 						dbo.executeUpdate(query);

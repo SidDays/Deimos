@@ -1,8 +1,11 @@
 package deimos.phase2.similarity;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,110 +19,83 @@ public class SimilarityMapper
 
 	private static List<String> userTerms = new ArrayList<>();
 	private static List<Double> userWeights = new ArrayList<>();
-
-	private static final double THRESHOLD = Float.MIN_VALUE;
-	private static final double BASE = Math.E;
-
-	private static DBOperations dbo;
 	
-	/**
-	 * Factor visit count into similarity calculation
-	 * Use a function to transform the base of the visit count calculation
-	 * Current function f(n) = n*(1+ln(n))
-	 * 
-	 * @param visitCount
-	 * @return
-	 */
-	private static double transformVisitCount(double visitCount)
-	{
-		return visitCount * (1 + Math.log(visitCount)/Math.log(BASE));
-	}
-
-	static
-	{
-		try
-		{
-			dbo = new DBOperations();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
+	/** Computed similarity values less than this value will not be stored in the database. */
+	private static final double THRESHOLD = Float.MIN_VALUE;
+	
+	/** The larger the value of the base, the
+	 * smaller the effect of visit count on a URL's similarity. */
+	private static final double BASE = Math.E;
+	
+	/** Create Statements and preparedStatements on this connection. */
+	private static Connection db_conn;
+	
+	/** Statement object, for single-time queries */
+	private static Statement stmt;
+	
+	private static PreparedStatement pstmtPopRefList;
+	
+	private static PreparedStatement pstmtPopUserList;
+	
+	private static PreparedStatement pstmtVisitCount;
+	
+	private static PreparedStatement pstmtSimilarity;
+	
+	/** Testing purposes only. */
 	public static void main(String[] args)
 	{
-		computeSimilarity(1);
+		computeSimilarity(2);
 	}
-
-	private static void populateReferenceList(String topicName)
-	{
-		try
-		{
-			ResultSet rs1 = dbo.executeQuery("SELECT term, weight FROM ref_tf "
-					+ "WHERE topic_name LIKE '" + topicName+"' AND weight != 0");
-
-			referenceTerms.clear();
-			referenceWeights.clear();
-			while(rs1.next())
-			{
-				String currentTerm = rs1.getString("term");
-				double currentWeight = rs1.getDouble("weight");
-				referenceTerms.add(currentTerm);
-				referenceWeights.add(currentWeight);
-			}
-
-		} 
-		catch (SQLException e) {
-
-			e.printStackTrace();
-		}
-	}
-
-	private static void populateUserList(String url)
-	{
-		try
-		{
-			ResultSet rs2 = dbo.executeQuery("SELECT term, weight FROM user_tf "
-					+ "WHERE url LIKE '" + url +"'  AND weight != 0");
-
-			userTerms.clear();
-			userWeights.clear();
-			while(rs2.next())
-			{
-				String currentTerm = rs2.getString("term");
-				double currentWeight = rs2.getDouble("weight");
-				userTerms.add(currentTerm);
-				userWeights.add(currentWeight);
-			}
-		} 
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
+	
+	/**
+	 * Computes the similarity value for the combinations of
+	 * all reference topics and web pages visited by a user.
+	 * (Truncates any previous similarity calculation.)
+	 * @param user_id Which user that is
+	 */
 	public static void computeSimilarity(int user_id)
 	{		
 		try
 		{
-			dbo.truncateUserTable("User_ref_similarity", user_id);
-
-			ResultSet rsTest = dbo.executeQuery(
+			
+			db_conn = DBOperations.getConnectionToDatabase("SimilarityMapper");
+			
+			DBOperations.truncateUserTable(db_conn, "user_ref_similarity", user_id);
+			
+			// Statement object, for single-time queries */
+			stmt = db_conn.createStatement();
+			
+			// To get the total number of cross-joined rows
+			ResultSet rsTest = stmt.executeQuery(
 					"SELECT COUNT(*) "
 							+ "FROM (SELECT DISTINCT topic_name FROM ref_topics) CROSS JOIN user_urls "
 							+ "WHERE user_id = "+user_id);
-			rsTest.next();
-			System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
+			if(rsTest.next())
+				System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
 			rsTest.close();
 
-			// Reference ontology
-			ResultSet rsXJoin = dbo.executeQueryAgain(
+			// Cross Join all topics in Reference ontology with All URLs visited by that user
+			ResultSet rsXJoin = stmt.executeQuery(
 					"SELECT DISTINCT ref_topics.topic_name, "
 							+ "user_urls.url "
 							+ "FROM ref_topics CROSS JOIN user_urls "
 							+ "WHERE user_id = "+user_id);
 			
-			int currentRow = 0;
+			int currentRow = 0; // Helps for progress indication
 			System.out.println();
+			
+			// Prepare statements that will be required ahead
+			pstmtPopRefList = db_conn.prepareStatement("SELECT term, weight FROM ref_tf "
+					+ "WHERE topic_name LIKE ? AND weight != 0");
+			
+			pstmtPopUserList = db_conn.prepareStatement("SELECT term, weight FROM user_tf "
+					+ "WHERE url LIKE ?  AND weight != 0");
+			
+			pstmtVisitCount = db_conn.prepareStatement("SELECT visit_count FROM user_urls WHERE url = ? AND user_id = ?");
+			
+			pstmtSimilarity = db_conn.prepareStatement("INSERT INTO user_ref_similarity (url, topic_name, similarity, user_id) "
+					+ "VALUES (?, ?, ?, ?)");
+			
 			while(rsXJoin.next())
 			{
 				String currentTopic = rsXJoin.getString(1);
@@ -127,10 +103,10 @@ public class SimilarityMapper
 				
 				System.out.format("%6d", currentRow);
 				populateReferenceList(currentTopic);
-				System.out.print(" | Topic: "+StringUtils.truncate(currentTopic.substring(4), 30));
+				System.out.format(" | %40s",StringUtils.truncate(currentTopic.substring(4), 40)); // Removes the "Top/"
 				
 				populateUserList(currentURL);
-				System.out.print(" | URL: "+StringUtils.truncateURL(currentURL, 40));
+				System.out.format(" | %45s",StringUtils.truncateURL(currentURL, 45));
 
 				List<String> commonTerms = new ArrayList<>(referenceTerms);
 				commonTerms.retainAll(userTerms);
@@ -205,9 +181,11 @@ public class SimilarityMapper
 					double similarity = dotProduct/(denReference * denUsers);
 					
 					// find visit count vagaira
-					String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = '"+currentURL+"' AND user_id = "+user_id;
-					// executeQueryAgain has already been used before
-					ResultSet rsVisit = dbo.executeQuery(queryVisitCount); 
+					pstmtVisitCount.setString(1, currentURL);
+					pstmtVisitCount.setInt(2, user_id);
+					
+					// String queryVisitCount = "SELECT visit_count FROM user_urls WHERE url = '"+currentURL+"' AND user_id = "+user_id;
+					ResultSet rsVisit = pstmtVisitCount.executeQuery(); 
 					int visitCount = 0;
 					if(rsVisit.next())
 						visitCount = rsVisit.getInt("visit_count");
@@ -215,34 +193,33 @@ public class SimilarityMapper
 					
 					similarity = similarity * transformVisitCount(visitCount);
 					
-					System.out.format(" (%d) | Sim. = %.3f", visitCount, similarity);
+					System.out.format(" | %3d visits | Sim. %.4f", visitCount, similarity);
 					
 					
 					if(similarity < THRESHOLD)
 					{
-						System.out.print(" (less than threshold!");
+						System.out.println(" | (less than threshold!");
 					}
 					else
 					{
-						// System.out.println();
-
-						// Insert into Database
-						/*
-						 * Update for user_ref_siilarity: added user_id column
-						 */
+						/*System.out.println();
 						String query = String.format("INSERT INTO user_ref_similarity (url, topic_name, similarity, user_id) VALUES ('%s', '%s', %f, %d)",
 								currentURL,
 								currentTopic,
 								similarity,
-								user_id);
+								user_id);*/
+						pstmtSimilarity.setString(1, currentURL);
+						pstmtSimilarity.setString(2, currentTopic);
+						pstmtSimilarity.setFloat(3, (float)similarity);
+						pstmtSimilarity.setInt(4, user_id);
+						
 						try {
-							// System.out.println(query);
-							dbo.executeQuery(query);
+							pstmtSimilarity.executeUpdate();
 							System.out.println(" | Inserted!");
 						}
 						catch (SQLIntegrityConstraintViolationException sicve) {
 
-							System.out.println(sicve+" Duplicate url-topic combo? url = "+
+							System.out.println(" | "+sicve+" Duplicate url-topic combo? url = "+
 									currentURL+", topic = "+currentTopic);
 						}
 
@@ -250,10 +227,20 @@ public class SimilarityMapper
 
 				}
 				else {
-					System.out.println("denominator = 0!");
+					System.out.println(" | Denominator = 0!");
 				}
 				currentRow++;
 			}
+			
+			// Close all statements
+			pstmtSimilarity.close();
+			pstmtVisitCount.close();
+			pstmtPopUserList.close();
+			pstmtPopRefList.close();
+			stmt.close();	
+			
+			// Close connection
+			db_conn.close();
 			
 			System.out.println("Finished computing similarity for user "+user_id+"!");
 		} 
@@ -262,4 +249,94 @@ public class SimilarityMapper
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Loads all terms and weights of a chosen concept/topic
+	 * of reference ontology
+	 * into the Lists referenceTerms and referenceWeights
+	 * respectively.
+	 * 
+	 * Requires an initialized PreparedStatement pstmtPopRefList.
+	 * 
+	 * @param topicName That concept of reference ontology
+	 */
+	private static void populateReferenceList(String topicName)
+	{
+		try
+		{
+			/*ResultSet rs1 = dbo.executeQuery("SELECT term, weight FROM ref_tf "
+					+ "WHERE topic_name LIKE '" + topicName+"' AND weight != 0");*/
+			
+			pstmtPopRefList.setString(1, topicName);
+			ResultSet rs1 = pstmtPopRefList.executeQuery();
+
+			referenceTerms.clear();
+			referenceWeights.clear();
+			while(rs1.next())
+			{
+				String currentTerm = rs1.getString("term");
+				double currentWeight = rs1.getDouble("weight");
+				referenceTerms.add(currentTerm);
+				referenceWeights.add(currentWeight);
+			}
+			rs1.close();
+
+		} 
+		catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Loads all terms and weights of a chosen URL/web page
+	 * visited by the user_id currently being processed,
+	 * into the Lists userTerms and userWeights
+	 * respectively.
+	 * 
+	 * Requires an initialized PreparedStatement pstmtPopUserList.
+	 * 
+	 * @param url That chosen URL/web page visited
+	 */
+	private static void populateUserList(String url)
+	{
+		try
+		{
+			/*ResultSet rs2 = dbo.executeQuery("SELECT term, weight FROM user_tf "
+					+ "WHERE url LIKE '" + url +"'  AND weight != 0");*/
+			
+			pstmtPopUserList.setString(1, url);
+			ResultSet rs2 = pstmtPopUserList.executeQuery();
+
+			userTerms.clear();
+			userWeights.clear();
+			while(rs2.next())
+			{
+				String currentTerm = rs2.getString("term");
+				double currentWeight = rs2.getDouble("weight");
+				userTerms.add(currentTerm);
+				userWeights.add(currentWeight);
+			}
+			rs2.close();
+		} 
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Factor visit count into similarity calculation
+	 * Use a function to transform the base of the visit count calculation
+	 * Current function f(n) = n*(1+ln(n))
+	 * 
+	 * @param visitCount
+	 * @return
+	 */
+	private static double transformVisitCount(double visitCount)
+	{
+		return visitCount * (1 + Math.log(visitCount)/Math.log(BASE));
+	}
+
+	
 }

@@ -53,7 +53,10 @@ public class UserWeightCalculation {
 
 			// Update weights
 			Statement stmt = db_conn.createStatement();
-			String queryUpdate = "UPDATE user_tf SET user_tf.weight = user_tf.tf * ( SELECT idf FROM user_idf WHERE user_idf.term = user_tf.term ) WHERE user_id = "+user_id;
+			String queryUpdate = "UPDATE user_tf "
+					+ "SET user_tf.weight = user_tf.tf * "
+					+ "( SELECT idf FROM user_idf WHERE user_idf.term = user_tf.term AND user_id = "+user_id+" ) "
+							+ "WHERE user_id = "+user_id;
 			stmt.executeUpdate(queryUpdate);
 			stmt.close();
 			
@@ -67,10 +70,11 @@ public class UserWeightCalculation {
 			e.printStackTrace();
 		}
 	}
-
-	public static void main(String[] args) {
-		
-		// TODO userid dont hardcode!! lols
+	
+	/** Testing */
+	public static void main(String[] args)
+	{
+		// dont hardcode!! lols
 		updateWeights(1);
 
 	}
