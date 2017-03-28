@@ -44,7 +44,7 @@ public class SimilarityMapper
 	/** Testing purposes only. */
 	public static void main(String[] args)
 	{
-		computeSimilarity(2);
+		computeSimilarity(1);
 	}
 	
 	/**
