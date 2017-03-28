@@ -10,6 +10,7 @@ import deimos.phase2.ref.RefTopicsHierarchyTFParser;
 import deimos.phase2.ref.RefWeightCalculation;
 import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserIDF;
+import deimos.phase2.user.UserInfo;
 import deimos.phase2.user.UserURLsTF;
 import deimos.phase2.user.UserWeightCalculation;
 
@@ -34,6 +35,9 @@ public class Phase2 {
 	private static void prepareUserData(int user_id)
 	{
 		// TODO remove hardcode
+		
+		UserInfo.insertUserInfoIntoDB(user_id, DeimosConfig.FILE_OUTPUT_USERINFO, DeimosConfig.FILE_OUTPUT_PUBLICIP, false);
+		
 		UserURLsTF.userURLAndTFTableInsertion(user_id);
 		
 		UserIDF.computeUserIDF(user_id);

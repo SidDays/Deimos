@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  */
 public class StringUtils
 {
-
+	
 	/**
 	 * Converts a long string into a format displayable in a fixed size.
 	 * Adds "..." if the length is exceeded.
@@ -211,5 +211,41 @@ public class StringUtils
 			}
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * Reference:
+	 * stackoverflow.com/questions/4581877/validating-ipv4-string-in-java
+	 * 
+	 * @param text
+	 * @return
+	 * @author rouble
+	 */
+	public static boolean isValidIPv4 (String ip)
+	{
+	    try {
+	        if ( ip == null || ip.isEmpty() ) {
+	            return false;
+	        }
+
+	        String[] parts = ip.split( "\\." );
+	        if ( parts.length != 4 ) {
+	            return false;
+	        }
+
+	        for ( String s : parts ) {
+	            int i = Integer.parseInt( s );
+	            if ( (i < 0) || (i > 255) ) {
+	                return false;
+	            }
+	        }
+	        if ( ip.endsWith(".") ) {
+	            return false;
+	        }
+
+	        return true;
+	    } catch (NumberFormatException nfe) {
+	        return false;
+	    }
 	}
 }
