@@ -71,6 +71,8 @@ public class StringUtils
 
 		return sb.toString();
 	}
+	
+	
 
 	/**
 	 * Convert a String with spaces or
@@ -194,16 +196,17 @@ public class StringUtils
 	
 	/**
 	 * Returns a CSV row string containing each of the input
-	 * parameter strings. Escapes double quotes with underscores.
-	 * @param strings an array of Strings e.g. Apple, Ball, "Poop"
-	 * @return "Apple", "Ball", "_Poop_"
+	 * parameter strings.
+	 * Uses toCSVSafeString to escape CSV-unsafe chars.
+	 * @param strings an array of Strings e.g. Appl,e, Ball, "Poop"
+	 * @return "Appl_e","Ball","_Poop_"
 	 */
 	public static String toCSV(String ...strings)
 	{
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < strings.length; i++)
 		{
-			String current = strings[i].replace("\"", "");
+			String current = toCSVSafeString(strings[i]);
 			sb.append("\""+current+"\"");
 			if(i != strings.length-1)
 			{
@@ -211,6 +214,35 @@ public class StringUtils
 			}
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * Replaces CSV-incompatible characters,
+	 * such as double quotes and commas, by underscores.
+	 * @param input
+	 * @return
+	 */
+	public static String toCSVSafeString(String input)
+	{
+		return input.replace(",", "_").replace("\"", "_");
+	}
+	
+	/**
+	 * When given a CSV line as inpu, returns all the individual
+	 * cells in that row in an Array
+	 * @param csvLine
+	 * @return String[] containing subparts
+	 */
+	public static String[] getCSVParts(String csvLine)
+	{
+		String parts[] = csvLine.split(",");
+		
+		for(int i = 0; i < parts.length; i++)
+		{
+			parts[i] = parts[i].trim().substring(1, parts[i].length()-1);
+		}
+		
+		return parts;
 	}
 	
 	/**

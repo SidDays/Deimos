@@ -1,6 +1,6 @@
 package deimos.gui.view.services;
 
-import deimos.gui.WordCloudTest;
+import deimos.gui.WordCloudGenerator;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
@@ -27,8 +27,8 @@ public class WordCloudService extends Service<Void> {
 			@Override
 			public Void call(){
 				
-				WordCloudTest.outputWordCloud(userId);
-				bi = SwingFXUtils.toFXImage(WordCloudTest.wordCloudImage, null);
+				WordCloudGenerator.outputWordCloud(userId);
+				bi = SwingFXUtils.toFXImage(WordCloudGenerator.wordCloudImage, null);
 				
 				return null;
 			}

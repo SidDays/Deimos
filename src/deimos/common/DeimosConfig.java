@@ -38,9 +38,10 @@ public class DeimosConfig {
 	
 	public static final String FILE_OUTPUT_BOOKMARKS = "export-bookmarks.txt";
 	public static final String FILE_OUTPUT_COOKIES = "export-cookies.txt";
-	public static final String FILE_OUTPUT_HISTORY = "export-history.txt";
+	public static final String FILE_OUTPUT_HISTORY = "export-history.csv";
 	public static final String FILE_OUTPUT_PUBLICIP = "export-publicIP.txt";
 	public static final String FILE_OUTPUT_USERINFO = "export-userInfo.txt";
+	
 	public static final String[] FILES_OUTPUT_ALL = {
 
 			FILE_OUTPUT_BOOKMARKS,
@@ -50,6 +51,8 @@ public class DeimosConfig {
 			FILE_OUTPUT_USERINFO
 	};
 	public static final String FILE_OUTPUT_ALL_ZIP = "export-all.zip";
+	
+	public static final String FILE_OUTPUT_CLOUD = "wordCloud.png";
 	
 	public static final String DIR_STATS = "output/research";
 

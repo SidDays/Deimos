@@ -23,154 +23,82 @@ package deimos.phase3;
  * and trademarks visit:
  * http://www.heatonresearch.com/copyright
  */
-//package org.encog.examples.guide.classification;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-
-import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
-import org.encog.bot.BotUtil;
-import org.encog.ml.MLRegression;
+import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
-import org.encog.ml.data.versatile.NormalizationHelper;
-import org.encog.ml.data.versatile.VersatileMLDataSet;
-import org.encog.ml.data.versatile.columns.ColumnDefinition;
-import org.encog.ml.data.versatile.columns.ColumnType;
-import org.encog.ml.data.versatile.sources.CSVDataSource;
-import org.encog.ml.data.versatile.sources.VersatileDataSource;
-import org.encog.ml.factory.MLMethodFactory;
-import org.encog.ml.model.EncogModel;
-import org.encog.util.csv.CSVFormat;
-import org.encog.util.csv.ReadCSV;
-import org.encog.util.simple.EncogUtility;
+import org.encog.ml.data.MLDataPair;
+import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.basic.BasicMLDataSet;
+import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.networks.layers.BasicLayer;
+import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
+/**
+ * XOR: This example is essentially the "Hello World" of neural network
+ * programming.  This example shows how to construct an Encog neural
+ * network to predict the output from the XOR operator.  This example
+ * uses backpropagation to train the neural network.
+ * 
+ * This example attempts to use a minimum of Encog features to create and
+ * train the neural network.  This allows you to see exactly what is going
+ * on.  For a more advanced example, that uses Encog factories, refer to
+ * the  example.
+ * 
+ */
 public class Neural {
-	public static String DATA_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data";
 
-	private String tempPath;
+	/**
+	 * The input necessary for XOR.
+	 */
+	public static double XOR_INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 },
+			{ 0.0, 1.0 }, { 1.0, 1.0 } };
 
-	public File downloadData(String[] args) throws MalformedURLException {
-		if (args.length != 0) {
-			tempPath = args[0];
-		} else {
-			tempPath = System.getProperty("java.io.tmpdir");
+	/**
+	 * The ideal data necessary for XOR.
+	 */
+	public static double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
+	
+	/**
+	 * The main method.
+	 * @param args No arguments are used.
+	 */
+	public static void main(final String args[]) {
+		
+		// create a neural network, without using a factory
+		BasicNetwork network = new BasicNetwork();
+		
+		// BasicLayer(ActivationFunction activationFunction, boolean hasBias, int neuronCount)
+		network.addLayer(new BasicLayer(null,true,2));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,3));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));
+		network.getStructure().finalizeStructure();
+		network.reset();
+
+		// create training data
+		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
+		
+		// train the neural network
+		// final Backpropagation train = new Backpropagation(network, trainingSet);
+		final ResilientPropagation train = new ResilientPropagation(network, trainingSet);
+ 
+		int epoch = 1;
+
+		do {
+			train.iteration();
+			System.out.println("Epoch #" + epoch + " Error:" + train.getError());
+			epoch++;
+		} while(train.getError() > 0.01);
+		train.finishTraining();
+
+		// test the neural network
+		System.out.println("Neural Network Results:");
+		for(MLDataPair pair: trainingSet ) {
+			final MLData output = network.compute(pair.getInput());
+			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
+					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
 		}
-
-		File irisFile = new File(tempPath, "iris.csv");
-		BotUtil.downloadPage(new URL(Neural.DATA_URL), irisFile);
-		System.out.println("Downloading Iris dataset to: " + irisFile);
-		return irisFile;
-	}
-
-	public void run(String[] args) {
-		try {
-			// Download the data that we will attempt to model.
-			File irisFile = downloadData(args);
-			
-			// Define the format of the data file.
-			// This area will change, depending on the columns and 
-			// format of the file that you are trying to model.
-			VersatileDataSource source = new CSVDataSource(irisFile, false,
-					CSVFormat.DECIMAL_POINT);
-			VersatileMLDataSet data = new VersatileMLDataSet(source);
-			data.defineSourceColumn("sepal-length", 0, ColumnType.continuous);
-			data.defineSourceColumn("sepal-width", 1, ColumnType.continuous);
-			data.defineSourceColumn("petal-length", 2, ColumnType.continuous);
-			data.defineSourceColumn("petal-width", 3, ColumnType.continuous);
-			
-			// Define the column that we are trying to predict.
-			ColumnDefinition outputColumn = data.defineSourceColumn("species", 4,
-					ColumnType.nominal);
-			
-			// Analyze the data, determine the min/max/mean/sd of every column.
-			data.analyze();
-			
-			// Map the prediction column to the output of the model, and all
-			// other columns to the input.
-			data.defineSingleOutputOthersInput(outputColumn);
-			
-			// Create feedforward neural network as the model type. MLMethodFactory.TYPE_FEEDFORWARD.
-			// You could also other model types, such as:
-			// MLMethodFactory.SVM:  Support Vector Machine (SVM)
-			// MLMethodFactory.TYPE_RBFNETWORK: RBF Neural Network
-			// MLMethodFactor.TYPE_NEAT: NEAT Neural Network
-			// MLMethodFactor.TYPE_PNN: Probabilistic Neural Network
-			EncogModel model = new EncogModel(data);
-			model.selectMethod(data, MLMethodFactory.TYPE_FEEDFORWARD);
-			
-			// Send any output to the console.
-			model.setReport(new ConsoleStatusReportable());
-			
-			// Now normalize the data.  Encog will automatically determine the correct normalization
-			// type based on the model you chose in the last step.
-			data.normalize();
-			
-			// Hold back some data for a final validation.
-			// Shuffle the data into a random ordering.
-			// Use a seed of 1001 so that we always use the same holdback and will get more consistent results.
-			model.holdBackValidation(0.3, true, 1001);
-			
-			// Choose whatever is the default training type for this model.
-			model.selectTrainingType(data);
-			
-			// Use a 5-fold cross-validated train.  Return the best method found.
-			MLRegression bestMethod = (MLRegression)model.crossvalidate(5, true);
-
-			// Display the training and validation errors.
-			System.out.println( "Training error: " + EncogUtility.calculateRegressionError(bestMethod, model.getTrainingDataset()));
-			System.out.println( "Validation error: " + EncogUtility.calculateRegressionError(bestMethod, model.getValidationDataset()));
-			
-			// Display our normalization parameters.
-			NormalizationHelper helper = data.getNormHelper();
-			System.out.println(helper.toString());
-			
-			// Display the final model.
-			System.out.println("Final model: " + bestMethod);
-			
-			// Loop over the entire, original, dataset and feed it through the model.
-			// This also shows how you would process new data, that was not part of your
-			// training set.  You do not need to retrain, simply use the NormalizationHelper
-			// class.  After you train, you can save the NormalizationHelper to later
-			// normalize and denormalize your data.
-			ReadCSV csv = new ReadCSV(irisFile, false, CSVFormat.DECIMAL_POINT);
-			String[] line = new String[4];
-			MLData input = helper.allocateInputVector();
-			
-			while(csv.next()) {
-				StringBuilder result = new StringBuilder();
-				line[0] = csv.get(0);
-				line[1] = csv.get(1);
-				line[2] = csv.get(2);
-				line[3] = csv.get(3);
-				String correct = csv.get(4);
-				helper.normalizeInputVector(line,input.getData(),false);
-				MLData output = bestMethod.compute(input);
-				String irisChosen = helper.denormalizeOutputVectorToString(output)[0];
-				
-				result.append(Arrays.toString(line));
-				result.append(" -> predicted: ");
-				result.append(irisChosen);
-				result.append("(correct: ");
-				result.append(correct);
-				result.append(")");
-				
-				System.out.println(result.toString());
-			}
-			
-			// Delete data file ande shut down.
-			irisFile.delete();
-			Encog.getInstance().shutdown();
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public static void main(String[] args) {
-		Neural prg = new Neural();
-		prg.run(args);
+		
+		Encog.getInstance().shutdown();
 	}
 }

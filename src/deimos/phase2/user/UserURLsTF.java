@@ -29,6 +29,7 @@ import javax.net.ssl.SSLProtocolException;
 import org.jsoup.HttpStatusException;
 
 import deimos.common.DeimosConfig;
+import deimos.common.ProcessFileUtils;
 import deimos.common.StatisticsUtilsCSV;
 import deimos.common.StringUtils;
 import deimos.phase2.DBOperations;
@@ -239,30 +240,22 @@ public class UserURLsTF
 	 */
 	private static void prepareHistory(String historyFileName)
 	{
-		File historyFile = new File(historyFileName); 
-
 		try {
-			FileReader fileReader = new FileReader(historyFile);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			String line;
+			
+			urls = ProcessFileUtils.readFileIntoList(historyFileName);
 
-			while ((line = bufferedReader.readLine()) != null) {
-				urls.add(line);
-			}
-			fileReader.close();
-
-			// remove the first line that has the number of URLs
-			urls.remove(0);
 
 			// Convert the URLs into URL + Timestamp
 			for (int i = 0; i < urls.size(); i++)
 			{
 				// Format
-				String[] urlPieces;
-				if(DeimosConfig.DELIM.equals("|"))
+				String[] urlPieces = StringUtils.getCSVParts(urls.get(i));
+				
+				/* Old format lmao
+				 * if(DeimosConfig.DELIM.equals("|"))
 					urlPieces = urls.get(i).split("\\|");
 				else
-					urlPieces = urls.get(i).split(DeimosConfig.DELIM);
+					urlPieces = urls.get(i).split(DeimosConfig.DELIM);*/
 
 				// Second 'piece' after splitting is the URL
 				if(isAnAllowedWebsite(urlPieces[1])) {
@@ -428,7 +421,7 @@ public class UserURLsTF
 				// String displayTitle = String.format("%20s", currentTitle).substring(0, 15);
 
 				System.out.format("%6d | ", currentURLNumber);
-				System.out.print(currentTimestamp+" | "+displayURL + " | ");
+				System.out.format("%s | %40s | ", currentTimestamp, displayURL);
 				// System.out.print(displayTitle + " | ");
 
 				// For the GUI
