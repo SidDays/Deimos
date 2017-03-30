@@ -162,6 +162,8 @@ public class UserURLsTF
 		String queryCheck = "SELECT * FROM user_urls WHERE user_id = "+id;
 		try
 		{
+			openConnectionToDBIfNot();
+			
 			Statement stmt = db_conn.createStatement();
 			ResultSet rs = stmt.executeQuery(queryCheck);
 
@@ -365,6 +367,27 @@ public class UserURLsTF
 	{
 		userURLAndTFTableInsertion(user_id, false, DeimosConfig.FILE_OUTPUT_HISTORY);
 	}
+	
+	public static void openConnectionToDBIfNot() throws SQLException
+	{
+		if(db_conn == null)
+		{
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
+		} else if(db_conn.isClosed()) {
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
+		}
+	}
+	
+	public static void closeConnectionToDBIfNot() throws SQLException
+	{
+		if(db_conn != null)
+		{
+			if(!db_conn.isClosed()) {
+				db_conn.close();
+				System.out.println("Database connection closed.");
+			}
+		}
+	}
 
 	/**
 	 * Parses the history file specified.
@@ -390,7 +413,7 @@ public class UserURLsTF
 		try
 		{
 			// Open connection to Database
-			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
+			openConnectionToDBIfNot();
 
 			if(truncate)
 			{
@@ -545,7 +568,7 @@ public class UserURLsTF
 			} 
 
 			pstmt.close();
-			db_conn.close();
+			closeConnectionToDBIfNot();
 
 		}
 		catch (SQLException e) {

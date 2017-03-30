@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="vboxAnalyze" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="deimos.gui.view.AnalyzeController">
+   <children>
+      <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
+         <children>
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="SOMETIMES">
+               <children>
+                  <HBox spacing="8.0">
+                     <children>
+                        <Label maxWidth="1.7976931348623157E308" prefHeight="25.0" text="User Details" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                     <children>
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="User ID">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="userIDTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" text="1" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </TextField>
+                        <HBox alignment="CENTER_RIGHT" prefWidth="90.0" spacing="4.0" HBox.hgrow="NEVER">
+                           <children>
+                              <Label text="*" textFill="RED" />
+                              <Label fx:id="truncateLabel" maxHeight="1.7976931348623157E308" text="Truncate" underline="true">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </Label>
+                              <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </HBox>
+                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                     <children>
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="History file">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="outputFileTextField" promptText="Leave blank to use default file." HBox.hgrow="ALWAYS" />
+                        <Button fx:id="browseButton" mnemonicParsing="false" prefWidth="90.0" text="Browse..." />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <Separator prefWidth="200.0" />
+            <GridPane maxHeight="1.7976931348623157E308" vgap="12.0" VBox.vgrow="ALWAYS">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308">
+                     <children>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0055f0" HBox.hgrow="SOMETIMES" />
+                           </children>
+                        </HBox>
+                        <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="1">
+                     <children>
+                        <Label text="IDF">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ProgressBar fx:id="progressIDFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="2">
+                     <children>
+                        <Label text="Weight">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ProgressBar fx:id="progressWeightBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="3">
+                     <children>
+                        <Label text="Similarity">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ProgressBar fx:id="progressSimilarityBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="5">
+                     <children>
+                        <Label text="Obtain Training Values">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="4">
+                     <children>
+                        <Label text="Gradual Extra Weight">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="6.0" />
+               </padding>
+            </GridPane>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </VBox>
+      <Separator />
+      <HBox spacing="12.0" VBox.vgrow="NEVER">
+         <children>
+            <Label maxHeight="1.7976931348623157E308" text="Analysis Status:" HBox.hgrow="NEVER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="statusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Button fx:id="analyzeButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAnalyzeButton" text="Analyze!" HBox.hgrow="NEVER" />
+         </children>
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+      </HBox>
+   </children>
+</VBox>

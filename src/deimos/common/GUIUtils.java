@@ -35,13 +35,26 @@ public class GUIUtils {
 	 * @param stage
 	 * @return
 	 */
-	public static Alert generateErrorAlert(String message, Stage stage) {
-		Alert alert = new Alert(AlertType.ERROR);
+	public static Alert generateErrorAlert(String message, Stage stage)
+	{
+		Alert alert = generateAlert(message, stage, AlertType.ERROR);
+		alert.setTitle("Something's not right.");
+		return alert;
+	}
+	
+	/**
+	 * A quick function to generate alerts.
+	 * @param message
+	 * @param stage
+	 * @param alt What kind of alert to generate
+	 * @return
+	 */
+	public static Alert generateAlert(String message, Stage stage, AlertType alt)
+	{
+		Alert alert = new Alert(alt);
 		alert.initOwner(stage);
 		alert.setContentText(message);
-		alert.setTitle("Something's not right.");
 		alert.showAndWait();
-		
 		return alert;
 	}
 
