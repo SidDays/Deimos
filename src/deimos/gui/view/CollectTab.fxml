@@ -173,7 +173,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <ProgressBar fx:id="progressAutoMailBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                  <ProgressBar fx:id="progressMailBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
          </children>

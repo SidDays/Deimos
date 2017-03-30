@@ -342,7 +342,7 @@ public class CollectController {
 				collectionStatus.setText("Exporting Public IP");
 				progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				flags[ServiceConstants.HISTORY] = true;
-
+				GUIUtils.startAgain(servicePublicIP);
 				setInputControlsStartEnabledZIPAndMailIfComplete();
 			}
 		});
@@ -377,9 +377,13 @@ public class CollectController {
 			public void handle(WorkerStateEvent event) {
 				progressPublicIPBar.setProgress(1);
 				collectionStatus.setText("Auto mailing to us");
-				progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+				//progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				flags[ServiceConstants.PUBLICIP] = true;
+				GUIUtils.startAgain(serviceUserInfo);
+				setInputControlsStartDisabled(true);
 
+				setMailControlsDisabled(true);
+				progressMailBar.setProgress(0);
 				setInputControlsStartEnabledZIPAndMailIfComplete();
 			}
 		});
@@ -436,6 +440,7 @@ public class CollectController {
 			progressMailBar.setProgress(1);
 
 			browserLabel.setText("Thank you! You can move on to next tab.");
+			collectionStatus.setText("Auto-mailed");
 			collectButton.setDisable(true);
 			/*collectButton.setOnAction(new EventHandler<ActionEvent>() {
 				@Override public void handle(ActionEvent e) {
