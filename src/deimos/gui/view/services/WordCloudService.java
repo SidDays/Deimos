@@ -28,7 +28,7 @@ public class WordCloudService extends Service<Void> {
 			public Void call(){
 				
 				WordCloudGenerator.outputWordCloud(userId);
-				bi = SwingFXUtils.toFXImage(WordCloudGenerator.wordCloudImage, null);
+				bi = SwingFXUtils.toFXImage(WordCloudGenerator.getWordCloudImage(), null);
 				
 				return null;
 			}

@@ -1,4 +1,4 @@
-package deimos.phase3;
+package deimos.phase2.user;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

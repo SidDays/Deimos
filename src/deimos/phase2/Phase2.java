@@ -11,6 +11,7 @@ import deimos.phase2.ref.RefWeightCalculation;
 import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserIDF;
 import deimos.phase2.user.UserInfo;
+import deimos.phase2.user.UserTrainingInput;
 import deimos.phase2.user.UserURLsTF;
 import deimos.phase2.user.UserWeightCalculation;
 
@@ -48,6 +49,8 @@ public class Phase2 {
 	private static void similarityMapping(int user_id)
 	{
 		SimilarityMapper.computeSimilarity(user_id);
+		
+		UserTrainingInput.calculateTrainingInputs(user_id, true);
 	}
 	
 	public static void phase2(int user_id) {

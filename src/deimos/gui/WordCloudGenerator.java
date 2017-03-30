@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.BasicConfigurator;
 
@@ -17,7 +18,6 @@ import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
-import com.kennycason.kumo.bg.RectangleBackground;
 import com.kennycason.kumo.font.KumoFont;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.nlp.FrequencyAnalyzer;
@@ -44,18 +44,31 @@ public class WordCloudGenerator
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 
-	public static BufferedImage wordCloudImage = null;
+	private static BufferedImage wordCloudImage = null;
 
 	private static List<String> topicNamesRepeated;
 
-	private static final FrequencyAnalyzer frequencyAnalyzer;
+	private static FrequencyAnalyzer frequencyAnalyzer;
 	
 	private static final int DIM_SIDE = 900;
 	
 	private static final Dimension dimension = new Dimension(DIM_SIDE, DIM_SIDE);
-	private static final WordCloud wordCloud;
+	private static WordCloud wordCloud;
+	
+	private static final Random rand = new Random();
+	
+	public static final Color[] COLOR_THEMES = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};
+	
+	public static BufferedImage getWordCloudImage() {
+		return wordCloudImage;
+	}
+	
+	private static Color getRandomColor()
+	{
+		return COLOR_THEMES[rand.nextInt(COLOR_THEMES.length)];
+	}
 
-	static {
+	private static void initialize() {
 		frequencyAnalyzer = new FrequencyAnalyzer();
 		frequencyAnalyzer.setMaxWordLength(100);
 		frequencyAnalyzer.setMinWordLength(1);
@@ -63,7 +76,7 @@ public class WordCloudGenerator
 
 		// ColorPalette lightPalette = new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW);
 		// ColorPalette darkPalette = new LinearGradientColorPalette(new Color(243, 12, 19), new Color(17, 31, 200), 30);
-		ColorPalette darkPalette = new LinearGradientColorPalette(Color.BLACK, Color.GREEN, 50);
+		ColorPalette darkPalette = new LinearGradientColorPalette(Color.BLACK, getRandomColor(), 50);
 
 		wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
 		wordCloud.setPadding(1);
@@ -76,7 +89,83 @@ public class WordCloudGenerator
 		wordCloud.setKumoFont(new KumoFont(new Font(TYPEFACE, Font.PLAIN, 32)));
 		wordCloud.setFontScalar(new LinearFontScalar(16, 80));
 	}
+	
+	/**
+	 * Uses the input training values to construct a word
+	 * cloud for the specified user_id.
+	 * The word cloud is accessible by getWordCloud() and is
+	 * also available as an image.
+	 * 
+	 * @param user_id UserTrainingInput must be complete.
+	 * @param db_conn Supply your own connection.
+	 * @throws SQLException
+	 */
+	public static void outputWordCloud(int user_id, Connection db_conn) throws SQLException
+	{
+		Statement stmt = db_conn.createStatement();
 
+		// Selects the most similar topic_name for each URL
+		/*String query = "SELECT URL, topic_name, visit_count "
+				+ "FROM user_urls NATURAL JOIN "
+				+ "(SELECT url, topic_name FROM user_ref_similarity NATURAL JOIN "
+				+ "(SELECT url, MAX(similarity) \"SIMILARITY\" "
+				+ "FROM user_ref_similarity WHERE user_id="+user_id+
+				" GROUP BY url))";*/
+
+		String query = "SELECT topic_name, value FROM user_training_input WHERE user_id = "+user_id;
+
+		try {
+
+			ResultSet rs = stmt.executeQuery(query);
+
+			while(rs.next()) {
+				String topicName = rs.getString("topic_name");
+				topicName = topicName.replace("Top/Shopping/","");
+				float value = rs.getFloat("value")+0.01f;
+				int frequency = Math.round(value * 50); // 50 limit of WordCloud?
+				while(frequency > 0)
+				{
+					topicNamesRepeated.add(topicName);
+					frequency--;
+				}
+			}
+			
+			rs.close();
+			
+			if(topicNamesRepeated.size() > 0) {
+				System.out.println(topicNamesRepeated.size()+" topic name(s) added.");
+				
+				initialize();
+
+				List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(topicNamesRepeated);
+				wordCloud.build(wordFrequencies);
+
+				wordCloudImage = wordCloud.getBufferedImage();
+
+				wordCloud.writeToFile(DIR_CLOUD_OUTPUT + "/" + DeimosConfig.FILE_OUTPUT_CLOUD);
+				System.out.println("Word cloud created and stored in "+(DIR_CLOUD_OUTPUT+ "/" + DeimosConfig.FILE_OUTPUT_CLOUD)+".");
+			}
+			else {
+				System.out.println("No training data found for user "+user_id+"!");
+			}
+		}
+		catch (SQLException e1) {
+
+			e1.printStackTrace();
+		}
+		stmt.close();
+	}
+	
+	/**
+	 * Uses the input training values to construct a word
+	 * cloud for the specified user_id.
+	 * The word cloud is accessible by getWordCloud() and is
+	 * also available as an image.
+	 * <br><br>
+	 * This version opens its own connection to the database.
+	 * 
+	 * @param user_id UserTrainingInput must be complete.
+	 */
 	public static void outputWordCloud(int user_id)
 	{
 		topicNamesRepeated = new ArrayList<>();
@@ -85,57 +174,9 @@ public class WordCloudGenerator
 		try
 		{
 			db_conn = DBOperations.getConnectionToDatabase("WordCloudGenerator");
-			Statement stmt = db_conn.createStatement();
-
-			// Selects the most similar topic_name for each URL
-			/*String query = "SELECT URL, topic_name, visit_count "
-					+ "FROM user_urls NATURAL JOIN "
-					+ "(SELECT url, topic_name FROM user_ref_similarity NATURAL JOIN "
-					+ "(SELECT url, MAX(similarity) \"SIMILARITY\" "
-					+ "FROM user_ref_similarity WHERE user_id="+user_id+
-					" GROUP BY url))";*/
-
-			String query = "SELECT topic_name, value FROM user_training_input WHERE user_id = "+user_id;
-
-			try {
-
-				ResultSet rs = stmt.executeQuery(query);
-
-				while(rs.next()) {
-					String topicName = rs.getString("topic_name");
-					topicName = topicName.replace("Top/Shopping/","");
-					float value = rs.getFloat("value")+0.01f;
-					int frequency = Math.round(value * 50); // 50 limit of WordCloud?
-					while(frequency > 0)
-					{
-						topicNamesRepeated.add(topicName);
-						frequency--;
-					}
-				}
-				
-				rs.close();
-				
-				if(topicNamesRepeated.size() > 0) {
-					System.out.println(topicNamesRepeated.size()+" topic name(s) added.");
-
-					List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(topicNamesRepeated);
-
-					wordCloud.build(wordFrequencies);
-
-					wordCloudImage = wordCloud.getBufferedImage();
-
-					wordCloud.writeToFile(DIR_CLOUD_OUTPUT + "/" + DeimosConfig.FILE_OUTPUT_CLOUD);
-					System.out.println("Word cloud created and stored in "+(DIR_CLOUD_OUTPUT+ "/" + DeimosConfig.FILE_OUTPUT_CLOUD)+".");
-				}
-				else {
-					System.out.println("No training data found for user "+user_id+"!");
-				}
-			}
-			catch (SQLException e1) {
-
-				e1.printStackTrace();
-			}
-			stmt.close();
+			
+			outputWordCloud(user_id, db_conn);
+			
 			db_conn.close();
 
 		} catch (SQLException e2) {

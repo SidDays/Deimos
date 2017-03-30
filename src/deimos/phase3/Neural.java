@@ -1,5 +1,7 @@
 package deimos.phase3;
 
+import java.sql.Connection;
+
 /*
  * Encog(tm) Java Examples v3.3
  * http://www.heatonresearch.com/encog/
@@ -58,37 +60,54 @@ public class Neural {
 	 * The ideal data necessary for XOR.
 	 */
 	public static double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
-	
+
 	/**
 	 * The main method.
 	 * @param args No arguments are used.
 	 */
-	public static void main(final String args[]) {
-		
+
+	/** Create Statements and preparedStatements on this connection. */
+	private static Connection db_conn;
+
+	private static BasicNetwork network;
+
+	private static MLDataSet trainingSet;
+
+	static {
+		initializeNetwork();
+	}
+
+	private static void initializeNetwork()
+	{
 		// create a neural network, without using a factory
-		BasicNetwork network = new BasicNetwork();
-		
+		network = new BasicNetwork();
+
 		// BasicLayer(ActivationFunction activationFunction, boolean hasBias, int neuronCount)
-		network.addLayer(new BasicLayer(null,true,2));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,3));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));
+		network.addLayer(new BasicLayer(null, true, 2));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 3));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, 1));
 		network.getStructure().finalizeStructure();
 		network.reset();
+	}
 
+	public static void train(int user_id)
+	{
 		// create training data
-		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
-		
+		trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
+
 		// train the neural network
 		// final Backpropagation train = new Backpropagation(network, trainingSet);
 		final ResilientPropagation train = new ResilientPropagation(network, trainingSet);
- 
+
 		int epoch = 1;
 
-		do {
+		do
+		{
 			train.iteration();
 			System.out.println("Epoch #" + epoch + " Error:" + train.getError());
 			epoch++;
-		} while(train.getError() > 0.01);
+		}
+		while(train.getError() > 0.01);
 		train.finishTraining();
 
 		// test the neural network
@@ -98,7 +117,15 @@ public class Neural {
 			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
 					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
 		}
-		
+	}
+
+	public static void shutdown() {
 		Encog.getInstance().shutdown();
+	}
+
+	public static void main(final String args[]) {
+
+		train(1);
+		shutdown();		
 	}
 }
