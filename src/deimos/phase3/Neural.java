@@ -39,7 +39,7 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
 /**
  * XOR: This example is essentially the "Hello World" of neural network
  * programming.  This example shows how to construct an Encog neural
- * network to predict the output from the XOR operator.  This example
+ * network to predict the output from# the XOR operator.  This example
  * uses backpropagation to train the neural network.
  * 
  * This example attempts to use a minimum of Encog features to create and
@@ -48,18 +48,54 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
  * the  example.
  * 
  */
-public class Neural {
+public class Neural
+{
+	
+	public class User {
+		
+		String fName, lName, publicIP;
+		int yearOfBirth;
+		
+	}
+
+	public static String printData(double[] row)
+	{
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < row.length; i++)
+		{
+			sb.append(String.format("%.2f", row[i]));
+			if(i!=row.length-1)
+				sb.append(", ");
+		}
+
+		return sb.toString();
+	}
 
 	/**
 	 * The input necessary for XOR.
 	 */
-	public static double XOR_INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 },
-			{ 0.0, 1.0 }, { 1.0, 1.0 } };
+	public static double INPUT[][] = { NeuralConstants.getRandomInputDataRow(),
+			NeuralConstants.getRandomInputDataRow(),
+			NeuralConstants.getRandomInputDataRow(),
+			NeuralConstants.getRandomInputDataRow(),
+			NeuralConstants.getRandomInputDataRow(),
+			NeuralConstants.getRandomInputDataRow()};
+	// public static double INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 1.0 } };
+
+
 
 	/**
 	 * The ideal data necessary for XOR.
 	 */
-	public static double XOR_IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
+	public static double IDEAL[][] = { NeuralConstants.YOUNG_MALE_IDEAL,
+			NeuralConstants.YOUNG_FEMALE_IDEAL,
+			NeuralConstants.MID_MALE_IDEAL,
+			NeuralConstants.MID_FEMALE_IDEAL,
+			NeuralConstants.OLD_MALE_IDEAL,
+			NeuralConstants.OLD_FEMALE_IDEAL};
+	// public static double IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
+
+
 
 	/**
 	 * The main method.
@@ -83,9 +119,10 @@ public class Neural {
 		network = new BasicNetwork();
 
 		// BasicLayer(ActivationFunction activationFunction, boolean hasBias, int neuronCount)
-		network.addLayer(new BasicLayer(null, true, 2));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 3));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, 1));
+		network.addLayer(new BasicLayer(null, true, NeuralConstants.NODES_INPUT));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, NeuralConstants.NODES_OUTPUT));
 		network.getStructure().finalizeStructure();
 		network.reset();
 	}
@@ -93,7 +130,7 @@ public class Neural {
 	public static void train(int user_id)
 	{
 		// create training data
-		trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
+		trainingSet = new BasicMLDataSet(INPUT, IDEAL);
 
 		// train the neural network
 		// final Backpropagation train = new Backpropagation(network, trainingSet);
@@ -110,22 +147,35 @@ public class Neural {
 		while(train.getError() > 0.01);
 		train.finishTraining();
 
+		predict();
+	}
+
+	private static void predict() {
+		// TODO Auto-generated method stub
+
 		// test the neural network
 		System.out.println("Neural Network Results:");
-		for(MLDataPair pair: trainingSet ) {
+
+		for(MLDataPair pair: trainingSet )
+		{
 			final MLData output = network.compute(pair.getInput());
-			System.out.println(pair.getInput().getData(0) + "," + pair.getInput().getData(1)
-					+ ", actual=" + output.getData(0) + ",ideal=" + pair.getIdeal().getData(0));
+
+
+			System.out.println("actual = " + printData(output.getData()) + 
+					", ideal = " + printData(pair.getIdeal().getData()));
 		}
+
 	}
 
 	public static void shutdown() {
 		Encog.getInstance().shutdown();
 	}
 
+	/** Testing */
 	public static void main(final String args[]) {
 
 		train(1);
+		// train(1);
 		shutdown();		
 	}
 }
