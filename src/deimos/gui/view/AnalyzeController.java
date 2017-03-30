@@ -4,8 +4,10 @@ import java.io.File;
 
 import deimos.common.DeimosConfig;
 import deimos.common.GUIUtils;
+import deimos.gui.view.services.GEWService;
 import deimos.gui.view.services.IDFService;
 import deimos.gui.view.services.SimilarityService;
+import deimos.gui.view.services.TrainingValuesService;
 import deimos.gui.view.services.URLsTFService;
 import deimos.gui.view.services.WeightService;
 import deimos.phase2.user.UserURLsTF;
@@ -54,6 +56,10 @@ public class AnalyzeController {
 	@FXML
 	private ProgressBar progressSimilarityBar;
 	@FXML
+	private ProgressBar progressGEWBar;
+	@FXML
+	private ProgressBar progressTrainingValuesBar;
+	@FXML
 	private Label statusLabel;
 	@FXML
 	private Label truncateLabel;
@@ -68,6 +74,8 @@ public class AnalyzeController {
 	private IDFService serviceIDf;
 	private WeightService serviceWeights;
 	private SimilarityService serviceSimilarity;
+	private GEWService serviceGEW;
+	private TrainingValuesService serviceTrainingValues;
 	private File file;
 
 	/**
@@ -84,10 +92,59 @@ public class AnalyzeController {
 		initializeIDF();
 		initializeWeights();
 		initializeSimilarity();
+		initializeGEW();
+		initializeTrainingValues();
 
 		browseButton.setTooltip(new Tooltip("Select the output file of Phase 1 data collection."));
 	}
+	
+	/**
+	 * TODO
+	 * TrainingValuesService is not complete, 
+	 * add a function call to UserTrainingInput file
+	 */
+	
+	private void initializeTrainingValues() {
+		serviceTrainingValues = new TrainingValuesService();
 
+		serviceTrainingValues.setOnSucceeded(e1 -> {
+			progressTrainingValuesBar.setProgress(1);
+			//GUIUtils.startAgain(serviceIDf);
+		});
+		serviceTrainingValues.setOnFailed(e1 -> {
+			progressTrainingValuesBar.setProgress(0);
+
+		});
+		serviceTrainingValues.setOnCancelled(e1 -> {
+			progressTrainingValuesBar.setProgress(0);
+
+		});
+	}
+
+	/**
+	 * TODO
+	 * GEWService is not complete, 
+	 * add a function call to GEW class 
+	 */
+	private void initializeGEW() {
+		serviceGEW = new GEWService();
+		
+		serviceGEW.setOnSucceeded(e1 -> {
+			progressGEWBar.setProgress(1);
+			progressTrainingValuesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+			statusLabel.setText("Obtaining training values");
+			//GUIUtils.startAgain(serviceIDf);
+		});
+		serviceGEW.setOnFailed(e1 -> {
+			progressGEWBar.setProgress(0);
+
+		});
+		serviceGEW.setOnCancelled(e1 -> {
+			progressGEWBar.setProgress(0);
+
+		});
+	}
+	
 	private void initializeURLsTF() {
 
 		urlsTFTimeline = new Timeline(

@@ -67,7 +67,7 @@
                      <children>
                         <HBox maxHeight="1.7976931348623157E308" prefWidth="120.0" spacing="4.0">
                            <children>
-                              <Label maxHeight="1.7976931348623157E308" text="User ID">
+                              <Label maxHeight="1.7976931348623157E308" text="Gender">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -153,7 +153,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                  <ProgressBar fx:id="progressHistoryBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
             <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="1">
@@ -163,7 +163,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                  <ProgressBar fx:id="progressPublicIPBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
             <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="2">
@@ -173,7 +173,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                  <ProgressBar fx:id="progressAutoMailBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
          </children>
@@ -192,7 +192,7 @@
                   <Insets />
                </HBox.margin>
             </Label>
-            <Label fx:id="statusLabel1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
+            <Label fx:id="collectionStatus" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -200,7 +200,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Collect!" HBox.hgrow="NEVER" />
+            <Button fx:id="collectButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleCollectButton" text="Collect!" HBox.hgrow="NEVER" />
          </children>
          <padding>
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
