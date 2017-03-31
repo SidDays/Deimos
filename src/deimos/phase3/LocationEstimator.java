@@ -81,7 +81,7 @@ public class LocationEstimator {
 	/**
 	 * Get the location information of the given
 	 */
-	public static String getLocationString()
+	public static String estimateLocationAsString()
 	{
 		try {
 			String ipAddress = ExportIP.retrievePublicIP();
@@ -97,7 +97,7 @@ public class LocationEstimator {
 
 	public static void main(String[] args) {
 		
-		System.out.println(getLocationString());
+		System.out.println(estimateLocationAsString("27.251.227.210"));
 
 	}
 }

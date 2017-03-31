@@ -1,19 +1,28 @@
 package deimos.phase3;
 
-public class User {
-	
+import java.time.Year;
+
+public class User
+{
+	private int userId;
 	private String fName, lName, location, publicIP;
 	private int yearOfBirth;
 	private double input_row[];
-	private char gender;
+	private String gender;
 
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 	public String getfName() {
 		return fName;
 	}
-	public char getGender() {
+	public String getGender() {
 		return gender;
 	}
-	public void setGender(char gender) {
+	public void setGender(String gender) {
 		this.gender = gender;
 	}
 	public void setfName(String fName) {
@@ -48,5 +57,43 @@ public class User {
 	}
 	public void setInput_row(double[] input_row) {
 		this.input_row = input_row;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder object = new StringBuilder();
+		
+		object.append(this.userId+" - ");
+		
+		boolean noFirstName = fName == null || fName.isEmpty();
+		boolean noLastName = lName == null || lName.isEmpty();
+		
+		
+		if(noFirstName & noLastName)
+		{
+			object.append("Unnamed user ");
+		}
+		else { 
+			if(!noFirstName)
+			{
+				object.append(fName);
+				if(!noLastName)
+					object.append(" "+lName);
+			}
+			else {
+				if(!noLastName)
+					object.append(lName);
+			}
+		}
+
+		
+		object.append(", "+publicIP);
+
+		return object.toString();
+	}
+	public int getAge() {
+		int year = Year.now().getValue();
+		return year - yearOfBirth;
 	}
 }
