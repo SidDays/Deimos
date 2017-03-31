@@ -28,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -39,6 +40,8 @@ public class AnalyzeController {
 	private TextField userIDTextField;
 
 	private int userId;
+	@FXML
+	private VBox analyzeVBox;
 
 	@FXML
 	private TextField outputFileTextField;
@@ -122,14 +125,10 @@ public class AnalyzeController {
 
 		serviceTrainingValues.setOnSucceeded(e1 -> {
 			progressTrainingValuesBar.setProgress(1);
-			userIDTextField.setDisable(true);
-			outputFileTextField.setDisable(true);
-			truncateCheckBox.setDisable(true);
-			browseButton.setDisable(true);
-			analyzeButton.setDisable(true);
 			trainingValuesStatusLabel.setText("Finished!");
 			statusLabel.setText("Analyze phase finished!");
-			//GUIUtils.startAgain(serviceIDf);
+			analyzeVBox.setDisable(false);
+			analyzeButton.setDisable(false);
 		});
 		serviceTrainingValues.setOnFailed(e1 -> {
 			progressTrainingValuesBar.setProgress(0);
@@ -376,7 +375,8 @@ public class AnalyzeController {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Resource File");
 		fileChooser.getExtensionFilters().addAll(
-				new ExtensionFilter("Comma-Separated Values", "*.csv"));
+				new ExtensionFilter("Text Files", "*.txt"),
+				new ExtensionFilter("Coma-separated values", "*.csv"));
 		file = fileChooser.showOpenDialog(new Stage());
 
 		filePath = "";
@@ -427,9 +427,9 @@ public class AnalyzeController {
 						filePath = DeimosConfig.FILE_OUTPUT_HISTORY;
 						outputFileTextField.setText(filePath);
 					}
-
-					userIDTextField.setDisable(true);
-					outputFileTextField.setDisable(true);
+					analyzeVBox.setDisable(true);
+					/*userIDTextField.setDisable(true);
+					outputFileTextField.setDisable(true);*/
 					analyzeButton.setDisable(true);
 
 					urlsTFStatusLabel.setText("Initializing...");
