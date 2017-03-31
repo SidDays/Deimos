@@ -44,8 +44,6 @@ public class DeimosConfig {
 	
 	public static final String[] FILES_OUTPUT_ALL = {
 
-			FILE_OUTPUT_BOOKMARKS,
-			FILE_OUTPUT_COOKIES,
 			FILE_OUTPUT_HISTORY,
 			FILE_OUTPUT_PUBLICIP,
 			FILE_OUTPUT_USERINFO

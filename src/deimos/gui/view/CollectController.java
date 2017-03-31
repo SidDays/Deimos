@@ -54,6 +54,8 @@ public class CollectController {
 	@FXML
 	private Label browserLabel;
 	@FXML
+	private ProgressBar progressUserInfoBar;
+	@FXML
 	private ProgressBar progressHistoryBar;
 	@FXML
 	private ProgressBar progressPublicIPBar;
@@ -64,6 +66,7 @@ public class CollectController {
 	@FXML
 	private Button collectButton;
 
+	private UserInfoService serveceUserInfo;
 	private HistoryService serviceHistory;
 	private PublicIPService servicePublicIP;
 	private BrowserCheckService serviceBrowserCheck;
@@ -110,7 +113,6 @@ public class CollectController {
 		initializePublicIPExport();
 		initializeGenderChoiceBox();
 		initializeUserInfoExport();
-
 		initializeMailer();
 	}
 
@@ -302,20 +304,6 @@ public class CollectController {
 				System.out.println("Failed to kill Chrome on user's request. Please close it manually.");
 			});
 
-			if(ExportAll.isChromeRunning()) {
-
-				Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle("End Chrome if Running");
-				alert.setHeaderText("Google Chrome must not be running");
-				alert.setContentText("Close it automatically? If you wish to close it yourself, click on 'Cancel'.");
-				alert.showAndWait().ifPresent(response -> {
-					if (response == ButtonType.OK) {
-						// System.out.println("Tried to kill Chrome.");
-						serviceKillChrome.start();
-					}
-				});
-			}
-
 			setUsageControlsDisabled(false);
 			setInputControlsDisabled(false);
 		});
@@ -337,6 +325,8 @@ public class CollectController {
 		serviceHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
+				setInputControlsStartDisabled(true);
+				setMailControlsDisabled(true);
 				progressHistoryBar.setProgress(1);
 				collectionStatus.setText("Exporting Public IP");
 				progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
@@ -378,7 +368,7 @@ public class CollectController {
 				collectionStatus.setText("Auto mailing to us");
 				//progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				flags[ServiceConstants.PUBLICIP] = true;
-				GUIUtils.startAgain(serviceUserInfo);
+				
 				setInputControlsStartDisabled(true);
 
 				setMailControlsDisabled(true);
@@ -410,9 +400,24 @@ public class CollectController {
 		serviceUserInfo = new UserInfoService();
 
 		serviceUserInfo.setOnSucceeded(e -> {
-			flags[ServiceConstants.USERINFO] = true;
+			
+			setInputControlsStartDisabled(true);
 
+			setMailControlsDisabled(true);
+			
+			progressUserInfoBar.setProgress(1);
+			flags[ServiceConstants.USERINFO] = true;
+			
+			collectionStatus.setText("Exporting browser history");
+			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+			GUIUtils.startAgain(serviceHistory);
+			
 			setInputControlsStartEnabledZIPAndMailIfComplete();
+		});
+		serviceUserInfo.setOnCancelled(e -> { 
+			System.out.println("User information export cancelled.");
+			progressUserInfoBar.setProgress(0);
+
 		});
 
 		// I'm lazy af
@@ -594,19 +599,39 @@ public class CollectController {
 
 	@FXML
 	private void handleCollectButton() {
+		
 
-		String validationError = getInputValidationError();
-		if(validationError.isEmpty()) {
-			browserLabel.setText("Processing... Please wait.");
-			browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
+		if(ExportAll.isChromeRunning()) {
 
-			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-			collectionStatus.setText("Exporting browser history");
-			GUIUtils.startAgain(serviceHistory);
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("End Chrome if Running");
+			alert.setHeaderText("Google Chrome must not be running");
+			alert.setContentText("Close it automatically? If you wish to close it yourself, click on 'Cancel'.");
+			alert.showAndWait().ifPresent(response -> {
+				if (response == ButtonType.OK) {
+					// System.out.println("Tried to kill Chrome.");
+					serviceKillChrome.start();
+				}
+			});
 		}
-
 		else {
-			generateAlerts(validationError);
+			String validationError = getInputValidationError();
+			if(validationError.isEmpty()) {
+				browserLabel.setText("Processing... Please wait.");
+				browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
+
+				progressUserInfoBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+				collectionStatus.setText("Exporting User Information");
+				GUIUtils.startAgain(serviceUserInfo);
+				
+				/*progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+				collectionStatus.setText("Exporting browser history");
+				GUIUtils.startAgain(serviceHistory);*/
+			}
+
+			else {
+				generateAlerts(validationError);
+			}
 		}
 	}
 

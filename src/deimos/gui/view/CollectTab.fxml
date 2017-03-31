@@ -144,9 +144,20 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
             <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308">
+               <children>
+                  <Label text="User Info">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <ProgressBar fx:id="progressUserInfoBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+               </children>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="1">
                <children>
                   <Label text="History">
                      <font>
@@ -156,7 +167,7 @@
                   <ProgressBar fx:id="progressHistoryBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
-            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="1">
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="2">
                <children>
                   <Label text="Public IP">
                      <font>
@@ -166,7 +177,7 @@
                   <ProgressBar fx:id="progressPublicIPBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                </children>
             </VBox>
-            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="2">
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="3">
                <children>
                   <Label text="Auto-Mail">
                      <font>

@@ -1,6 +1,7 @@
 package deimos.phase1;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -16,6 +17,10 @@ import deimos.common.DeimosConfig;
  */
 public class Zipper {
 	
+	
+	public static void main(String[] args) {
+		zipOutputFiles();
+	}
 	/**
 	 * Zips all the output files defined in DeimosConfig
 	 * into a single ZIP file.
@@ -47,17 +52,22 @@ public class Zipper {
 				ZipEntry ze= new ZipEntry(file);
 				zos.putNextEntry(ze);
 
-				FileInputStream in =
-						new FileInputStream(file);
+				try {
+					FileInputStream in =
+							new FileInputStream(file);
 
-				int len;
-				
-				while ((len = in.read(buffer)) > 0) {
-					zos.write(buffer, 0, len);
+					int len;
+					
+					while ((len = in.read(buffer)) > 0) {
+						zos.write(buffer, 0, len);
+					}
+
+					in.close();
+					count_files++;
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					System.out.println("File "+file+" not found");
 				}
-
-				in.close();
-				count_files++;
 			}
 
 			zos.closeEntry();
@@ -71,7 +81,7 @@ public class Zipper {
 			// errors = true;
 		}
 		finally {
-			System.out.println(count+ " ZIP file(s) created at " + DeimosConfig.FILE_OUTPUT_ALL_ZIP + ".");
+			System.out.println(count+ " ZIP file(s) created as " + DeimosConfig.FILE_OUTPUT_ALL_ZIP + ".");
 			System.out.println(count_files+ " file(s) zipped into " + DeimosConfig.FILE_OUTPUT_ALL_ZIP + ".");
 		}
 	}
