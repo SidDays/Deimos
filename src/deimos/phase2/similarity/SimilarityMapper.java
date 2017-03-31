@@ -32,6 +32,7 @@ public class SimilarityMapper
 	
 	private static int noOfRows = 1;
 	private static int currentRowNumber = 0;
+	private static String status;
 	
 	/** Statement object, for single-time queries */
 	private static Statement stmt;
@@ -53,6 +54,10 @@ public class SimilarityMapper
 	public static double getProgress()
 	{
 		return currentRowNumber*1.0/noOfRows;
+	}
+	
+	public static String getStatus() {
+		return status;
 	}
 	/**
 	 * Computes the similarity value for the combinations of
@@ -82,6 +87,7 @@ public class SimilarityMapper
 				System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
 				noOfRows = rsTest.getInt(1);
 			}
+			
 			rsTest.close();
 
 			// Cross Join all topics in Reference ontology with All URLs visited by that user
@@ -112,6 +118,7 @@ public class SimilarityMapper
 				String currentURL = rsXJoin.getString(2);
 				
 				System.out.format("%6d", currentRowNumber);
+				status = String.format("(%d/%d)", currentRowNumber, noOfRows);
 				populateReferenceList(currentTopic);
 				System.out.format(" | %40s",StringUtils.truncate(currentTopic.substring(4), 40)); // Removes the "Top/"
 				
@@ -239,6 +246,7 @@ public class SimilarityMapper
 				else {
 					System.out.println(" | Denominator = 0!");
 				}
+				System.out.println("Progress parameter: "+getProgress());
 				currentRowNumber++;
 			}
 			
@@ -253,6 +261,7 @@ public class SimilarityMapper
 			db_conn.close();
 			
 			System.out.println("Finished computing similarity for user "+user_id+"!");
+			status = "Finished!";
 		} 
 		catch (SQLException e) 
 		{

@@ -11,6 +11,7 @@ import deimos.gui.view.services.TrainingValuesService;
 import deimos.gui.view.services.URLsTFService;
 import deimos.gui.view.services.WeightService;
 import deimos.phase2.similarity.SimilarityMapper;
+import deimos.phase2.user.UserIDF;
 import deimos.phase2.user.UserURLsTF;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -46,11 +47,21 @@ public class AnalyzeController {
 	@FXML
 	private Label urlsTFStatusLabel;
 	@FXML
+	private Label idfStatusLabel;
+	@FXML
+	private Label similarityStatusLabel;
+	@FXML
+	private Label weightStatusLabel;
+	@FXML
+	private Label gewStatusLabel;
+	@FXML
+	private Label trainingValuesStatusLabel;
+	@FXML
 	private ProgressBar progressURLsTFBar;
 
 	private Timeline urlsTFTimeline;
 	private Timeline similarityTimeline;
-
+	private Timeline idfTimeline;
 	@FXML
 	private ProgressBar progressIDFBar;
 	@FXML
@@ -73,7 +84,7 @@ public class AnalyzeController {
 	private String truncateText;
 	private String filePath;
 	private URLsTFService serviceURLsTF;
-	private IDFService serviceIDf;
+	private IDFService serviceIDF;
 	private WeightService serviceWeights;
 	private SimilarityService serviceSimilarity;
 	private GEWService serviceGEW;
@@ -111,6 +122,13 @@ public class AnalyzeController {
 
 		serviceTrainingValues.setOnSucceeded(e1 -> {
 			progressTrainingValuesBar.setProgress(1);
+			userIDTextField.setDisable(true);
+			outputFileTextField.setDisable(true);
+			truncateCheckBox.setDisable(true);
+			browseButton.setDisable(true);
+			analyzeButton.setDisable(true);
+			trainingValuesStatusLabel.setText("Finished!");
+			statusLabel.setText("Analyze phase finished!");
 			//GUIUtils.startAgain(serviceIDf);
 		});
 		serviceTrainingValues.setOnFailed(e1 -> {
@@ -133,9 +151,11 @@ public class AnalyzeController {
 		
 		serviceGEW.setOnSucceeded(e1 -> {
 			progressGEWBar.setProgress(1);
+			
 			progressTrainingValuesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Obtaining training values");
-			//GUIUtils.startAgain(serviceIDf);
+			GUIUtils.startAgain(serviceTrainingValues);
+			gewStatusLabel.setText("Finished!");
 		});
 		serviceGEW.setOnFailed(e1 -> {
 			progressGEWBar.setProgress(0);
@@ -164,66 +184,82 @@ public class AnalyzeController {
 		serviceURLsTF = new URLsTFService();
 
 		serviceURLsTF.setOnRunning(e1 -> {
-			bindURLsTFToStatus();
+			bindToStatus(urlsTFTimeline);
+			//bindURLsTFToStatus();
 		});
 		serviceURLsTF.setOnSucceeded(e1 -> {
 			progressURLsTFBar.setProgress(1);
 			progressIDFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("IDF insertion");
-			GUIUtils.startAgain(serviceIDf);
+			GUIUtils.startAgain(serviceIDF);
 		});
 		serviceURLsTF.setOnFailed(e1 -> {
 			progressURLsTFBar.setProgress(0);
-
-			clearURLsTFBinding();
+			clearBindings(urlsTFTimeline, progressURLsTFBar);
+			//clearURLsTFBinding();
 		});
 		serviceURLsTF.setOnCancelled(e1 -> {
 			progressURLsTFBar.setProgress(0);
-
-			clearURLsTFBinding();
+			clearBindings(urlsTFTimeline, progressURLsTFBar);
+			//clearURLsTFBinding();
 		});
-	}
-	/**
-	 * Bind the URL status to the text above the progress bar.
-	 */
-	private void bindURLsTFToStatus() {
-
-		urlsTFTimeline.setCycleCount(Animation.INDEFINITE);
-		urlsTFTimeline.play();
 	}
 	
 	/**
-	 * Bind the URL status to the text above the progress bar.
+	 * Generalized function for binding 
+	 * the progress bars
 	 */
-	private void bindSimilarityToStatus()
+	private void bindToStatus(Timeline timeLine)
 	{
-		similarityTimeline.setCycleCount(Animation.INDEFINITE);
-		similarityTimeline.play();
+		timeLine.setCycleCount(Animation.INDEFINITE);
+		timeLine.play();
 	}
-
+	
 	/**
-	 * If URLs TF population fails, stop the status and progress bar updation.
+	 * Generalized function for 
+	 * clearing the bindings of 
+	 * the progress bars
 	 */
-	private void clearURLsTFBinding() {
-		// if(urlsTFTimeline != null)
-		urlsTFTimeline.stop();
-
-		progressURLsTFBar.setProgress(0);
+	private void clearBindings(Timeline timeLine, ProgressBar progressBar)
+	{
+		timeLine.stop();
+		progressBar.setProgress(0);
 	}
 
 	private void initializeIDF() {
-		serviceIDf = new IDFService();
+		
+		idfTimeline = new Timeline(
+				new KeyFrame(Duration.seconds(0),
+						new EventHandler<ActionEvent>() {
+					@Override public void handle(ActionEvent actionEvent) {
 
-		serviceIDf.setOnSucceeded(e1 -> {
+						idfStatusLabel.setText(UserIDF.getStatus());
+						progressIDFBar.setProgress(UserIDF.getProgress());
+					}
+				}),
+				new KeyFrame(Duration.seconds(1))
+				);
+		serviceIDF = new IDFService();
+
+		serviceIDF.setOnRunning(e1 -> {
+			bindToStatus(idfTimeline);
+		});
+		serviceIDF.setOnSucceeded(e1 -> {
+			
 			progressIDFBar.setProgress(1);
+			//idfStatusLabel.setText("Finished!");
 			progressWeightBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Weights insertion");
 			GUIUtils.startAgain(serviceWeights);
 		});
-		serviceIDf.setOnFailed(e1 -> {
+		serviceIDF.setOnFailed(e1 -> {
+			progressIDFBar.setProgress(0);
+			clearBindings(idfTimeline, progressIDFBar);
 			progressIDFBar.setProgress(0);
 		});
-		serviceIDf.setOnCancelled(e1 -> {
+		serviceIDF.setOnCancelled(e1 -> {
+			progressIDFBar.setProgress(0);
+			clearBindings(idfTimeline, progressIDFBar);
 			progressIDFBar.setProgress(0);
 		});
 	}
@@ -233,9 +269,11 @@ public class AnalyzeController {
 
 		serviceWeights.setOnSucceeded(e1 -> {
 			progressWeightBar.setProgress(1);
+			
 			progressSimilarityBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Similarity insertion");
 			GUIUtils.startAgain(serviceSimilarity);
+			weightStatusLabel.setText("Finished!");
 		});
 		serviceWeights.setOnFailed(e1 -> {
 			progressWeightBar.setProgress(0);
@@ -244,23 +282,14 @@ public class AnalyzeController {
 			progressWeightBar.setProgress(0);
 		});
 	}
-
-	/**
-	 * If URLs TF population fails, stop the status and progress bar updation.
-	 */
-	private void clearSimilarityBinding() {
-		similarityTimeline.stop();
-
-		progressSimilarityBar.setProgress(0);
-	}
-
+	
 	private void initializeSimilarity()
 	{
 		similarityTimeline = new Timeline(
 				new KeyFrame(Duration.seconds(0),
 						new EventHandler<ActionEvent>() {
 					@Override public void handle(ActionEvent actionEvent) {
-
+						similarityStatusLabel.setText(SimilarityMapper.getStatus());
 						progressSimilarityBar.setProgress(SimilarityMapper.getProgress());
 					}
 				}),
@@ -270,19 +299,24 @@ public class AnalyzeController {
 
 		serviceSimilarity.setOnSucceeded(e1 -> {
 			progressSimilarityBar.setProgress(1);
+			//similarityStatusLabel.setText("Finished!");
+			GUIUtils.startAgain(serviceGEW);
 		});
 		serviceSimilarity.setOnRunning(e1 -> {
-			bindSimilarityToStatus();
+			bindToStatus(similarityTimeline);
+			//bindSimilarityToStatus();
 		});
 		serviceSimilarity.setOnFailed(e1 -> {
 			
 			progressSimilarityBar.setProgress(0);
-			clearSimilarityBinding();
+			clearBindings(similarityTimeline, progressSimilarityBar);
+			//clearSimilarityBinding();
 		});
 		serviceSimilarity.setOnCancelled(e1 -> {
 			
 			progressSimilarityBar.setProgress(0);
-			clearSimilarityBinding();
+			clearBindings(similarityTimeline, progressSimilarityBar);
+			//clearSimilarityBinding();
 		});
 	}
 
@@ -315,9 +349,12 @@ public class AnalyzeController {
 		serviceURLsTF.setUserId(id);
 		serviceURLsTF.setTruncate(truncate);
 		serviceURLsTF.setFilePath(filepath);
-		serviceIDf.setUserId(id);
+		serviceIDF.setUserId(id);
 		serviceWeights.setUserId(id);
 		serviceSimilarity.setUserId(id);
+		serviceGEW.setUserId(id);
+		serviceTrainingValues.setUserId(id);
+		serviceTrainingValues.setTruncate(truncate);
 	}
 
 	/**
