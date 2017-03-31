@@ -5,9 +5,16 @@ public class User {
 	private String fName, lName, location, publicIP;
 	private int yearOfBirth;
 	private double input_row[];
+	private char gender;
 
 	public String getfName() {
 		return fName;
+	}
+	public char getGender() {
+		return gender;
+	}
+	public void setGender(char gender) {
+		this.gender = gender;
 	}
 	public void setfName(String fName) {
 		this.fName = fName;

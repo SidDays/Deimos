@@ -1,7 +1,10 @@
 package deimos.phase3;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /*
  * Encog(tm) Java Examples v3.3
@@ -103,12 +106,42 @@ public class Neural
 		return sb.toString();
 	}
 	
+	private static PreparedStatement pstmt;
+	
 	public static void getTrainingUsers()
 	{
 		// TODO
 		try
 		{
 			DBOperations.connectToDatabaseIfNot(db_conn, "Neural");
+			
+			// Select those users who have input values
+			if(pstmt != null && pstmt.isClosed()) // Reuse same statment
+				pstmt = db_conn.prepareStatement(
+					"SELECT * "
+					+ "FROM user_info "
+					+ "WHERE user_id "
+					+ "IN (SELECT DISTINCT (user_id) FROM user_training_input)");
+			ResultSet rs = pstmt.executeQuery();
+			
+			// DO SOMETHING!
+			// TODO
+			while(rs.next())
+			{
+				User u = new User();
+				u.setfName(rs.getString("FIRST_NAME"));
+				u.setlName(rs.getString("LAST_NAME"));
+				u.setLocation(rs.getString("LOCATION"));
+				u.setPublicIP(rs.getString("IP"));
+				u.setYearOfBirth(rs.getInt("BIRTH_YEAR"));
+				u.setGender(rs.getString("GENDER").charAt(0));
+				
+				// TODO
+			}
+			
+			rs.close();
+			
+			db_conn.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
