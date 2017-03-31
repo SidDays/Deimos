@@ -376,7 +376,7 @@ public class AnalyzeController {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Resource File");
 		fileChooser.getExtensionFilters().addAll(
-				new ExtensionFilter("Text Files", "*.txt"));
+				new ExtensionFilter("Comma-Separated Values", "*.csv"));
 		file = fileChooser.showOpenDialog(new Stage());
 
 		filePath = "";

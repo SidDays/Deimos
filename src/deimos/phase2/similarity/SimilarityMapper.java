@@ -212,6 +212,7 @@ public class SimilarityMapper
 					
 					System.out.format(" | %3d visits | Sim. %.4f", visitCount, similarity);
 					
+					System.out.format(" | Progress = %.5f",getProgress());
 					
 					if(similarity < THRESHOLD)
 					{
@@ -246,7 +247,7 @@ public class SimilarityMapper
 				else {
 					System.out.println(" | Denominator = 0!");
 				}
-				System.out.println("Progress parameter: "+getProgress());
+				
 				currentRowNumber++;
 			}
 			

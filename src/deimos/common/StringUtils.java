@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  */
 public class StringUtils
 {
-	
+
 	/**
 	 * Converts a long string into a format displayable in a fixed size.
 	 * Adds "..." if the length is exceeded.
@@ -32,7 +32,7 @@ public class StringUtils
 		else
 			return str;
 	}
-	
+
 	public static String truncateURL(String url)
 	{
 		return url.replace("https://","").replace("http://","");
@@ -71,8 +71,8 @@ public class StringUtils
 
 		return sb.toString();
 	}
-	
-	
+
+
 
 	/**
 	 * Convert a String with spaces or
@@ -89,10 +89,10 @@ public class StringUtils
 		for(int i = 0; i < length ; i++)
 		{
 			char ch = str.charAt(i);
-			
+
 			if(ch == ' ' | ch == '_')
 			{
-				
+
 				if(i < length-1)
 				{
 					char chNext = str.charAt(i+1);
@@ -165,7 +165,7 @@ public class StringUtils
 	public static String sanitizeFilename(String inputName) {
 		return inputName.replaceAll("[^a-zA-Z0-9-_\\.]", "_");
 	}
-	
+
 	/**
 	 * Convert a String in the format yyyy-MM-dd HH:mm:ss to a TimeStamp.
 	 * 
@@ -193,7 +193,7 @@ public class StringUtils
 		}
 	}
 
-	
+
 	/**
 	 * Returns a CSV row string containing each of the input
 	 * parameter strings.
@@ -215,7 +215,7 @@ public class StringUtils
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Replaces CSV-incompatible characters,
 	 * such as double quotes and commas, by underscores.
@@ -226,7 +226,7 @@ public class StringUtils
 	{
 		return input.replace(",", "_").replace("\"", "_");
 	}
-	
+
 	/**
 	 * When given a CSV line as inpu, returns all the individual
 	 * cells in that row in an Array
@@ -236,15 +236,16 @@ public class StringUtils
 	public static String[] getCSVParts(String csvLine)
 	{
 		String parts[] = csvLine.split(",");
-		
+
 		for(int i = 0; i < parts.length; i++)
 		{
-			parts[i] = parts[i].trim().substring(1, parts[i].length()-1);
+			if(parts[i].startsWith("\""))
+					parts[i] = parts[i].trim().substring(1, parts[i].length()-1);
 		}
-		
+
 		return parts;
 	}
-	
+
 	/**
 	 * Reference:
 	 * stackoverflow.com/questions/4581877/validating-ipv4-string-in-java
@@ -255,29 +256,29 @@ public class StringUtils
 	 */
 	public static boolean isValidIPv4 (String ip)
 	{
-	    try {
-	        if ( ip == null || ip.isEmpty() ) {
-	            return false;
-	        }
+		try {
+			if ( ip == null || ip.isEmpty() ) {
+				return false;
+			}
 
-	        String[] parts = ip.split( "\\." );
-	        if ( parts.length != 4 ) {
-	            return false;
-	        }
+			String[] parts = ip.split( "\\." );
+			if ( parts.length != 4 ) {
+				return false;
+			}
 
-	        for ( String s : parts ) {
-	            int i = Integer.parseInt( s );
-	            if ( (i < 0) || (i > 255) ) {
-	                return false;
-	            }
-	        }
-	        if ( ip.endsWith(".") ) {
-	            return false;
-	        }
+			for ( String s : parts ) {
+				int i = Integer.parseInt( s );
+				if ( (i < 0) || (i > 255) ) {
+					return false;
+				}
+			}
+			if ( ip.endsWith(".") ) {
+				return false;
+			}
 
-	        return true;
-	    } catch (NumberFormatException nfe) {
-	        return false;
-	    }
+			return true;
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
 	}
 }
