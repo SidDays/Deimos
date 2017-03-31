@@ -30,6 +30,9 @@ public class SimilarityMapper
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 	
+	private static int noOfRows = 0;
+	private static int currentRowNumber = 0;
+	
 	/** Statement object, for single-time queries */
 	private static Statement stmt;
 	
@@ -47,6 +50,10 @@ public class SimilarityMapper
 		computeSimilarity(1);
 	}
 	
+	public static double getProgress()
+	{
+		return currentRowNumber*1.0/noOfRows;
+	}
 	/**
 	 * Computes the similarity value for the combinations of
 	 * all reference topics and web pages visited by a user.
@@ -71,7 +78,10 @@ public class SimilarityMapper
 							+ "FROM (SELECT DISTINCT topic_name FROM ref_topics) CROSS JOIN user_urls "
 							+ "WHERE user_id = "+user_id);
 			if(rsTest.next())
+			{
 				System.out.println("Total number of cross-joined rows: "+rsTest.getInt(1));
+				noOfRows = rsTest.getInt(1);
+			}
 			rsTest.close();
 
 			// Cross Join all topics in Reference ontology with All URLs visited by that user
@@ -81,7 +91,7 @@ public class SimilarityMapper
 							+ "FROM ref_topics CROSS JOIN user_urls "
 							+ "WHERE user_id = "+user_id);
 			
-			int currentRow = 0; // Helps for progress indication
+			 // Helps for progress indication
 			System.out.println();
 			
 			// Prepare statements that will be required ahead
@@ -101,7 +111,7 @@ public class SimilarityMapper
 				String currentTopic = rsXJoin.getString(1);
 				String currentURL = rsXJoin.getString(2);
 				
-				System.out.format("%6d", currentRow);
+				System.out.format("%6d", currentRowNumber);
 				populateReferenceList(currentTopic);
 				System.out.format(" | %40s",StringUtils.truncate(currentTopic.substring(4), 40)); // Removes the "Top/"
 				
@@ -229,7 +239,7 @@ public class SimilarityMapper
 				else {
 					System.out.println(" | Denominator = 0!");
 				}
-				currentRow++;
+				currentRowNumber++;
 			}
 			
 			// Close all statements

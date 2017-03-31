@@ -10,6 +10,7 @@ import deimos.gui.view.services.SimilarityService;
 import deimos.gui.view.services.TrainingValuesService;
 import deimos.gui.view.services.URLsTFService;
 import deimos.gui.view.services.WeightService;
+import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserURLsTF;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -48,6 +49,7 @@ public class AnalyzeController {
 	private ProgressBar progressURLsTFBar;
 
 	private Timeline urlsTFTimeline;
+	private Timeline similarityTimeline;
 
 	@FXML
 	private ProgressBar progressIDFBar;
@@ -235,17 +237,41 @@ public class AnalyzeController {
 		});
 	}
 
+	/**
+	 * If URLs TF population fails, stop the status and progress bar updation.
+	 */
+	private void clearSimilarityBinding() {
+		similarityTimeline.stop();
+
+		progressSimilarityBar.setProgress(0);
+	}
+
 	private void initializeSimilarity() {
+		similarityTimeline = new Timeline(
+				new KeyFrame(Duration.seconds(0),
+						new EventHandler<ActionEvent>() {
+					@Override public void handle(ActionEvent actionEvent) {
+
+						//urlsTFStatusLabel.setText(UserURLsTF.getStatus());
+						progressSimilarityBar.setProgress(SimilarityMapper.getProgress());
+					}
+				}),
+				new KeyFrame(Duration.seconds(1))
+				);
 		serviceSimilarity = new SimilarityService();
 
 		serviceSimilarity.setOnSucceeded(e1 -> {
 			progressSimilarityBar.setProgress(1);
 		});
 		serviceSimilarity.setOnFailed(e1 -> {
+			
 			progressSimilarityBar.setProgress(0);
+			clearSimilarityBinding();
 		});
 		serviceSimilarity.setOnCancelled(e1 -> {
+			
 			progressSimilarityBar.setProgress(0);
+			clearSimilarityBinding();
 		});
 	}
 

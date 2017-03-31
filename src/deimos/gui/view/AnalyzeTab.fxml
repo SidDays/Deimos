@@ -140,7 +140,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                        <ProgressBar fx:id="progressTrainingValuesBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="4">
@@ -150,7 +150,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <ProgressBar maxWidth="1.7976931348623157E308" progress="0.0" />
+                        <ProgressBar fx:id="progressGEWBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                </children>

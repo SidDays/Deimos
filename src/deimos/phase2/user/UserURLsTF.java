@@ -339,7 +339,7 @@ public class UserURLsTF
 				pstmt.setString(2, currentURL);
 				pstmt.setString(3, term);
 				pstmt.setInt(4, tf);
-				pstmt.setNull(5, Types.INTEGER);
+				pstmt.setNull(5, Types.FLOAT);
 
 				try
 				{
@@ -388,10 +388,10 @@ public class UserURLsTF
 		if(urls.size() < noOfURLs)
 			noOfURLs = urls.size();
 
-
 		try
 		{
 			// Open connection to Database
+			DBOperations.connectToDatabaseIfNot(db_conn, "UserURLsTF");
 
 			if(truncate)
 			{

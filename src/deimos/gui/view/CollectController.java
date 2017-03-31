@@ -610,6 +610,23 @@ public class CollectController {
 				if (response == ButtonType.OK) {
 					// System.out.println("Tried to kill Chrome.");
 					serviceKillChrome.start();
+					String validationError = getInputValidationError();
+					if(validationError.isEmpty()) {
+						browserLabel.setText("Processing... Please wait.");
+						browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
+
+						progressUserInfoBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+						collectionStatus.setText("Exporting User Information");
+						GUIUtils.startAgain(serviceUserInfo);
+						
+						/*progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+						collectionStatus.setText("Exporting browser history");
+						GUIUtils.startAgain(serviceHistory);*/
+					}
+
+					else {
+						generateAlerts(validationError);
+					}
 				}
 			});
 		}
