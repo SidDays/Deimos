@@ -22,41 +22,79 @@ import deimos.common.DeimosConfig;
 public class DBOperations
 {
 
+	/**
+	 * Creates a new connection with the DB while making 
+	 * sure one is not already open, by passing that as a reference.
+	 * @param db_conn
+	 * @param caller Name of the calling class for convenience (optional)
+	 * @return The connection
+	 * @throws SsQLException
+	 */
+	public static void connectToDatabaseIfNot(Connection db_conn, String ... caller) throws SQLException
+	{
+		if(db_conn == null || db_conn.isClosed()) {
+			db_conn = DBOperations.getConnectionToDatabase(caller);
+		}
+	}
+	
+	/**
+	 * Closes a connection object if it is not null and is open.
+	 * @param db_conn
+	 * @throws SQLException
+	 */
+	public static void closeConnectionToDBIfNot(Connection db_conn) throws SQLException
+	{
+		if(db_conn != null)
+		{
+			if(!db_conn.isClosed()) {
+				db_conn.close();
+				System.out.println("Database connection closed.");
+			}
+		}
+	}
+
+	/**
+	 * Creates a new connection with the DB to create
+	 * statements and preparedStatements upon.
+	 * @param caller Name of the calling class for convenience (optional)
+	 * @return The connection
+	 * @throws SQLException
+	 */
 	public static Connection getConnectionToDatabase(String ... caller) throws SQLException
 	{
 		Connection conn = DriverManager.getConnection(
 				"jdbc:oracle:thin:@localhost:1521:xe",
 				DeimosConfig.DB_USER,
 				DeimosConfig.DB_PASSWORD);
-		
+
 		if(caller.length > 0)
 			System.out.println(caller[0]+"'s connection to database established successfully.");
 		else
 			System.out.println("Connection to database established successfully.");
-		
+
 		return conn;
 	}	
-	
+
 	/** Truncate the specified table.
 	 * Use with extreme caution! */
 	public static void truncateTable(Connection conn, String tableName)
 	{
-		
+
 		try {
 			String query = String.format("TRUNCATE TABLE %s", tableName);
 			// System.out.println(query);
 			Statement stmt = conn.createStatement();
-			
+
 			stmt.executeUpdate(query);
 			System.out.println("Truncated the table "+ tableName +".");
-			
+
 			stmt.close();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** Deletes rows from the specified table for given user Id
 	 * Use with extreme caution! */
 	public static void truncateUserTable(Connection conn, String tableName, int user_id)
@@ -73,7 +111,7 @@ public class DBOperations
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** Truncate all tables used to build the reference ontology.
 	 * Use with extreme caution!
 	 */
@@ -84,7 +122,7 @@ public class DBOperations
 		truncateTable(conn, "ref_tf");
 		truncateTable(conn, "ref_idf");
 	}
-	
+
 	/** Truncate all tables used in user data processing.
 	 * Use with extreme caution!
 	 */
@@ -94,7 +132,7 @@ public class DBOperations
 		truncateUserTable(conn, "user_tf", user_id);
 		truncateUserTable(conn, "user_ref_similarity", user_id);
 	}
-	
+
 
 	// TODO deprecate the entire old implementation
 	// OLD OLD OLD
@@ -110,13 +148,13 @@ public class DBOperations
 
 	@Deprecated
 	public Connection con;
-	
+
 	@Deprecated
 	private Statement stmt1;
-	
+
 	@Deprecated
 	private Statement stmt2;
-	
+
 	/**
 	 * Close the connection before exiting.
 	 */
@@ -140,13 +178,13 @@ public class DBOperations
 			System.err.println("Failed to close connection to database.");
 		}
 	}
-	
+
 	/** By default, connect using configured username/pw */
 	@Deprecated
 	public DBOperations() throws SQLException {
 		connectToDatabase(DeimosConfig.DB_USER, DeimosConfig.DB_PASSWORD);
 	}
-	
+
 	/**
 	 * Estabilishes a connection with the Oracle 11g XE database.
 	 * @param username
@@ -159,22 +197,22 @@ public class DBOperations
 		try
 		{
 			con = DriverManager.getConnection(
-			        "jdbc:oracle:thin:@localhost:1521:xe",
-			        username,
-			        password);
-			
+					"jdbc:oracle:thin:@localhost:1521:xe",
+					username,
+					password);
+
 			System.out.println(username +
 					"'s connection to database established successfully.");
-			
+
 			try {
 				stmt1 = con.createStatement();
 				stmt2 = con.createStatement();
 			} catch (SQLException sqle) {
-				
+
 				System.err.println("Failed to create statement(s).");
 				sqle.printStackTrace();
 			}
-			
+
 			return true;
 		}
 		catch (SQLException e)
@@ -184,7 +222,7 @@ public class DBOperations
 		}
 		return false;
 	}
-	
+
 	/**
 	 * For select queries. Use executeQueryAgain if
 	 * you are unable to close this ResultSet.
@@ -195,11 +233,11 @@ public class DBOperations
 	@Deprecated
 	public ResultSet executeQuery(String query) throws SQLException
 	{
-	    ResultSet rs =
-	    		stmt1.executeQuery(query);	    
-	    return rs;
+		ResultSet rs =
+				stmt1.executeQuery(query);	    
+		return rs;
 	}
-	
+
 	/**
 	 * For select queries, where the first resultSet cannot be closed yet.
 	 * @param query
@@ -208,11 +246,11 @@ public class DBOperations
 	@Deprecated
 	public ResultSet executeQueryAgain(String query) throws SQLException
 	{
-	    ResultSet rs =
-	    		stmt2.executeQuery(query);
-	    return rs;
+		ResultSet rs =
+				stmt2.executeQuery(query);
+		return rs;
 	}
-	
+
 	/**
 	 * For insert, update or delete queries.
 	 * @param query
@@ -224,8 +262,8 @@ public class DBOperations
 	{
 		return stmt1.executeUpdate(query);
 	}
-	
-	
+
+
 	/** Truncate the specified table.
 	 * Use with extreme caution! */
 	@Deprecated
@@ -241,7 +279,7 @@ public class DBOperations
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** Deletes rows from the specified table for given user Id
 	 * Use with extreme caution! */
 	@Deprecated
@@ -257,7 +295,7 @@ public class DBOperations
 			e.printStackTrace();
 		}
 	}
-	
+
 	/** Truncate all tables used to build the reference ontology.
 	 * Use with extreme caution!
 	 */
@@ -269,7 +307,7 @@ public class DBOperations
 		this.truncateTable("ref_tf");
 		this.truncateTable("ref_idf");
 	}
-	
+
 	/** Truncate all tables used in user data processing.
 	 * Use with extreme caution!
 	 */
@@ -280,7 +318,7 @@ public class DBOperations
 		this.truncateUserTable("user_tf", user_id);
 		this.truncateUserTable("user_ref_similarity", user_id);
 	}
-	
+
 	/** Test purposes only... Remove later! */
 	@Deprecated
 	public static void main(String[] args)
@@ -288,7 +326,7 @@ public class DBOperations
 		try {
 			@SuppressWarnings("unused")
 			DBOperations dbo = new DBOperations();
-			
+
 			// dbo.truncateAllReferenceTables();
 		}
 		catch(Exception e) {

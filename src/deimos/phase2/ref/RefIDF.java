@@ -1,9 +1,11 @@
 package deimos.phase2.ref;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +32,10 @@ public class RefIDF
 	
 	private int totalTopics;
 	private int topicsWithTerm;
-	private String query;
-	private ResultSet rs;
-	private DBOperations dbo;
+	
+	/** Create Statements and preparedStatements on this connection. */
 	private Connection db_conn;
+	
 	private long startTime, stopTime;
 	
 	public RefIDF() {
@@ -68,19 +70,28 @@ public class RefIDF
 	{
 		this.resumeIndex = resumeIndexParam;
 		try
-		{
-			dbo = new DBOperations();
-			
+		{	
 			db_conn = DBOperations.getConnectionToDatabase("RefIDF");
 			
-			rs = dbo.executeQuery("SELECT DISTINCT term FROM ref_tf");
-			
+			Statement stmt = db_conn.createStatement();
+			ResultSet rsDistinctTerms = stmt.executeQuery("SELECT DISTINCT term FROM ref_tf");
 			List<String> terms = new ArrayList<String>();
-			while(rs.next())
+			while(rsDistinctTerms.next())
 			{
-		        String currentTerm = rs.getString("term");
+		        String currentTerm = rsDistinctTerms.getString("term");
 		        terms.add(currentTerm);
 			}
+			rsDistinctTerms.close();
+			
+			ResultSet rsTotalTopics = stmt.executeQuery(
+					"SELECT COUNT(DISTINCT topic_name) AS total FROM ref_topics");
+			if(rsTotalTopics.next()) {
+				totalTopics = rsTotalTopics.getInt("total");
+			}
+			// System.out.println("Total topics: "+totalTopics);
+			rsTotalTopics.close();
+			
+			stmt.close();
 			
 			System.out.println("\nNo. of distinct terms: "+terms.size());
 			
@@ -107,38 +118,40 @@ public class RefIDF
 						+ "Make sure ref_tf was not changed beforehand!");
 			}
 			else if(resumeIndex == -1) {
-				DBOperations.truncateTable(db_conn, "IDF");
+				DBOperations.truncateTable(db_conn, "ref_idf");
 				resumeIndex++;
 			}
 			System.out.println();
 			
+			PreparedStatement pstmtTotalTopicsWithTerm = db_conn.prepareStatement(
+					"SELECT COUNT(DISTINCT topic_name) "
+					+ "AS tf_total "
+					+ "FROM ref_tf "
+					+ "WHERE term "
+					+ "LIKE ?");
+			PreparedStatement pstmtInsert = db_conn.prepareStatement("INSERT INTO ref_idf (term, idf) "
+					+ "VALUES (?, ?)");
 			for(idfComputeCount = resumeIndex; idfComputeCount < terms.size(); idfComputeCount++)
 			{
 				String termName = terms.get(idfComputeCount);
 				// System.out.println("Term-name: "+termName);
 				
-				ResultSet rs2 = dbo.executeQuery(
-						"SELECT COUNT(DISTINCT topic_name) AS tf_total FROM ref_tf WHERE term LIKE '"+termName+"'");
+				pstmtTotalTopicsWithTerm.setString(1, termName);
+				ResultSet rsTotalTopicsWithTerm = pstmtTotalTopicsWithTerm.executeQuery();
 				
-				while(rs2.next()) {
-					topicsWithTerm = rs2.getInt("tf_total");
+				while(rsTotalTopicsWithTerm.next()) {
+					topicsWithTerm = rsTotalTopicsWithTerm.getInt("tf_total");
 				}
 				
 				// System.out.println("Total topics with term: "+topicsWithTerm);
 				
-				ResultSet rs1=dbo.executeQuery(
-						"SELECT COUNT(DISTINCT topic_name) AS total FROM ref_topics");
-				while(rs1.next()) {
-					totalTopics = rs1.getInt("total");
-				}
-				
-				// System.out.println("Total topics: "+totalTopics);
-				
 				idf = Math.log((double)totalTopics/topicsWithTerm);
-				query = "INSERT INTO ref_idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
+				// query = "INSERT INTO ref_idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
+				pstmtInsert.setString(1, termName);
+				pstmtInsert.setFloat(2, (float)idf);
 				
 				try {
-					dbo.executeUpdate(query);
+					pstmtInsert.executeUpdate();
 					System.out.format("%6d - %s (%d/%d) IDF = %.3f, %s\n",
 							(idfComputeCount+1), termName, topicsWithTerm, totalTopics, idf, getRatePerMinute());
 					

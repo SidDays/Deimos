@@ -1,14 +1,14 @@
-package deimos.phase1;
+package deimos.phase3;
 
 /**
  * Code provided by Albaniusz
  * https://github.com/Albaniusz/
  * java_mkyong/blob/master/
  * src/main/java/com/mkyong/analysis/location/mode/ServerLocation.java
+ * 
  * @author Albaniusz
  *
  */
-
 public class ServerLocation {
 
 	private String countryCode;

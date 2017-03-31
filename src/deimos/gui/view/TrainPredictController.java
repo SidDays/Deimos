@@ -13,11 +13,40 @@ public class TrainPredictController {
 	
 	private int userId = -1;
 	
+	// Training mode
 	@FXML
 	private ImageView wordCloudImage;
-	
 	@FXML
-	private Button generateWordCloudButton;
+	private TextField errorTextField;
+	@FXML
+	private Button trainButton;
+	
+	// prediction user
+	@FXML
+	private Button resyncUsersButton;
+	@FXML
+	private Spinner<Integer> userPredictSpinner;
+	@FXML
+	private Label userPredictName;
+	@FXML
+	private Label userPredictPublicIP;
+	
+	
+	// Predict
+	@FXML
+	private Label predictedInterests;
+	@FXML
+	private Label predictedGender;
+	@FXML
+	private Label predictedAgeGroup;
+	@FXML
+	private Label predictedLocation;
+	
+	// Bottom bar
+	@FXML
+	private Label tpStatus;
+	@FXML
+	private Button predictButton;
 	
 	private WordCloudService serviceWordCloud;
 	
@@ -38,8 +67,8 @@ public class TrainPredictController {
 		});
 		serviceWordCloud.setOnRunning(e -> {
 
-			generateWordCloudButton.setDisable(true);
-			generateWordCloudButton.setText("Generating...");
+			predictButton.setDisable(true);
+			predictButton.setText("Generating...");
 			wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_INPROGRESS);
 
 		});
@@ -68,8 +97,8 @@ public class TrainPredictController {
 	}
 
 	private void resetWordCloud() {
-		generateWordCloudButton.setText("Generate");
-		generateWordCloudButton.setDisable(false);
+		predictButton.setText("Generate");
+		predictButton.setDisable(false);
 	}
 
 }

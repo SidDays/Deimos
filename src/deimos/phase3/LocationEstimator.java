@@ -1,4 +1,4 @@
-package deimos.phase1;
+package deimos.phase3;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,9 @@ import java.net.UnknownHostException;
 import com.maxmind.geoip.Location;
 import com.maxmind.geoip.LookupService;
 import com.maxmind.geoip.regionName;
+
+import deimos.common.DeimosConfig;
+import deimos.phase1.ExportIP;
 
 /**
  * Uses Maxmind's GeoIP API to find a location mapping to a given public IP
@@ -24,18 +27,18 @@ public class LocationEstimator {
 	/**
 	 * Get the location object for an IP using the default GeoLiteCity database
 	 */
-	public static ServerLocation getLocation(String ipAddress) {
+	public static ServerLocation estimateLocation(String ipAddress) {
 
 		File file = new File(
-				"src/resources/Maxmind/GeoLiteCity.dat");
-		return getLocation(ipAddress, file);
+				DeimosConfig.FILE_MAXMIND_GEOCITY);
+		return estimateLocation(ipAddress, file);
 
 	}
 	
 	/**
 	 * Get the location object for an IP using a provided database
 	 */
-	public static ServerLocation getLocation(String ipAddress, File file) {
+	public static ServerLocation estimateLocation(String ipAddress, File file) {
 
 		ServerLocation serverLocation = null;
 
@@ -67,10 +70,10 @@ public class LocationEstimator {
 	/** 
 	 * Get the location information for an IP passed as a parameter
 	 */
-	public static String getLocationString(String ipAddress)
+	public static String estimateLocationAsString(String ipAddress)
 	{
 
-		ServerLocation location = LocationEstimator.getLocation(ipAddress);
+		ServerLocation location = LocationEstimator.estimateLocation(ipAddress);
 		return location.toString();
 
 	}
@@ -82,7 +85,7 @@ public class LocationEstimator {
 	{
 		try {
 			String ipAddress = ExportIP.retrievePublicIP();
-			ServerLocation location = LocationEstimator.getLocation(ipAddress);
+			ServerLocation location = LocationEstimator.estimateLocation(ipAddress);
 			return location.toString();
 			
 		} catch (UnknownHostException e) {

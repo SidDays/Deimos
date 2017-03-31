@@ -1,6 +1,7 @@
 package deimos.phase3;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /*
  * Encog(tm) Java Examples v3.3
@@ -36,6 +37,8 @@ import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
+import deimos.phase2.DBOperations;
+
 /**
  * XOR: This example is essentially the "Hello World" of neural network
  * programming.  This example shows how to construct an Encog neural
@@ -50,11 +53,6 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
  */
 public class Neural
 {
-	
-	private class User {
-		String fName, lName, location, publicIP;
-		int yearOfBirth;
-	}
 
 	/**
 	 * The input necessary for XOR.
@@ -81,11 +79,6 @@ public class Neural
 	// public static double IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
 
 
-	/**
-	 * The main method.
-	 * @param args No arguments are used.
-	 */
-
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 
@@ -109,7 +102,23 @@ public class Neural
 
 		return sb.toString();
 	}
-
+	
+	public static void getTrainingUsers()
+	{
+		// TODO
+		try
+		{
+			DBOperations.connectToDatabaseIfNot(db_conn, "Neural");
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Sets up the neural network structure.
+	 * Called by default in static.
+	 */
 	private static void initializeNetwork()
 	{
 		// create a neural network, without using a factory
@@ -120,11 +129,16 @@ public class Neural
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, NeuralConstants.NODES_OUTPUT));
+		
 		network.getStructure().finalizeStructure();
 		network.reset();
 	}
-
-	public static void train(int user_id)
+	
+	/**
+	 * Trains the Neural Network using all the users
+	 * who have gender and yOB defined.
+	 */
+	public static void train()
 	{
 		// create training data
 		trainingSet = new BasicMLDataSet(INPUT, IDEAL);
@@ -167,10 +181,11 @@ public class Neural
 		Encog.getInstance().shutdown();
 	}
 
-	/** Testing */
+	/** Testing only - The main method.
+	 * @param args No arguments are used.
+	 */
 	public static void main(final String args[]) {
 
-		train(1);
 		// train(1);
 		shutdown();		
 	}

@@ -5,19 +5,7 @@ public class NeuralConstants {
 	public static final int NODES_INPUT = 33;
 	public static final int NODES_OUTPUT = 6;
 	
-	public static double[] getRandomInputDataRow()
-	{
-		
-		double[] inputData = new double[NODES_INPUT];
-		
-		for(int i = 0; i < NODES_INPUT; i++) {
-			inputData[i] = Math.random();
-			// System.out.print (inputData[i]+" ");
-		}
-		
-		
-		return inputData;
-	}
+	
 	
 	public static final String GROUPS[] = {
 			"Young male",
@@ -45,5 +33,22 @@ public class NeuralConstants {
 	
 	public static final int OLD_FEMALE = 5;
 	public static final double OLD_FEMALE_IDEAL[] = 	{ 0, 0, 0, 0, 0, 1 };
+
+	
+	/**
+	 * Returns random input values that may be used for fake-training or prediction.
+	 * @return double[]
+	 */
+	public static double[] getRandomInputDataRow()
+	{
+		double[] inputData = new double[NODES_INPUT];
+		
+		for(int i = 0; i < NODES_INPUT; i++) {
+			inputData[i] = Math.random();
+			// System.out.print (inputData[i]+" ");
+		}
+		
+		return inputData;
+	}
 
 }
