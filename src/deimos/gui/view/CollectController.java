@@ -66,7 +66,6 @@ public class CollectController {
 	@FXML
 	private Button collectButton;
 
-	private UserInfoService serveceUserInfo;
 	private HistoryService serviceHistory;
 	private PublicIPService servicePublicIP;
 	private BrowserCheckService serviceBrowserCheck;
