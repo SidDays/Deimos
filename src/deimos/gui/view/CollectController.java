@@ -20,7 +20,6 @@ import deimos.phase1.gui.view.services.BrowserCheckService;
 import deimos.phase1.gui.view.services.HistoryService;
 import deimos.phase1.gui.view.services.KillChromeService;
 import deimos.phase1.gui.view.services.PublicIPService;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;

@@ -51,24 +51,9 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
 public class Neural
 {
 	
-	public class User {
-		
-		String fName, lName, publicIP;
+	private class User {
+		String fName, lName, location, publicIP;
 		int yearOfBirth;
-		
-	}
-
-	public static String printData(double[] row)
-	{
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < row.length; i++)
-		{
-			sb.append(String.format("%.2f", row[i]));
-			if(i!=row.length-1)
-				sb.append(", ");
-		}
-
-		return sb.toString();
 	}
 
 	/**
@@ -96,7 +81,6 @@ public class Neural
 	// public static double IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
 
 
-
 	/**
 	 * The main method.
 	 * @param args No arguments are used.
@@ -111,6 +95,19 @@ public class Neural
 
 	static {
 		initializeNetwork();
+	}
+	
+	public static String printData(double[] row)
+	{
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < row.length; i++)
+		{
+			sb.append(String.format("%.2f", row[i]));
+			if(i!=row.length-1)
+				sb.append(", ");
+		}
+
+		return sb.toString();
 	}
 
 	private static void initializeNetwork()
@@ -150,9 +147,8 @@ public class Neural
 		predict();
 	}
 
-	private static void predict() {
-		// TODO Auto-generated method stub
-
+	private static void predict()
+	{
 		// test the neural network
 		System.out.println("Neural Network Results:");
 
