@@ -39,12 +39,12 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="userIDTextField1" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" promptText="e.g. 0.01" text="0.01" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="errorTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" promptText="e.g. 0.01" text="0.01" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets />
                            </HBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" prefWidth="70.0" text="Train" />
+                        <Button fx:id="trainButton" mnemonicParsing="false" prefWidth="70.0" text="Train" />
                      </children>
                   </HBox>
                </children>
@@ -59,7 +59,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Button mnemonicParsing="false" prefWidth="70.0" text="Re-Sync" />
+                        <Button fx:id="resyncUsersButton" mnemonicParsing="false" prefWidth="70.0" text="Re-Sync" />
                      </children>
                   </HBox>
                   <VBox spacing="8.0">
@@ -74,7 +74,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Spinner maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+                              <Spinner fx:id="userPredictSpinner" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                         <GridPane hgap="8.0">
@@ -93,7 +93,7 @@
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label maxWidth="110.0" text="John Doe" textFill="#0033ff" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="userPredictName" maxWidth="110.0" text="John Doe" textFill="#0033ff" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
@@ -107,7 +107,7 @@
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label alignment="CENTER_RIGHT" maxWidth="110.0" text="172.17.1.11" textFill="#0033ff" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="userPredictPublicIP" alignment="CENTER_RIGHT" maxWidth="110.0" text="172.17.1.11" textFill="#0033ff" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
@@ -172,12 +172,12 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1">
+                              <Label fx:id="predictedInterests" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                              <Label fx:id="predictedGender" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -187,7 +187,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="statusLabel221" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                              <Label fx:id="predictedLocation" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -197,7 +197,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="statusLabel2211" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                              <Label fx:id="predictedAgeGroup" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -224,7 +224,7 @@
                   <Insets />
                </HBox.margin>
             </Label>
-            <Label fx:id="statusLabel2" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
+            <Label fx:id="tpStatus" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -232,7 +232,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="generateWordCloudButton" mnemonicParsing="false" onAction="#handleWordCloudGenerateButton" text="Predict!" />
+            <Button fx:id="predictButton" mnemonicParsing="false" onAction="#handleWordCloudGenerateButton" text="Predict!" />
          </children>
          <padding>
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
