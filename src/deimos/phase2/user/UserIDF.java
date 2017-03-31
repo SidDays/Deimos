@@ -19,11 +19,24 @@ public class UserIDF {
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 	
+	private static int noOfDistinctTerms = 1;
+	private static int currentTermNo = 0;
+	private static String status;
+	
 	/** Testing only */
 	public static void main(String[] args)
 	{
 		// remove hardcode
 		computeUserIDF(1);
+	}
+	
+	public static double getProgress()
+	{
+		return currentTermNo*1.0/noOfDistinctTerms;
+	}
+	
+	public static String getStatus() {
+		return status;
 	}
 	
 	/**
@@ -51,6 +64,7 @@ public class UserIDF {
 			}
 			rs.close();
 			System.out.println("\nNo. of distinct terms: "+distinctTerms.size());
+			noOfDistinctTerms = distinctTerms.size();
 			
 			System.out.println("Computing IDF...");
 			
@@ -73,6 +87,7 @@ public class UserIDF {
 			PreparedStatement pstmt2 = db_conn.prepareStatement(
 					"INSERT INTO user_idf (user_id, term, idf) "
 					+ "VALUES (?, ?, ?)");
+			status = "Starting...";
 			
 			for(int i = 0; i < distinctTerms.size(); i++) {
 				
@@ -89,6 +104,8 @@ public class UserIDF {
 				idf = Math.log(totalURLs*1.0/URLsWithTerm);
 				String str = String.format("%6d | %s (%d/%d) IDF = %.6f", i, termName, URLsWithTerm, totalURLs, idf);
 				System.out.println(str);
+				currentTermNo = i;
+				status = String.format("(%d/%d)", i, noOfDistinctTerms);
 				
 				try {
 					
@@ -111,6 +128,7 @@ public class UserIDF {
 			db_conn.close();
 			
 			System.out.println("\nidf calculation for user_idf complete!");
+			status = "Finished!";
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

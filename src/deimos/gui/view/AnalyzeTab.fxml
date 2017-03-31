@@ -92,12 +92,15 @@
                      <children>
                         <HBox spacing="4.0" VBox.vgrow="ALWAYS">
                            <children>
-                              <Label maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="URLs" HBox.hgrow="NEVER">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0055f0" HBox.hgrow="SOMETIMES" />
+                              <Label fx:id="urlsTFStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font></Label>
                            </children>
                         </HBox>
                         <ProgressBar fx:id="progressURLsTFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
@@ -105,51 +108,96 @@
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="1">
                      <children>
-                        <Label text="IDF">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="IDF" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="idfStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
                         <ProgressBar fx:id="progressIDFBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="2">
                      <children>
-                        <Label text="Weight">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="Weight" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="weightStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
                         <ProgressBar fx:id="progressWeightBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="3">
                      <children>
-                        <Label text="Similarity">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="Similarity" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="similarityStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
                         <ProgressBar fx:id="progressSimilarityBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="5">
                      <children>
-                        <Label text="Obtain Training Values">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="Obtain Training Values" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="trainingValuesStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
                         <ProgressBar fx:id="progressTrainingValuesBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" GridPane.rowIndex="4">
                      <children>
-                        <Label text="Gradual Extra Weight">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <HBox spacing="4.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-Infinity" text="Gradual Extra Weight" HBox.hgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="gewStatusLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" textFill="#0057ef" HBox.hgrow="SOMETIMES">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
                         <ProgressBar fx:id="progressGEWBar" maxWidth="1.7976931348623157E308" progress="0.0" />
                      </children>
                   </VBox>
