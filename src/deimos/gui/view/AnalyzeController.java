@@ -111,6 +111,12 @@ public class AnalyzeController {
 
 		serviceTrainingValues.setOnSucceeded(e1 -> {
 			progressTrainingValuesBar.setProgress(1);
+			userIDTextField.setDisable(true);
+			outputFileTextField.setDisable(true);
+			truncateCheckBox.setDisable(true);
+			browseButton.setDisable(true);
+			analyzeButton.setDisable(true);
+			statusLabel.setText("Analyze phase finished!");
 			//GUIUtils.startAgain(serviceIDf);
 		});
 		serviceTrainingValues.setOnFailed(e1 -> {
@@ -135,7 +141,7 @@ public class AnalyzeController {
 			progressGEWBar.setProgress(1);
 			progressTrainingValuesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Obtaining training values");
-			//GUIUtils.startAgain(serviceIDf);
+			GUIUtils.startAgain(serviceTrainingValues);
 		});
 		serviceGEW.setOnFailed(e1 -> {
 			progressGEWBar.setProgress(0);
@@ -270,6 +276,7 @@ public class AnalyzeController {
 
 		serviceSimilarity.setOnSucceeded(e1 -> {
 			progressSimilarityBar.setProgress(1);
+			GUIUtils.startAgain(serviceGEW);
 		});
 		serviceSimilarity.setOnRunning(e1 -> {
 			bindSimilarityToStatus();
@@ -318,6 +325,9 @@ public class AnalyzeController {
 		serviceIDf.setUserId(id);
 		serviceWeights.setUserId(id);
 		serviceSimilarity.setUserId(id);
+		serviceGEW.setUserId(id);
+		serviceTrainingValues.setUserId(id);
+		serviceTrainingValues.setTruncate(truncate);
 	}
 
 	/**
