@@ -29,7 +29,7 @@ public class DBOperations
 	 * @param caller Name of the calling class for convenience (optional)
 	 * @return The connection
 	 * @throws SsQLException
-	 */
+	 *//*
 	public static void connectToDatabaseIfNot(Connection db_conn, String ... caller) throws SQLException
 	{
 		if(db_conn == null || db_conn.isClosed()) {
@@ -41,7 +41,7 @@ public class DBOperations
 	 * Closes a connection object if it is not null and is open.
 	 * @param db_conn
 	 * @throws SQLException
-	 */
+	 
 	public static void closeConnectionToDBIfNot(Connection db_conn) throws SQLException
 	{
 		if(db_conn != null)
@@ -51,7 +51,7 @@ public class DBOperations
 				System.out.println("Database connection closed.");
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Creates a new connection with the DB to create

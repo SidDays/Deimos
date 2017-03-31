@@ -164,7 +164,7 @@ public class AnalyzeController {
 		serviceURLsTF = new URLsTFService();
 
 		serviceURLsTF.setOnRunning(e1 -> {
-			bindURLsTFLabelToStatus();
+			bindURLsTFToStatus();
 		});
 		serviceURLsTF.setOnSucceeded(e1 -> {
 			progressURLsTFBar.setProgress(1);
@@ -186,11 +186,19 @@ public class AnalyzeController {
 	/**
 	 * Bind the URL status to the text above the progress bar.
 	 */
-	private void bindURLsTFLabelToStatus() {
-
+	private void bindURLsTFToStatus() {
 
 		urlsTFTimeline.setCycleCount(Animation.INDEFINITE);
 		urlsTFTimeline.play();
+	}
+	
+	/**
+	 * Bind the URL status to the text above the progress bar.
+	 */
+	private void bindSimilarityToStatus()
+	{
+		similarityTimeline.setCycleCount(Animation.INDEFINITE);
+		similarityTimeline.play();
 	}
 
 	/**
@@ -246,13 +254,13 @@ public class AnalyzeController {
 		progressSimilarityBar.setProgress(0);
 	}
 
-	private void initializeSimilarity() {
+	private void initializeSimilarity()
+	{
 		similarityTimeline = new Timeline(
 				new KeyFrame(Duration.seconds(0),
 						new EventHandler<ActionEvent>() {
 					@Override public void handle(ActionEvent actionEvent) {
 
-						//urlsTFStatusLabel.setText(UserURLsTF.getStatus());
 						progressSimilarityBar.setProgress(SimilarityMapper.getProgress());
 					}
 				}),
@@ -262,6 +270,9 @@ public class AnalyzeController {
 
 		serviceSimilarity.setOnSucceeded(e1 -> {
 			progressSimilarityBar.setProgress(1);
+		});
+		serviceSimilarity.setOnRunning(e1 -> {
+			bindSimilarityToStatus();
 		});
 		serviceSimilarity.setOnFailed(e1 -> {
 			

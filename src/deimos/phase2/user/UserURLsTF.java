@@ -162,7 +162,7 @@ public class UserURLsTF
 		String queryCheck = "SELECT * FROM user_urls WHERE user_id = "+id;
 		try
 		{
-			DBOperations.connectToDatabaseIfNot(db_conn, "UserURLsTF");
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
 			
 			Statement stmt = db_conn.createStatement();
 			ResultSet rs = stmt.executeQuery(queryCheck);
@@ -391,7 +391,8 @@ public class UserURLsTF
 		try
 		{
 			// Open connection to Database
-			DBOperations.connectToDatabaseIfNot(db_conn, "UserURLsTF");
+			// DBOperations.connectToDatabaseIfNot(db_conn, "UserURLsTF");
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
 
 			if(truncate)
 			{
@@ -546,7 +547,7 @@ public class UserURLsTF
 			} 
 
 			pstmt.close();
-			DBOperations.closeConnectionToDBIfNot(db_conn);
+			db_conn.close();
 
 		}
 		catch (SQLException e) {

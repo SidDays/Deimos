@@ -113,7 +113,7 @@ public class Neural
 		// TODO
 		try
 		{
-			DBOperations.connectToDatabaseIfNot(db_conn, "Neural");
+			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
 			
 			// Select those users who have input values
 			if(pstmt != null && pstmt.isClosed()) // Reuse same statment

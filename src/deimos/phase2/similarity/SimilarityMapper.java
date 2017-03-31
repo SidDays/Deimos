@@ -30,7 +30,7 @@ public class SimilarityMapper
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 	
-	private static int noOfRows = 0;
+	private static int noOfRows = 1;
 	private static int currentRowNumber = 0;
 	
 	/** Statement object, for single-time queries */
