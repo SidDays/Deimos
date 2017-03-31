@@ -19,7 +19,7 @@
    <children>
       <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="ALWAYS">
          <children>
-            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="SOMETIMES">
+            <VBox fx:id="analyzeVBox" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" spacing="8.0" VBox.vgrow="SOMETIMES">
                <children>
                   <HBox spacing="8.0">
                      <children>
@@ -56,7 +56,7 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Label>
-                              <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" selected="true" />
+                              <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" />
                            </children>
                         </HBox>
                      </children>

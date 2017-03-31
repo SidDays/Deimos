@@ -16,6 +16,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -242,16 +243,19 @@ public class UserURLsTF
 	 */
 	private static void prepareHistory(String historyFileName)
 	{
-		try {
+		try
+		{
 			
 			urls = ProcessFileUtils.readFileIntoList(historyFileName);
-
+			System.out.format("Started parsing user history.\n");
 
 			// Convert the URLs into URL + Timestamp
 			for (int i = 0; i < urls.size(); i++)
 			{
 				// Format
 				String[] urlPieces = StringUtils.getCSVParts(urls.get(i));
+				/*System.out.format("a %6d: timeStamp = %s, url = %s, title = %s, visitCount = %s, typedCount = %s\n",
+						i, urlPieces[0], urlPieces[1], urlPieces[2], urlPieces[3], urlPieces[4])*/;
 				
 				/* Old format lmao
 				 * if(DeimosConfig.DELIM.equals("|"))
@@ -453,7 +457,12 @@ public class UserURLsTF
 								user_id, currentTimestamp, currentURL, currentTitle, currentVisitCount, currentTypedCount);*/
 
 					// User ID already set
-					pstmt.setTimestamp(2, StringUtils.toTimestamp(currentTimestamp));
+					try {
+						pstmt.setTimestamp(2, StringUtils.toTimestamp(currentTimestamp));
+					} catch (ParseException e) {
+						System.out.print("(Timestamp parsing error, using default value.) ");
+						pstmt.setTimestamp(2, StringUtils.toTimestamp("2000-01-01 00:00:00"));
+					}
 					pstmt.setString(3, currentURL);
 					pstmt.setString(4, currentTitle);
 					pstmt.setInt(5, currentVisitCount);
@@ -467,6 +476,7 @@ public class UserURLsTF
 						System.out.print("Inserted into user_urls | ");
 					}
 					catch (SQLIntegrityConstraintViolationException sicve) {
+						System.out.print(sicve+" ");
 						System.out.print("Already in user_urls | ");
 					}
 					catch (SQLSyntaxErrorException sqlsyn) { // Might be fixed by PreparedStatement

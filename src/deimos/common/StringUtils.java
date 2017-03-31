@@ -6,7 +6,9 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -175,22 +177,17 @@ public class StringUtils
 	 * @param str
 	 * @return
 	 * @author Harsh
+	 * @throws ParseException
 	 */
-	public static Timestamp toTimestamp(String str)
+	public static Timestamp toTimestamp(String str) throws ParseException
 	{
-		try {
-			DateFormat formatter;
-			formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // YYYY-MM-DD HH24:MI:SS
-			// you can change format of date
-			Date date = formatter.parse(str);
-			java.sql.Timestamp timeStampDate = new Timestamp(date.getTime());
+		DateFormat formatter;
+		formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // YYYY-MM-DD HH24:MI:SS
+		// you can change format of date
+		Date date = formatter.parse(str);
+		Timestamp timeStampDate = new Timestamp(date.getTime());
 
-			return timeStampDate;
-		}
-		catch (ParseException e) {
-			System.err.println(e);
-			return null;
-		}
+		return timeStampDate;
 	}
 
 
@@ -235,12 +232,65 @@ public class StringUtils
 	 */
 	public static String[] getCSVParts(String csvLine)
 	{
-		String parts[] = csvLine.split(",");
+
+		/*String parts[] = csvLine.split(",");
 
 		for(int i = 0; i < parts.length; i++)
 		{
+			parts[i] = parts[i].trim();
 			if(parts[i].startsWith("\""))
-					parts[i] = parts[i].trim().substring(1, parts[i].length()-1);
+			{
+				parts[i] = parts[i].replace("\"","");
+				parts[i] = parts[i].substring(1);
+					if(parts[i].endsWith("\""))
+						parts[i] = parts[i].substring(0, parts[i].length()-1);
+			}
+		}*/
+
+		List<String> partsList = new ArrayList<>();
+		StringBuilder sb = new StringBuilder();
+		boolean insideQuotes = false;
+
+		for(int i = 0; i < csvLine.length(); i++)
+		{
+			char ch = csvLine.charAt(i);
+
+
+			if(ch == '\"')
+			{
+				insideQuotes = true^insideQuotes;
+			}
+
+			if(i == csvLine.length()-1)
+			{
+				sb.append(ch);
+
+				partsList.add(sb.toString());
+				// System.out.println(sb.toString());
+
+				sb.setLength(0);
+			}
+			else if(ch == ',' && !insideQuotes)
+			{
+				partsList.add(sb.toString());
+				// System.out.println(sb.toString());
+
+				sb.setLength(0);
+
+			}
+			else {
+				sb.append(ch);
+			}
+		}
+
+		String[] parts = new String[partsList.size()];
+		for(int i = 0; i < parts.length; i++)
+		{
+			parts[i] = partsList.get(i).trim();
+			if(parts[i].startsWith("\""))
+			{
+				parts[i] = parts[i].replace("\"","");
+			}
 		}
 
 		return parts;
