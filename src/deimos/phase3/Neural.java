@@ -147,7 +147,8 @@ public class Neural
 				u.setYearOfBirth(rs.getInt("BIRTH_YEAR"));
 				u.setGender(rs.getString("GENDER"));
 				
-				System.out.format("%s %s \n", u, getDataAsString(u.getInput_row()));
+				System.out.format("%s (%s) [%s] {%s} \n", u, u.getAge(), u.getGender(),
+						NeuralConstants.GROUPS[NeuralConstants.getAgeGroup(u)]);
 				
 				// Separate them
 				if(u.getGender() == null || u.getYearOfBirth() == 0)
@@ -259,13 +260,13 @@ public class Neural
 		train(ERROR_ALLOWED_DEFAULT);
 	}
 	
-	public static void predict(User u)
+	public static double[] predict(User u)
 	{
 		System.out.println("Training for user "+u);
-		predict(u.getInput_row());
+		return predict(u.getInput_row());
 	}
 	
-	public static void predict(double[] row)
+	public static double[] predict(double[] row)
 	{
 		
 		MLData data = new BasicMLData(row);
@@ -273,13 +274,12 @@ public class Neural
 		// test the neural network
 		System.out.println("Neural Network Results:");
 
-
 		final MLData output = network.compute(data);
-
 
 		System.out.println("actual = " + getDataAsString(output.getData()));
 		/* +, ideal = " + getDataAsString(pair.getIdeal().getData()))*/
-
+		
+		return output.getData();
 
 	}
 

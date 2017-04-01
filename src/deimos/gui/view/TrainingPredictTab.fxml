@@ -26,13 +26,6 @@
                            <font>
                               <Font size="14.0" />
                            </font>
-                           <graphic>
-                              <Label fx:id="userPredictName1" maxWidth="110.0" text="John Doe" textFill="#0033ff">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                           </graphic>
                         </Label>
                      </children>
                   </HBox>
@@ -140,12 +133,8 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="predictedInterestsLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                              <Label fx:id="predictedInterestsLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="None calculated so far" textFill="#0033ff" wrapText="true" GridPane.columnIndex="1" />
+                              <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -155,7 +144,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                              <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
@@ -165,7 +154,7 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="none" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                              <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <font>
                                     <Font size="14.0" />
                                  </font>

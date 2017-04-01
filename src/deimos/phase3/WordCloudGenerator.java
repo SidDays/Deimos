@@ -1,4 +1,4 @@
-package deimos.gui;
+package deimos.phase3;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -49,21 +49,28 @@ public class WordCloudGenerator
 	private static List<String> topicNamesRepeated;
 
 	private static FrequencyAnalyzer frequencyAnalyzer;
-	
+
 	private static final int DIM_SIDE = 900;
-	
+
 	private static final Dimension dimension = new Dimension(DIM_SIDE, DIM_SIDE);
 	private static WordCloud wordCloud;
-	
+
 	private static final Random rand = new Random();
-	
+
 	public static final Color[] COLOR_THEMES = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};
-	
+	public static final Color COLOR_LIGHTYELLOW = new Color(255, 187, 0);
+	public static final Color COLOR_LIGHTGREEN = new Color(136, 228, 1);
+	public static final Color COLOR_LIGHTBLUE = new Color(0, 188, 255);
+
+	public static final ColorPalette PALETTE_DARK = new LinearGradientColorPalette(Color.BLACK, getRandomColorFromTheme(), 50);
+	public static final ColorPalette PALETTE_LIGHT = new ColorPalette(COLOR_LIGHTYELLOW, COLOR_LIGHTBLUE, COLOR_LIGHTGREEN);
+	// public static final ColorPalette PALETTE_LIGHT = new LinearGradientColorPalette(COLOR_LIGHTYELLOW, COLOR_LIGHTBLUE, COLOR_LIGHTGREEN, 17, 17);
+
 	public static BufferedImage getWordCloudImage() {
 		return wordCloudImage;
 	}
-	
-	private static Color getRandomColor()
+
+	public static Color getRandomColorFromTheme()
 	{
 		return COLOR_THEMES[rand.nextInt(COLOR_THEMES.length)];
 	}
@@ -76,7 +83,7 @@ public class WordCloudGenerator
 
 		// ColorPalette lightPalette = new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW);
 		// ColorPalette darkPalette = new LinearGradientColorPalette(new Color(243, 12, 19), new Color(17, 31, 200), 30);
-		ColorPalette darkPalette = new LinearGradientColorPalette(Color.BLACK, getRandomColor(), 50);
+
 
 		wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
 		wordCloud.setPadding(1);
@@ -85,11 +92,18 @@ public class WordCloudGenerator
 		wordCloud.setBackground(new CircleBackground(DIM_SIDE/2));
 		// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
 		wordCloud.setBackgroundColor(new Color(244, 244, 244)); // Default javaFX BG
-		wordCloud.setColorPalette(darkPalette);
+		wordCloud.setColorPalette(PALETTE_LIGHT);
 		wordCloud.setKumoFont(new KumoFont(new Font(TYPEFACE, Font.PLAIN, 32)));
 		wordCloud.setFontScalar(new LinearFontScalar(16, 80));
 	}
 	
+	private static List<String> interests;
+
+	public static List<String> getInterests() {
+		return interests;
+	}
+
+
 	/**
 	 * Uses the input training values to construct a word
 	 * cloud for the specified user_id.
@@ -114,6 +128,7 @@ public class WordCloudGenerator
 
 		String query = "SELECT topic_name, value FROM user_training_input WHERE user_id = "+user_id;
 
+		
 		try {
 
 			ResultSet rs = stmt.executeQuery(query);
@@ -129,12 +144,24 @@ public class WordCloudGenerator
 					frequency--;
 				}
 			}
-			
+
 			rs.close();
 			
+			///////////
+			String query2 = "SELECT topic_name, SUM(Similarity) \"sumsim\" FROM user_urls NATURAL JOIN (SELECT * FROM user_ref_similarity NATURAL JOIN (SELECT url, MAX(similarity) \"SIMILARITY\" FROM user_ref_similarity WHERE user_id="+user_id+" GROUP BY url)) GROUP BY topic_name order by \"sumsim\" DESC";
+
+			
+			interests = new ArrayList<>();
+			rs = stmt.executeQuery(query2);
+			int max = 5;
+			while(rs.next() && max-- > 0)
+			{
+				interests.add(rs.getString("topic_name").replace("Top/Shopping/",""));
+			}
+
 			if(topicNamesRepeated.size() > 0) {
 				System.out.println(topicNamesRepeated.size()+" topic name(s) added.");
-				
+
 				initialize();
 
 				List<WordFrequency> wordFrequencies = frequencyAnalyzer.load(topicNamesRepeated);
@@ -155,7 +182,7 @@ public class WordCloudGenerator
 		}
 		stmt.close();
 	}
-	
+
 	/**
 	 * Uses the input training values to construct a word
 	 * cloud for the specified user_id.
@@ -174,9 +201,9 @@ public class WordCloudGenerator
 		try
 		{
 			db_conn = DBOperations.getConnectionToDatabase("WordCloudGenerator");
-			
+
 			outputWordCloud(user_id, db_conn);
-			
+
 			db_conn.close();
 
 		} catch (SQLException e2) {

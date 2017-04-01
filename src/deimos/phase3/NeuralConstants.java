@@ -114,17 +114,35 @@ public class NeuralConstants {
 	{
 		return getAgeGroup(u.getAge());
 	}
+	
+	public static String getClosestGroup(double[] row)
+	{
+		int max_index = 0;
+		for(int i = 0; i < row.length; i++)
+		{
+			if(row[max_index] < row[i])
+				max_index = i;
+		}
+		
+		return GROUPS[max_index];
+	}
 
 	/**
 	 * Returns a List of Strings in order of which group matched the most.
 	 * The bigger the value (i.e. the closer the value is to one), the better
 	 * a match it is.
 	 * 
+	 *
+	 * 
 	 * @param row
 	 * @return
 	 */
+	@Deprecated
 	public static List<String> getClosestGroups(double[] row)
 	{
+		// TODO BUGGY
+		
+		
 		List<String> closest = new ArrayList<>(Arrays.asList(GROUPS));
 
 		// Bubble sort ftw

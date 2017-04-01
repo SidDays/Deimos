@@ -27,7 +27,7 @@
                   <Insets bottom="-6.0" />
                </padding>
             </Label>
-            <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" text="(version 1.15a)" textFill="#5e5e5e">
+            <Label alignment="BOTTOM_LEFT" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" text="(version 2a)" textFill="#5e5e5e">
                <font>
                   <Font size="18.0" />
                </font>

@@ -1,5 +1,7 @@
 package deimos.gui.view;
 
+import java.util.List;
+
 import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
 import deimos.gui.view.services.NeuralTrainingService;
@@ -7,7 +9,7 @@ import deimos.gui.view.services.PredictListService;
 import deimos.gui.view.services.PredictService;
 import deimos.phase3.Neural;
 import deimos.phase3.User;
-
+import deimos.phase3.WordCloudGenerator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,14 +18,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
 public class TrainPredictController {
 
 	private User currentUser = null;
-	
+
 	public static final String PROCESSING = "...";
-	
+	public static final String NONE = "N/A";
+
 	// Training mode
 	@FXML
 	private ImageView wordCloudImage;
@@ -48,7 +52,7 @@ public class TrainPredictController {
 	private Label userPredictPublicIP;*/
 
 	private PredictListService servicePredictList;
-	
+
 	private NeuralTrainingService serviceNeuralTraining;
 
 	// Predict
@@ -76,27 +80,30 @@ public class TrainPredictController {
 		initializePredictListSpinner();
 		initializeNeuralTraining();
 	}
-	
+
 	private void initializeNeuralTraining()
 	{
 		serviceNeuralTraining = new NeuralTrainingService();
-		
+
 		serviceNeuralTraining.setOnFailed(e-> {
 			// System.err.println("Something went wrong.");
 			serviceNeuralTraining.getException().printStackTrace();
 			errorTextField.setDisable(false);
 		});
-		
+
 		serviceNeuralTraining.setOnSucceeded(e-> {
 			predictButton.setDisable(false);
 			errorTextField.setDisable(false);
+			
+			tpStatus.setText("Training complete!");
+			
 		});
-		
+
 		serviceNeuralTraining.setOnCancelled(e-> {
 			predictButton.setDisable(false);
 			errorTextField.setDisable(false);
 		});
-		
+
 		serviceNeuralTraining.setOnRunning(e-> {
 			predictButton.setDisable(true);
 			errorTextField.setDisable(true);
@@ -128,11 +135,11 @@ public class TrainPredictController {
 	            		String oldValue, String newValue) {
 	            }
 	        });*/
-			
+
 			trainButton.setDisable(false);
-			predictButton.setDisable(false);
 
 			System.out.println("Populated the spinner.");
+			tpStatus.setText("Users synced!");
 
 		});
 	}
@@ -143,41 +150,60 @@ public class TrainPredictController {
 		servicePrediction = new PredictService();
 
 		servicePrediction.setOnSucceeded(e -> {
+			
+			predictButton.setDisable(false);
+			
 			wordCloudImage.setImage(servicePrediction.getBi());
 			System.out.println("Image successfully set.");
-			resetWordCloud();
 			
+			StringBuilder topics = new StringBuilder();
+			List<String> x = WordCloudGenerator.getInterests();
+			int length = Math.min(x.size(), 5);
+			for(int i = 0; i <  length; i++) {
+				topics.append(x.get(i));
+				if(i < length-1)
+					topics.append(", ");
+			}
+			
+			predictedAgeGroupLabel.setText(servicePrediction.getPredictedAge());
+			predictedGenderLabel.setText(servicePrediction.getPredictedGender());
+			predictedInterestsLabel.setText(topics.toString());
+			predictedInterestsLabel.setTooltip(new Tooltip(topics.toString()));
 			predictedLocationLabel.setText(servicePrediction.getLocation());
+			
+			tpStatus.setText("Prediction complete.");
 		});
 		servicePrediction.setOnRunning(e -> {
 
 			predictButton.setDisable(true);
-			predictButton.setText("Generating...");
-			
-			
+			tpStatus.setText("Predicting...");
+
 			predictedAgeGroupLabel.setText(PROCESSING);
 			predictedGenderLabel.setText(PROCESSING);
 			predictedInterestsLabel.setText(PROCESSING);
 			predictedLocationLabel.setText(PROCESSING);
-			
+
 			wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_INPROGRESS);
 		});
 		servicePrediction.setOnCancelled(e -> {
-			resetWordCloud();
+			resetPrediction();
 		});
 		servicePrediction.setOnFailed(e -> {
-			resetWordCloud();
+			resetPrediction();
+			System.out.println("Problem in prediction.");			
+			
+			servicePrediction.getException().printStackTrace();
 		});
 
 	}		
 
 	@FXML
 	private void handleResyncUsersButton() {
-		
+
 		trainButton.setDisable(true);
 		GUIUtils.startAgain(servicePredictList);
 	}
-	
+
 	@FXML
 	private void handleTrainButton()
 	{
@@ -201,34 +227,38 @@ public class TrainPredictController {
 	}
 
 	@FXML
-	private void handleGenerateButton() {
+	private void handleGenerateButton()
+	{
+		// TODO
+		// userId = Integer.parseInt(analyzeController.userIDTextField.getText());
 
-		try {
+		// Get userId from spinner
+		if(userPredictSpinnerValueFactory != null)
+		{
+			currentUser = userPredictSpinner.getValue();
+			System.out.println("Selected "+currentUser);
 
-			// TODO
-			// userId = Integer.parseInt(analyzeController.userIDTextField.getText());
+			servicePrediction.setUser(currentUser);
+			GUIUtils.startAgain(servicePrediction); // TODO more error handling
 
-			// Get userId from spinner
-			if(userPredictSpinnerValueFactory != null)
-			{
-				currentUser = userPredictSpinner.getValue();
-
-				servicePrediction.setUser(currentUser);
-				GUIUtils.startAgain(servicePrediction); // TODO more error handling
-
-			}
-			else {
-				System.err.println("Re-sync required.");
-				GUIUtils.generateErrorAlert("Re-sync required.", null);
-			}
-
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
 		}
+		else {
+			System.err.println("Re-sync required.");
+			GUIUtils.generateErrorAlert("Re-sync required.", null);
+		}
+
+
 	}
 
-	private void resetWordCloud() {
-		predictButton.setText("Generate");
+	private void resetPrediction()
+	{
+		predictedAgeGroupLabel.setText(NONE);
+		predictedGenderLabel.setText(NONE);
+		predictedInterestsLabel.setText(NONE);
+		predictedLocationLabel.setText(NONE);
+		
 		predictButton.setDisable(false);
+		
+		wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_PLACEHOLDER);
 	}
 }
