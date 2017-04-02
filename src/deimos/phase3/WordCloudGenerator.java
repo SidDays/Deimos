@@ -50,7 +50,7 @@ public class WordCloudGenerator
 
 	private static FrequencyAnalyzer frequencyAnalyzer;
 
-	private static final int DIM_SIDE = 900;
+	public static final int DIM_SIDE = 900;
 
 	private static final Dimension dimension = new Dimension(DIM_SIDE, DIM_SIDE);
 	private static WordCloud wordCloud;

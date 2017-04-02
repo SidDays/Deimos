@@ -58,7 +58,8 @@ import deimos.phase2.DBOperations;
  */
 public class Neural
 {
-
+	public static final int MAX_ITERATIONS = 10000;
+	
 	public static List<User> trainingUsers = new ArrayList<>();
 	
 	private static double[][] INPUT, IDEAL; // TODO
@@ -203,11 +204,13 @@ public class Neural
 		for(int i = 0; i < INPUT.length; i++)
 		{
 			User u = trainingUsers.get(i);
+			System.out.println(i+": Training for user "+u+", gender = "+u.getGender()+", age = "+u.getAge());
 			int ageGroup = NeuralConstants.getAgeGroup(u);
 			int gender = (u.getGender().equalsIgnoreCase("m"))?0:1;
 			
 			int group = NeuralConstants.getGroup(ageGroup, gender);
 			double ideal[] = NeuralConstants.VALUES_IDEAL[group];
+			System.out.println(Neural.getDataAsString(ideal));
 			IDEAL[i] = ideal;
 			
 			for(int j = 0; j < INPUT[0].length; j++)
@@ -248,7 +251,7 @@ public class Neural
 			System.out.println("Epoch #" + epoch + " Error: " + train.getError());
 			epoch++;
 		}
-		while(train.getError() > allowedError);
+		while(train.getError() > allowedError && epoch < MAX_ITERATIONS);
 		
 		train.finishTraining();
 

@@ -20,38 +20,6 @@
          <children>
             <VBox spacing="8.0">
                <children>
-                  <HBox>
-                     <children>
-                        <Label maxWidth="1.7976931348623157E308" text="Training Mode Parameters" HBox.hgrow="ALWAYS">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
-                     <children>
-                        <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Error">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="errorTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" promptText="Leave blank for default" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                        </TextField>
-                        <Button fx:id="trainButton" disable="true" mnemonicParsing="false" onAction="#handleTrainButton" prefWidth="70.0" text="Train" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-            <Separator />
-            <VBox spacing="8.0">
-               <children>
                   <HBox spacing="8.0">
                      <children>
                         <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" text="User To Predict Demographics For" HBox.hgrow="ALWAYS">
@@ -81,90 +49,133 @@
                   </VBox>
                </children>
             </VBox>
-            <Separator opacity="0.5" />
-            <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Predicted Output Parameters" VBox.vgrow="NEVER">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </Label>
-            <HBox VBox.vgrow="ALWAYS">
+            <Separator />
+            <VBox spacing="8.0">
                <children>
-                  <VBox maxHeight="1.7976931348623157E308" spacing="8.0">
+                  <HBox>
                      <children>
-                        <Label text="Interests" VBox.vgrow="NEVER">
+                        <Label maxWidth="1.7976931348623157E308" text="Training Mode Parameters" HBox.hgrow="ALWAYS">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <ImageView fx:id="wordCloudImage" fitHeight="160.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
                      </children>
-                  </VBox>
-                  <Separator orientation="VERTICAL">
-                     <HBox.margin>
-                        <Insets left="8.0" right="8.0" />
-                     </HBox.margin>
-                  </Separator>
-                  <VBox maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
+                  </HBox>
+                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
                      <children>
-                        <Label text="Demographic Attributes" VBox.vgrow="NEVER">
+                        <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Error">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <GridPane vgap="2.0" VBox.vgrow="ALWAYS">
-                           <columnConstraints>
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                           <children>
-                              <Label text="Interests">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label text="Gender" GridPane.rowIndex="1">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="predictedInterestsLabel" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="None calculated so far" textFill="#0033ff" wrapText="true" GridPane.columnIndex="1" />
-                              <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label text="Age Group" GridPane.rowIndex="2">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label text="Location" GridPane.rowIndex="3">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                              <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </GridPane>
+                        <TextField fx:id="errorTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" promptText="Leave blank for default = 0.01" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </TextField>
+                        <Button fx:id="trainButton" disable="true" mnemonicParsing="false" onAction="#handleTrainButton" prefWidth="70.0" text="Train" />
                      </children>
-                  </VBox>
+                  </HBox>
                </children>
-            </HBox>
+            </VBox>
+            <Separator opacity="0.5">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin></Separator>
+            <VBox spacing="8.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <Label maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Predicted Output Parameters" VBox.vgrow="NEVER">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <HBox VBox.vgrow="ALWAYS">
+                     <children>
+                        <VBox maxHeight="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <Label text="Interests" VBox.vgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <ImageView fx:id="wordCloudImage" fitHeight="160.0" fitWidth="160.0" onMouseClicked="#magnifyImage" pickOnBounds="true" preserveRatio="true" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                        <Separator orientation="VERTICAL">
+                           <HBox.margin>
+                              <Insets left="8.0" right="8.0" />
+                           </HBox.margin>
+                        </Separator>
+                        <VBox maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Demographic Attributes" VBox.vgrow="NEVER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <GridPane vgap="2.0" VBox.vgrow="ALWAYS">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <Label disable="true" text="Interests">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Gender" GridPane.rowIndex="1">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="predictedInterestsLabel" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Format to be finalized" textFill="#0033ff" wrapText="true" GridPane.columnIndex="1" />
+                                    <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Age Group" GridPane.rowIndex="2">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Location" GridPane.rowIndex="3">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </GridPane>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
