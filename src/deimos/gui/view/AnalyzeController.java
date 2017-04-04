@@ -298,6 +298,7 @@ public class AnalyzeController {
 
 		serviceSimilarity.setOnSucceeded(e1 -> {
 			progressSimilarityBar.setProgress(1);
+			progressGEWBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			//similarityStatusLabel.setText("Finished!");
 			GUIUtils.startAgain(serviceGEW);
 		});

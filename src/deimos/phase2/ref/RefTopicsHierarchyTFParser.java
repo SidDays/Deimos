@@ -6,8 +6,10 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +61,11 @@ public class RefTopicsHierarchyTFParser
 
 	private static StatisticsUtilsCSV csvStats;
 	
+	private static PreparedStatement pstmtHierarchyInsert;
+	private static PreparedStatement pstmtTfInsert;
+	private static PreparedStatement pstmtTopicsInsert;
+	
+	
 	/** Create Statements and preparedStatements on this connection. */
 	private static Connection db_conn;
 	
@@ -99,11 +106,20 @@ public class RefTopicsHierarchyTFParser
 			long startTime = System.currentTimeMillis();
 			
 			// Open connection to Database
-			db_conn = DBOperations.getConnectionToDatabase("UserURLsTF");
+			db_conn = DBOperations.getConnectionToDatabase("RefTopicsHierarchyTFParser");
+			
+			pstmtHierarchyInsert = db_conn.prepareStatement("INSERT INTO ref_hierarchy"
+					+ "(topic_name, child_name) VALUES(?, ?)");
+			
+			pstmtTfInsert = db_conn.prepareStatement("INSERT INTO ref_tf (topic_name, term, tf, weight)"
+					+ "VALUES (?, ?, ?, ?)");
+			
+			pstmtTopicsInsert = db_conn.prepareStatement("INSERT INTO ref_topics (topic_name, url)"
+					+ "VALUES (?, ?)");
 			
 			// parse the data
 			parser.parse(source);
-
+			
 			// print an empty line under the data
 			System.out.println("Parsed successfully!");
 
@@ -111,6 +127,9 @@ public class RefTopicsHierarchyTFParser
 			System.out.format("Link insertion, page fetching and TF calculation completed in %.3fs.\n",
 					(stopTime-startTime)/1000f);
 			
+			pstmtHierarchyInsert.close();
+			pstmtTfInsert.close();
+			pstmtTopicsInsert.close();
 			// close connection
 			db_conn.close();
 			
@@ -181,7 +200,7 @@ public class RefTopicsHierarchyTFParser
 		 * Doesn't seem to be required for now.
 		 */
 		private StringBuilder content;
-		private DBOperations dbo;
+		//private DBOperations dbo;
 		
 		/**
 		 * Counts the number of slashes in a DMOZ topic-name to
@@ -214,7 +233,7 @@ public class RefTopicsHierarchyTFParser
 			countTopics = 0;
 			countURLs = 0;
 			currentTopicURLs = new ArrayList<>();
-			dbo = new DBOperations();
+			//dbo = new DBOperations();
 
 			// CAREFUL!
 			if(startAfresh) {
@@ -252,6 +271,7 @@ public class RefTopicsHierarchyTFParser
 		public void startElement(String namespaceURI, String localName,
 				String qualifiedName, Attributes atts) throws SAXException
 		{
+			
 			if(localName.equalsIgnoreCase("RDF")) {
 				System.out.println("Root element of the document: "+localName);
 			}
@@ -272,6 +292,7 @@ public class RefTopicsHierarchyTFParser
 
 					try
 					{
+						
 						// Populate ref_hierarchy (parent-child hierarchy)
 						if(!currentTopicName.isEmpty())
 						{
@@ -285,9 +306,12 @@ public class RefTopicsHierarchyTFParser
 
 							// System.out.println("Parent: "+ parentName+" Child name: "+ currentTopicName);
 
-							String query = "INSERT INTO ref_hierarchy (topic_name, child_name) VALUES ('" +
-									parentName + "','" + currentTopicName+ "')";
-							dbo.executeUpdate(query);
+							//String query = "INSERT INTO ref_hierarchy (topic_name, child_name) VALUES ('" +
+									//parentName + "','" + currentTopicName+ "')";
+							pstmtHierarchyInsert.setString(1, parentName);
+							pstmtHierarchyInsert.setString(2, currentTopicName);
+							pstmtHierarchyInsert.executeUpdate();
+							//dbo.executeUpdate(query);
 
 						}
 					} 
@@ -338,17 +362,25 @@ public class RefTopicsHierarchyTFParser
 
 						Integer tf = entry.getValue();
 
-						String query = String.format(
+						/*String query = String.format(
 								"INSERT INTO ref_tf (topic_name, term, tf, weight) VALUES ('%s', '%s', %d, null)",
 								currentTopicName,
 								term,
 								tf
-								);
+								);*/
+						
 						// System.out.println(query);
 
 						try
 						{
-							dbo.executeUpdate(query);
+							//dbo.executeUpdate(query);
+							pstmtTfInsert.setString(1, currentTopicName);
+							pstmtTfInsert.setString(2, term);
+							pstmtTfInsert.setInt(3, tf);
+							pstmtTfInsert.setNull(4, Types.FLOAT);
+							pstmtTfInsert.executeUpdate();
+							
+							
 						}
 						catch (SQLIntegrityConstraintViolationException sicve) {
 							termsAlreadyInDatabase++;
@@ -363,7 +395,7 @@ public class RefTopicsHierarchyTFParser
 						System.err.format("%d Topic-term combo(s) already in database.\n",
 								termsAlreadyInDatabase);
 					}
-
+					
 					countTopics++;
 				}
 			}
@@ -381,10 +413,16 @@ public class RefTopicsHierarchyTFParser
 
 					// Populate ref_topics (topics and URLs)
 					try {
-						String query = "INSERT INTO ref_topics (topic_name, url) VALUES ('" +
-								currentTopicName + "','" + currentURL+ "')";
+						
+						/*String query = "INSERT INTO ref_topics (topic_name, url) VALUES ('" +
+								currentTopicName + "','" + currentURL+ "')";*/
+						
+						pstmtTopicsInsert.setString(1, currentTopicName);
+						pstmtTopicsInsert.setString(2, currentURL);
+						pstmtTopicsInsert.executeUpdate();
+						
 
-						dbo.executeUpdate(query);
+						//dbo.executeUpdate(query);
 					} 
 					catch (SQLIntegrityConstraintViolationException sicve) {
 						System.err.format("Topic-URL combo already in database.\n");
@@ -434,7 +472,6 @@ public class RefTopicsHierarchyTFParser
 								currentTopicTermCounts.put(stemmedWord, existingCount + porterCount);
 						}
 						// System.out.println("Added all its Porter-Stemmer pairs.");
-
 
 					}
 					catch (SQLException sqle) {
@@ -521,7 +558,6 @@ public class RefTopicsHierarchyTFParser
 					System.out.println("Logging for UserURLsTF is finished.");
 				}
 			}
-
 		}
 
 

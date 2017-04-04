@@ -129,7 +129,7 @@ public class RefIDF
 					+ "FROM ref_tf "
 					+ "WHERE term "
 					+ "LIKE ?");
-			PreparedStatement pstmtInsert = db_conn.prepareStatement("INSERT INTO ref_idf (term, idf) "
+			PreparedStatement pstmtIdfInsert = db_conn.prepareStatement("INSERT INTO ref_idf (term, idf) "
 					+ "VALUES (?, ?)");
 			for(idfComputeCount = resumeIndex; idfComputeCount < terms.size(); idfComputeCount++)
 			{
@@ -147,11 +147,11 @@ public class RefIDF
 				
 				idf = Math.log((double)totalTopics/topicsWithTerm);
 				// query = "INSERT INTO ref_idf (term, idf) VALUES ('"+termName+"', '"+ idf +"')";
-				pstmtInsert.setString(1, termName);
-				pstmtInsert.setFloat(2, (float)idf);
+				pstmtIdfInsert.setString(1, termName);
+				pstmtIdfInsert.setFloat(2, (float)idf);
 				
 				try {
-					pstmtInsert.executeUpdate();
+					pstmtIdfInsert.executeUpdate();
 					System.out.format("%6d - %s (%d/%d) IDF = %.3f, %s\n",
 							(idfComputeCount+1), termName, topicsWithTerm, totalTopics, idf, getRatePerMinute());
 					
@@ -166,6 +166,8 @@ public class RefIDF
 			stopTime = System.currentTimeMillis();
 			System.out.format("IDF Calculation completed for %d terms in %s.\n",
 					idfComputeCount, TimeUtils.formatHmss(stopTime-startTime));
+			pstmtIdfInsert.close();
+			pstmtTotalTopicsWithTerm.close();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

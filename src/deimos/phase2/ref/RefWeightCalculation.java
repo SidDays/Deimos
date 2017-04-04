@@ -1,7 +1,12 @@
 package deimos.phase2.ref;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import deimos.phase2.DBOperations;
+
+
 
 /**
  * Computes the weights as a product of TF and IDF
@@ -12,9 +17,11 @@ import deimos.phase2.DBOperations;
  */
 public class RefWeightCalculation
 {
-	static DBOperations dbo;
+	/** Create Statements and preparedStatements on this connection. */
+	private static Connection db_conn;
+	private static Statement stmtWeightUpdate;
 
-	static
+	/*static
 	{
 		try
 		{
@@ -24,7 +31,7 @@ public class RefWeightCalculation
 		{
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	/**
 	 * In case the ref_idf table has changed, you can
@@ -54,16 +61,27 @@ public class RefWeightCalculation
 	{
 		try
 		{
+			db_conn = DBOperations.getConnectionToDatabase("RefWeightCalculation");
+			
+			stmtWeightUpdate = db_conn.createStatement();
+
 			System.out.println("Weight calculation and updation for ref_tf started.");
 
 			// nullAllWeights();
 
 			// Update weights
-			String queryUpdate = "UPDATE ref_tf "
-					+ "SET ref_tf.weight = ref_tf.tf * ( SELECT idf FROM ref_idf WHERE ref_idf.term = ref_tf.term )";
-			dbo.executeUpdate(queryUpdate);
+			/*String queryUpdate = "UPDATE ref_tf "
+					+ "SET ref_tf.weight = ref_tf.tf * ( SELECT idf FROM ref_idf WHERE ref_idf.term = ref_tf.term )";*/
+			
+			stmtWeightUpdate.executeUpdate("UPDATE ref_tf "
+					+ "SET ref_tf.weight = ref_tf.tf * "
+					+ "( SELECT idf FROM ref_idf "
+					+ "WHERE ref_idf.term = ref_tf.term )");
+			//dbo.executeUpdate(queryUpdate);
 
 			System.out.println("Weight calculation and updation finished for ref_tf!");
+			db_conn.close();
+			stmtWeightUpdate.close();
 		}
 		catch(SQLException e)
 		{
