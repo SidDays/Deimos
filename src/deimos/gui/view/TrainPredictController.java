@@ -13,12 +13,13 @@ import deimos.phase3.WordCloudGenerator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 
 public class TrainPredictController {
@@ -54,6 +55,7 @@ public class TrainPredictController {
 	private PredictListService servicePredictList;
 
 	private NeuralTrainingService serviceNeuralTraining;
+	
 
 	// Predict
 	@FXML
@@ -74,11 +76,13 @@ public class TrainPredictController {
 	private PredictService servicePrediction;
 
 	@FXML
-	private void initialize() {
-		initializePrediction();
-
+	private void initialize()
+	{
 		initializePredictListSpinner();
 		initializeNeuralTraining();
+		initializePrediction();
+		handleResyncUsersButton();
+
 	}
 
 	private void initializeNeuralTraining()
@@ -143,6 +147,23 @@ public class TrainPredictController {
 
 		});
 	}
+	
+	@FXML
+	private void magnifyImage()
+	{
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Word Cloud");
+		alert.setHeaderText("Categories of interest");
+
+		// Set expandable Exception into the dialog pane. */
+		ImageView content = new ImageView();
+		content.setFitHeight(WordCloudGenerator.DIM_SIDE/2);
+		content.setFitWidth(WordCloudGenerator.DIM_SIDE/2);
+		content.setImage(wordCloudImage.getImage());
+		alert.getDialogPane().setContent(content);
+
+		alert.showAndWait();
+	}
 
 	private void initializePrediction() {
 		wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_PLACEHOLDER);
@@ -167,8 +188,8 @@ public class TrainPredictController {
 			
 			predictedAgeGroupLabel.setText(servicePrediction.getPredictedAge());
 			predictedGenderLabel.setText(servicePrediction.getPredictedGender());
-			predictedInterestsLabel.setText(topics.toString());
-			predictedInterestsLabel.setTooltip(new Tooltip(topics.toString()));
+			/*predictedInterestsLabel.setText(topics.toString());
+			predictedInterestsLabel.setTooltip(new Tooltip(topics.toString()));*/
 			predictedLocationLabel.setText(servicePrediction.getLocation());
 			
 			tpStatus.setText("Prediction complete.");
@@ -180,7 +201,7 @@ public class TrainPredictController {
 
 			predictedAgeGroupLabel.setText(PROCESSING);
 			predictedGenderLabel.setText(PROCESSING);
-			predictedInterestsLabel.setText(PROCESSING);
+			// predictedInterestsLabel.setText(PROCESSING);
 			predictedLocationLabel.setText(PROCESSING);
 
 			wordCloudImage.setImage(DeimosImages.IMG_WORDCLOUD_INPROGRESS);
@@ -198,7 +219,8 @@ public class TrainPredictController {
 	}		
 
 	@FXML
-	private void handleResyncUsersButton() {
+	private void handleResyncUsersButton()
+	{
 
 		trainButton.setDisable(true);
 		GUIUtils.startAgain(servicePredictList);
@@ -254,7 +276,7 @@ public class TrainPredictController {
 	{
 		predictedAgeGroupLabel.setText(NONE);
 		predictedGenderLabel.setText(NONE);
-		predictedInterestsLabel.setText(NONE);
+		// predictedInterestsLabel.setText(NONE);
 		predictedLocationLabel.setText(NONE);
 		
 		predictButton.setDisable(false);
