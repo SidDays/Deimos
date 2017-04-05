@@ -6,7 +6,7 @@
 output/*
 
 # Deimos Helper Output
-export-*.*
+export-*
 
 src/deimos/common/*.properties
 resources/credentials.properties

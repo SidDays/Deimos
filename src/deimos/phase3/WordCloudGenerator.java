@@ -20,6 +20,7 @@ import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
 import com.kennycason.kumo.font.KumoFont;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
+import com.kennycason.kumo.image.AngleGenerator;
 import com.kennycason.kumo.nlp.FrequencyAnalyzer;
 import com.kennycason.kumo.palette.ColorPalette;
 import com.kennycason.kumo.palette.LinearGradientColorPalette;
@@ -75,7 +76,8 @@ public class WordCloudGenerator
 		return COLOR_THEMES[rand.nextInt(COLOR_THEMES.length)];
 	}
 
-	private static void initialize() {
+	private static void initialize() 
+	{
 		frequencyAnalyzer = new FrequencyAnalyzer();
 		frequencyAnalyzer.setMaxWordLength(100);
 		frequencyAnalyzer.setMinWordLength(1);
@@ -84,10 +86,9 @@ public class WordCloudGenerator
 		// ColorPalette lightPalette = new ColorPalette(Color.GREEN, Color.PINK, Color.ORANGE, Color.WHITE, Color.CYAN, Color.YELLOW);
 		// ColorPalette darkPalette = new LinearGradientColorPalette(new Color(243, 12, 19), new Color(17, 31, 200), 30);
 
-
 		wordCloud = new WordCloud(dimension, CollisionMode.RECTANGLE);
 		wordCloud.setPadding(1);
-		// wordCloud.setAngleGenerator(new AngleGenerator(90));
+		wordCloud.setAngleGenerator(new AngleGenerator(0));
 		// wordCloud.setBackground(new RectangleBackground(dimension));
 		wordCloud.setBackground(new CircleBackground(DIM_SIDE/2));
 		// wordCloud.setBackground(new PixelBoundryBackground(new FileInputStream("")));
@@ -102,7 +103,6 @@ public class WordCloudGenerator
 	public static List<String> getInterests() {
 		return interests;
 	}
-
 
 	/**
 	 * Uses the input training values to construct a word

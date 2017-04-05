@@ -77,7 +77,7 @@ public class UserInfo
 			yearOfBirth = Integer.parseInt(yearOfBirthString);
 		}
 		catch(NumberFormatException nfe) {
-			System.err.println(nfe + "");
+			System.err.println(nfe + " (possibly not entered - prediction data)");
 			yearOfBirth = -1;
 		}
 
@@ -149,7 +149,7 @@ public class UserInfo
 				pstmt.setString(4, String.valueOf(gender));
 
 				// yoB
-				if(yearOfBirth != -1)
+				if(yearOfBirth > 0)
 					pstmt.setInt(5, yearOfBirth);
 				else
 					pstmt.setNull(5, Types.INTEGER);

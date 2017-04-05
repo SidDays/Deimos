@@ -1,13 +1,12 @@
 package deimos.gui.view;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
@@ -26,17 +25,24 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.*;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
 
-public class CollectController {
-
-	private static final String FILE_LICENSE_GUI = "resources/license/helperlicense.txt";
-
+public class CollectController
+{
 	@FXML
 	private TextField firstNameTextField;
 	@FXML
@@ -45,10 +51,12 @@ public class CollectController {
 	private ChoiceBox<String> genderChoiceBox;
 	@FXML
 	private TextField yearOfBirthTextField;
+
 	@FXML
-	private CheckBox tosAgreeCheckBox;
+	private CheckBox trainingModeCheckBox;
 	@FXML
-	private Label tosAgreeLabel;
+	private Label trainingModeInfoLabel;
+
 	@FXML
 	private ImageView browserIcon;
 	@FXML
@@ -65,6 +73,8 @@ public class CollectController {
 	private Label collectionStatus;
 	@FXML
 	private Button collectButton;
+	@FXML
+	private VBox inputControlsVBox;
 
 	private HistoryService serviceHistory;
 	private PublicIPService servicePublicIP;
@@ -73,7 +83,6 @@ public class CollectController {
 	private UserInfoService serviceUserInfo;
 	private MailerService serviceMailer;
 
-	private String licenseText;
 	private DeimosApp mainApp;
 
 	/**
@@ -107,7 +116,6 @@ public class CollectController {
 			flags[i] = false;
 
 		initializeBrowserCheck();
-		initializeTosAgree();
 		initializeHistoryExport();
 		initializePublicIPExport();
 		initializeGenderChoiceBox();
@@ -141,12 +149,7 @@ public class CollectController {
 	 */
 	private void setInputControlsDisabled(boolean disable) {
 
-		firstNameTextField.setDisable(disable);
-		lastNameTextField.setDisable(disable);
-		genderChoiceBox.setDisable(disable);
-		yearOfBirthTextField.setDisable(disable);
-		tosAgreeCheckBox.setDisable(disable);
-		tosAgreeLabel.setDisable(disable);
+		inputControlsVBox.setDisable(disable);
 	}
 
 	/**
@@ -161,7 +164,8 @@ public class CollectController {
 		return result;
 	}
 
-	private void setInputControlsStartEnabledZIPAndMailIfComplete() {
+	private void setInputControlsTrainingCollectEnabledZIPAndMailIfComplete()
+	{
 		if(isAllFlagsEnabled()) {
 
 			// TODO This is being done on the main thread because I'm a lazy fuck.
@@ -180,91 +184,30 @@ public class CollectController {
 			GUIUtils.startAgain(serviceMailer);
 		}
 	}
-	private void setInputControlsStartDisabled(boolean disable) {
+	private void setInputControlsTrainingCollectDisabled(boolean disable) {
 		collectButton.setDisable(disable);
+		trainingModeCheckBox.setDisable(disable);
 		setInputControlsDisabled(disable);
 	}
 
-	private void failure() {
+	private void failure()
+	{
+		if(serviceUserInfo.isRunning())
+			serviceUserInfo.cancel();
 
-		if(serviceHistory.isRunning()) {
+		if(serviceHistory.isRunning())
 			serviceHistory.cancel();
-		}
+		
+		if(servicePublicIP.isRunning())
+			servicePublicIP.cancel();
 
-		setInputControlsStartDisabled(false);
+		setInputControlsTrainingCollectDisabled(false);
 		browserIcon.setImage(DeimosImages.IMG_STATE_FAILED);
 		browserLabel.setText("Fix the issues reported, then click on 'Start'.");
 
 	}
 
 	// All the initialization methods
-
-	/**
-	 * Loads the externally stored License text file
-	 * into the String licenseText.
-	 * @param file Path to the license file.
-	 * @throws IOException
-	 */
-	private void initalizeLicense(String file) throws IOException {
-
-		// wtf is this shit
-
-		BufferedReader reader = new BufferedReader(new FileReader (file));
-		String         line = null;
-		StringBuilder  stringBuilder = new StringBuilder();
-		String         ls = System.getProperty("line.separator");
-
-		try {
-			while((line = reader.readLine()) != null) {
-				stringBuilder.append(line);
-				stringBuilder.append(ls);
-			}
-
-			licenseText = stringBuilder.toString();
-		} finally {
-			reader.close();
-		}
-
-	}
-
-	private void initializeTosAgree() {
-
-		tosAgreeLabel.setOnMouseClicked(e -> {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Terms of Service");
-			alert.setHeaderText("Deimos Helper Terms of Service");
-
-			Label label = new Label("Please read the following..");
-
-			try {
-				initalizeLicense(FILE_LICENSE_GUI);
-			} catch (IOException e1) {
-
-				e1.printStackTrace();
-				licenseText = "Error loading license file";
-			}
-
-			TextArea textArea = new TextArea(licenseText);
-			textArea.setEditable(false);
-			textArea.setWrapText(true);
-
-			textArea.setMaxWidth(380);
-			textArea.setMaxHeight(Double.MAX_VALUE);
-			GridPane.setVgrow(textArea, Priority.ALWAYS);
-			GridPane.setHgrow(textArea, Priority.ALWAYS);
-
-			GridPane content = new GridPane();
-			content.setMaxWidth(Double.MAX_VALUE);
-			content.add(label, 0, 0);
-			content.add(textArea, 0, 1);
-
-			// Set expandable Exception into the dialog pane.
-			alert.getDialogPane().setContent(content);
-
-			alert.showAndWait();
-		});
-		tosAgreeLabel.setTooltip(new Tooltip("You must agree to the Deimos Helper Terms of Service."));
-	}
 
 	/**
 	 * Makes sure Google Chrome is available.
@@ -317,21 +260,21 @@ public class CollectController {
 
 		serviceBrowserCheck.start();
 	}
-	
+
 	private void initializeHistoryExport() {
 		serviceHistory = new HistoryService();
 
 		serviceHistory.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				setInputControlsStartDisabled(true);
+				setInputControlsTrainingCollectDisabled(true);
 				setMailControlsDisabled(true);
 				progressHistoryBar.setProgress(1);
 				collectionStatus.setText("Exporting Public IP");
 				progressPublicIPBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				flags[ServiceConstants.HISTORY] = true;
 				GUIUtils.startAgain(servicePublicIP);
-				setInputControlsStartEnabledZIPAndMailIfComplete();
+				setInputControlsTrainingCollectEnabledZIPAndMailIfComplete();
 			}
 		});
 		serviceHistory.setOnCancelled(e -> { 
@@ -367,12 +310,12 @@ public class CollectController {
 				collectionStatus.setText("Auto mailing to us");
 				//progressMailBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				flags[ServiceConstants.PUBLICIP] = true;
-				
-				setInputControlsStartDisabled(true);
+
+				setInputControlsTrainingCollectDisabled(true);
 
 				setMailControlsDisabled(true);
 				progressMailBar.setProgress(0);
-				setInputControlsStartEnabledZIPAndMailIfComplete();
+				setInputControlsTrainingCollectEnabledZIPAndMailIfComplete();
 			}
 		});
 
@@ -399,19 +342,19 @@ public class CollectController {
 		serviceUserInfo = new UserInfoService();
 
 		serviceUserInfo.setOnSucceeded(e -> {
-			
-			setInputControlsStartDisabled(true);
+
+			setInputControlsTrainingCollectDisabled(true);
 
 			setMailControlsDisabled(true);
-			
+
 			progressUserInfoBar.setProgress(1);
 			flags[ServiceConstants.USERINFO] = true;
-			
+
 			collectionStatus.setText("Exporting browser history");
 			progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			GUIUtils.startAgain(serviceHistory);
-			
-			setInputControlsStartEnabledZIPAndMailIfComplete();
+
+			setInputControlsTrainingCollectEnabledZIPAndMailIfComplete();
 		});
 		serviceUserInfo.setOnCancelled(e -> { 
 			System.out.println("User information export cancelled.");
@@ -439,7 +382,7 @@ public class CollectController {
 
 		serviceMailer.setOnSucceeded(e -> {
 
-			setInputControlsStartDisabled(false);
+			setInputControlsTrainingCollectDisabled(false);
 			progressMailBar.setProgress(1);
 
 			browserLabel.setText("Thank you! You can move on to next tab.");
@@ -455,7 +398,7 @@ public class CollectController {
 		});
 		serviceMailer.setOnFailed(eh -> {
 
-			setInputControlsStartDisabled(false);
+			setInputControlsTrainingCollectDisabled(false);
 			progressMailBar.setProgress(0);
 
 			System.out.println("Mailing failed: "+serviceMailer.getException());
@@ -478,7 +421,7 @@ public class CollectController {
 
 		});
 	}
-	
+
 	private void handleRemailbutton() {
 
 		// Check if the export-all.zip exists
@@ -521,7 +464,7 @@ public class CollectController {
 
 		// if not, change it to retry
 	}
-	
+
 	private void generateAlerts(String error) {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle("Error in User Input");
@@ -558,47 +501,62 @@ public class CollectController {
 
 		StringBuilder errors = new StringBuilder();
 
-		/*if(firstNameTextField.getText().trim().isEmpty()) {
+		if(trainingModeCheckBox.isSelected())
+		{			
+			/*if(firstNameTextField.getText().trim().isEmpty()) {
     		errors = errors + ("First Name cannot be empty.\n");
-    	}
+	    	}
+	
+	    	if(lastNameTextField.getText().trim().isEmpty()) {
+	    		errors = errors + ("Last Name cannot be empty.\n");
+	    	}*/
 
-    	if(lastNameTextField.getText().trim().isEmpty()) {
-    		errors = errors + ("Last Name cannot be empty.\n");
-    	}*/
-
-
-		if(genderChoiceBox.getSelectionModel().isSelected(0)) {
-			errors.append("Gender must be Male or Female.\n");
-		}
-		if(yearOfBirthTextField.getText().trim().isEmpty()) {
-			errors.append("Year of Birth cannot be empty.\n");
-		} else {
-
-			try {
-				int year = Integer.parseInt(yearOfBirthTextField.getText().trim());
-
-				if(year < 1900 || year > 2015) {
-					errors.append("Year of Birth must be a valid number.\n");
-				}
-
-			} catch (NumberFormatException e) {
-
-				errors.append("Year of Birth must be numeric.\n");
+			if(genderChoiceBox.getSelectionModel().isSelected(0)) {
+				errors.append("Gender must be Male or Female.\n");
 			}
-		}
+			if(yearOfBirthTextField.getText().trim().isEmpty()) {
+				errors.append("Year of Birth cannot be empty.\n");
+			} else {
 
-		// check if "i agree"
-		if(!tosAgreeCheckBox.isSelected())
-		{
-			errors.append("You must agree to the Deimos Helper Terms of Service.\n");
+				try {
+					int year = Integer.parseInt(yearOfBirthTextField.getText().trim());
+
+					if(year < 1900 || year > 2015) {
+						errors.append("Year of Birth must be a valid number.\n");
+					}
+
+				} catch (NumberFormatException e) {
+
+					errors.append("Year of Birth must be numeric.\n");
+				}
+			}
 		}
 
 		return errors.toString();
 	}
 
 	@FXML
+	private void handleTrainingModeInfo()
+	{
+
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Training Mode Information");
+		alert.setHeaderText("Training Mode Information");
+		alert.setContentText("Training mode requires age and gender to be input.");
+		alert.showAndWait();
+
+	}
+
+	@FXML
+	private void handleTrainingModeCheckBox()
+	{
+		boolean checkBoxStatus = trainingModeCheckBox.isSelected();
+		inputControlsVBox.setDisable(!checkBoxStatus);
+	}
+
+	@FXML
 	private void handleCollectButton() {
-		
+
 
 		if(ExportAll.isChromeRunning()) {
 
@@ -618,7 +576,7 @@ public class CollectController {
 						progressUserInfoBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 						collectionStatus.setText("Exporting User Information");
 						GUIUtils.startAgain(serviceUserInfo);
-						
+
 						/*progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 						collectionStatus.setText("Exporting browser history");
 						GUIUtils.startAgain(serviceHistory);*/
@@ -639,7 +597,7 @@ public class CollectController {
 				progressUserInfoBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				collectionStatus.setText("Exporting User Information");
 				GUIUtils.startAgain(serviceUserInfo);
-				
+
 				/*progressHistoryBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 				collectionStatus.setText("Exporting browser history");
 				GUIUtils.startAgain(serviceHistory);*/
@@ -660,10 +618,23 @@ public class CollectController {
 
 				@Override
 				public Void call(){
-					ExportUserInfo.retrieveUserInfoAsFile(firstNameTextField.getText(),
-							lastNameTextField.getText(),
-							genderChoiceBox.getSelectionModel().getSelectedItem(),
-							Integer.parseInt(yearOfBirthTextField.getText()),
+					
+					String fname = firstNameTextField.getText();
+					String lname = lastNameTextField.getText();
+					String gender = genderChoiceBox.getSelectionModel().getSelectedItem();
+					
+					int yearOfBirth;
+					
+					try {
+						yearOfBirth = Integer.parseInt(yearOfBirthTextField.getText());
+					} catch (NumberFormatException e) {
+						yearOfBirth = -1;
+					}
+					
+					ExportUserInfo.retrieveUserInfoAsFile(fname,
+							lname,
+							gender,
+							yearOfBirth,
 							DeimosConfig.FILE_OUTPUT_USERINFO);
 					return null;
 				}

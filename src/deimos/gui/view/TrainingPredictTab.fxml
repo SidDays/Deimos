@@ -20,7 +20,7 @@
          <children>
             <VBox spacing="8.0">
                <children>
-                  <HBox spacing="8.0">
+                  <HBox prefHeight="25.0" spacing="8.0">
                      <children>
                         <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" text="User To Predict Demographics For" HBox.hgrow="ALWAYS">
                            <font>
@@ -200,7 +200,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="predictButton" disable="true" mnemonicParsing="false" onAction="#handleGenerateButton" text="Predict!" />
+            <Button fx:id="predictButton" disable="true" mnemonicParsing="false" onAction="#handleGenerateButton" prefWidth="75.0" text="Predict!" />
          </children>
          <padding>
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
