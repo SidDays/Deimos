@@ -232,21 +232,6 @@ public class StringUtils
 	 */
 	public static String[] getCSVParts(String csvLine)
 	{
-
-		/*String parts[] = csvLine.split(",");
-
-		for(int i = 0; i < parts.length; i++)
-		{
-			parts[i] = parts[i].trim();
-			if(parts[i].startsWith("\""))
-			{
-				parts[i] = parts[i].replace("\"","");
-				parts[i] = parts[i].substring(1);
-					if(parts[i].endsWith("\""))
-						parts[i] = parts[i].substring(0, parts[i].length()-1);
-			}
-		}*/
-
 		List<String> partsList = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		boolean insideQuotes = false;
@@ -255,7 +240,6 @@ public class StringUtils
 		{
 			char ch = csvLine.charAt(i);
 
-
 			if(ch == '\"')
 			{
 				insideQuotes = true^insideQuotes;
@@ -263,20 +247,19 @@ public class StringUtils
 
 			if(i == csvLine.length()-1)
 			{
-				sb.append(ch);
-
-				partsList.add(sb.toString());
-				// System.out.println(sb.toString());
-
-				sb.setLength(0);
+				if(ch == ',') {
+					partsList.add("");
+				}
+				else {
+					sb.append(ch);
+					partsList.add(sb.toString());
+					sb.setLength(0);
+				}
 			}
 			else if(ch == ',' && !insideQuotes)
 			{
 				partsList.add(sb.toString());
-				// System.out.println(sb.toString());
-
 				sb.setLength(0);
-
 			}
 			else {
 				sb.append(ch);
