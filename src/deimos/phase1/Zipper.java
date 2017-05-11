@@ -8,6 +8,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 
 /**
  * Contains utility functions pertaining to zipping of input-output files.
@@ -19,13 +20,26 @@ public class Zipper {
 	
 	
 	public static void main(String[] args) {
-		zipOutputFiles();
+		zipOutputFiles(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 	}
+	
 	/**
 	 * Zips all the output files defined in DeimosConfig
 	 * into a single ZIP file.
 	 */
-	public static void zipOutputFiles() {
+	public static void zipOutputFiles(String filename) {
+		zipOutputFiles(filename, null);
+	}
+	
+	/**
+	 * Zips all the output files defined in DeimosConfig
+	 * into a single ZIP file. Also handles name tags.
+	 */
+	public static void zipOutputFiles(String filename, String nameTag) {
+		
+		// Separate NameTag TODO
+		if(nameTag == null || nameTag.isEmpty() || nameTag.equals("null"))
+			nameTag = null;
 		
 		/** If any errors were found. */
 		// boolean errors = false;
@@ -40,13 +54,21 @@ public class Zipper {
 
 		try{
 
-			FileOutputStream fos = new FileOutputStream(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
+			FileOutputStream fos = new FileOutputStream(filename);
 			ZipOutputStream zos = new ZipOutputStream(fos);
 			count++;
 
 			// System.out.println("Output to ZIP: " + DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 
 			for(String file : DeimosConfig.FILES_OUTPUT_ALL){
+				
+				if(nameTag!=null) {
+					
+					String fileWoExt = StringUtils.removeExtension(file);
+					String ext = StringUtils.extractExtension(file);
+					
+					file = fileWoExt + "-" + nameTag + "." + ext;
+				}
 
 				// System.out.println("File Added: " + file);
 				ZipEntry ze= new ZipEntry(file);

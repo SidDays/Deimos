@@ -1,22 +1,31 @@
 package deimos.phase2.user;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 import deimos.phase2.DBOperations;
+import deimos.phase3.NeuralConstants;
+import deimos.phase3.User;
 
 /**
  * 
  * @author Siddhesh Karekar
  *
  */
-public class UserTrainingInput {
+public class UserTrainingInput
+{
 
 	public static final List<String> TOPICS_TOP_LEVEL = Arrays.asList(new String[] {
 			"Top/Shopping/Antiques_and_Collectibles",
@@ -61,7 +70,7 @@ public class UserTrainingInput {
 
 	private static PreparedStatement pstmtCalc;
 	private static PreparedStatement pstmtInsert;
-	
+
 	public static void calculateTrainingInputs(int user_id, boolean truncate)
 	{
 		try {
@@ -127,12 +136,224 @@ public class UserTrainingInput {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Returns a nametag to help while making filenames.
+	 * @return
+	 */
+	public static String getNameTag(int yearOfBirth, String genderStr, String fname, String lname)
+	{
+		String demoGroup = "UNKNOWN", fullName = "UNNAMED";
+
+		// Get string containing demographic group
+		int age = NeuralConstants.getAge(yearOfBirth);
+		try {
+			demoGroup = NeuralConstants.GROUPS_SMALL_NAMES[NeuralConstants.getGroup(
+					NeuralConstants.getAgeGroup(age),
+					NeuralConstants.getGenderGroup(genderStr))];
+		}
+		catch(ArrayIndexOutOfBoundsException e) {
+			demoGroup = "UNKNOWN";
+		}
+
+		if(fname.equals("null"))
+			fname = "";
+		if(lname.equals("null"))
+			lname = "";
+
+		fullName = User.getName(fname, lname);
+
+		return demoGroup + "-" + fullName;
+	}
+
+	/**
+	 * Exports the training input values to a file for easy importing into someplace else.
+	 * @param db_conn
+	 */
+	public static void exportTrainingValues(Connection db_conn, int user_id, String ... names)
+			throws SQLException, FileNotFoundException
+	{
+		String filenameTrainVal = DeimosConfig.FILE_OUTPUT_TRAINVAL;
+		String filenameUserInfo = DeimosConfig.FILE_OUTPUT_USERINFO;
+		String filenamePublicIP = DeimosConfig.FILE_OUTPUT_PUBLICIP;
+
+		/*String name;
+		if(names.length == 0) {
+			name = null;
+		}
+		else {
+			name = names[0];
+
+			filenameTrainVal = DeimosConfig.FILE_OUTPUT_TRAINVAL.substring(0,
+					DeimosConfig.FILE_OUTPUT_TRAINVAL.length()-4) + "-" + name +".txt";
+			filenameUserInfo = DeimosConfig.FILE_OUTPUT_USERINFO.substring(0,
+					DeimosConfig.FILE_OUTPUT_USERINFO.length()-4) + "-" + name +".txt";
+			filenamePublicIP = DeimosConfig.FILE_OUTPUT_PUBLICIP.substring(0,
+					DeimosConfig.FILE_OUTPUT_PUBLICIP.length()-4) + "-" + name +".txt";
+		}*/
+
+		exportTrainingValues(db_conn, user_id,
+				filenameTrainVal, filenameUserInfo, filenamePublicIP);
+	}
+
+	/**
+	 * Exports the training input values to a file for easy importing into someplace else.
+	 * @param db_conn
+	 */
+	public static void exportTrainingValues(Connection db_conn, int user_id,
+			String fileNameValues, String fileNameUserInfo, String fileNamePublicIP)
+					throws SQLException, FileNotFoundException
+	{
+
+		// TODO
+		int countVal = 0, countUser = 0, countIP = 0;			
+		List<String> output = new ArrayList<>();
+
+		Statement stmt = db_conn.createStatement();
+
+		// Export training Values
+		ResultSet rs = stmt.executeQuery("SELECT * FROM user_training_input WHERE user_id = "+user_id);
+
+		String headerLine = StringUtils.toCSV(
+				"USER_ID", "TOPIC_NAME", "VALUE");
+		output.add(headerLine);
+
+		while(rs.next())
+		{
+			String currentLine = StringUtils.toCSV(
+					rs.getString(1), rs.getString(2), rs.getString(3));
+			output.add(currentLine);
+		}
+		rs.close();
+
+		// Export user Info and Public IP
+		rs = stmt.executeQuery("SELECT first_name, last_name, gender, birth_year, location, ip "
+				+ "FROM user_info "
+				+ "WHERE user_id = "+user_id);
+		List<String> userInfoFields = new ArrayList<>();
+
+		String publicIP = "null";
+		String fullName = "UNNAMED";
+		String demoGroup = "UNKNOWN";
+		if(rs.next()) {
+
+			// Export user Info
+			String fname = rs.getString(1);
+			String lname = rs.getString(2);
+
+			// Get string containing name
+			fullName = User.getName(fname, lname);
+
+			if(fname == null || fname.isEmpty())
+				fname = "null";
+			userInfoFields.add(fname);
+
+
+			if(lname == null || lname.isEmpty())
+				lname = "null";
+			userInfoFields.add(lname);
+
+			String genderStr = rs.getString(3);
+			if(genderStr.equalsIgnoreCase("m"))
+				userInfoFields.add("male");
+			else if(genderStr.equalsIgnoreCase("f"))
+				userInfoFields.add("female");
+			else
+				userInfoFields.add("null");
+
+			String yearOfBirthStr = rs.getString(4);
+			int yearOfBirth = Integer.parseInt(yearOfBirthStr);
+			int age = NeuralConstants.getAge(yearOfBirth);
+			/*System.out.println(age + ", ageGroup = " + NeuralConstants.getAgeGroup(age) + ", genderGroup = " +
+					NeuralConstants.getGenderGroup(genderStr) + ", group = " + NeuralConstants.getGroup(
+							NeuralConstants.getAgeGroup(age),
+							NeuralConstants.getGenderGroup(genderStr)));*/
+			userInfoFields.add(rs.getString(4));
+
+			// Get string containing demographic group
+			try {
+				demoGroup = NeuralConstants.GROUPS_SMALL_NAMES[NeuralConstants.getGroup(
+						NeuralConstants.getAgeGroup(age),
+						NeuralConstants.getGenderGroup(genderStr))];
+			}
+			catch(ArrayIndexOutOfBoundsException e) {
+				demoGroup = "UNKNOWN";
+			}
+
+			String location = rs.getString(5);
+			if(location == null || location.isEmpty())
+				location = "null";
+			userInfoFields.add(location);
+
+			// Export Public IP
+			publicIP = rs.getString(6);
+			if(publicIP == null || publicIP.isEmpty())
+				publicIP = "null";
+			userInfoFields.add(publicIP);
+		}
+		rs.close();
+
+		// Modify filenames
+		String fileNameValuesWoEx = StringUtils.removeExtension(fileNameValues);
+		fileNameValues = String.format("%s-%s-%s.txt", fileNameValuesWoEx, demoGroup, fullName);
+
+		String fileNameUserInfoWoEx = StringUtils.removeExtension(fileNameUserInfo);
+		fileNameUserInfo = String.format("%s-%s-%s.txt", fileNameUserInfoWoEx, demoGroup, fullName);
+
+		String fileNamePublicIPWoEx = StringUtils.removeExtension(fileNamePublicIP);
+		fileNamePublicIP = String.format("%s-%s-%s.txt", fileNamePublicIPWoEx, demoGroup, fullName);
+
+		// Write training values output to file
+		PrintStream fileStreamTrain = new PrintStream(new File(fileNameValues));
+		for (int i = 0; i < output.size(); i++)
+		{
+			// System.out.println(output.get(i));
+			fileStreamTrain.println(output.get(i));
+		}
+		countVal++;
+
+		// Write user info output to file
+		PrintStream fileStreamUserInfo = new PrintStream(new File(fileNameUserInfo));
+		for(int i = 0; i < userInfoFields.size(); i++)
+		{
+			fileStreamUserInfo.print(userInfoFields.get(i));
+			if(i < userInfoFields.size()-1)
+				fileStreamUserInfo.print(DeimosConfig.DELIM);
+		}
+		fileStreamUserInfo.println();
+		countUser++;
+
+		// Write publicIP input to file
+		PrintStream fileStreamPublicIP = new PrintStream(new File(fileNamePublicIP));
+		fileStreamPublicIP.println(publicIP);
+		countIP++;
+
+
+		stmt.close();
+
+		System.out.println("Files exported for user "+user_id+":");
+		System.out.println(countVal + " user data training record(s) exported to "+fileNameValues+ ".");
+		System.out.println(countUser + " user data record(s) exported to "+fileNameUserInfo+ ".");
+		System.out.println(countIP + " public IP(s) exported to "+fileNamePublicIP+ ".");
+	}
 
 	/** Testing only */
 	public static void main(String[] args)
 	{
 		// Hardcode4Lyf lmao
-		calculateTrainingInputs(2, true);
+		// calculateTrainingInputs(2, true);
+
+		try
+		{
+			db_conn = DBOperations.getConnectionToDatabase("UserTrainingInput");
+			exportTrainingValues(db_conn, 2);
+			db_conn.close();
+
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		} 
+
 	}
 
 }

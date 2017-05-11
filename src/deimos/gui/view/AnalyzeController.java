@@ -1,6 +1,7 @@
 package deimos.gui.view;
 
 import java.io.File;
+import java.util.Optional;
 
 import deimos.common.DeimosConfig;
 import deimos.common.GUIUtils;
@@ -9,6 +10,7 @@ import deimos.gui.view.services.IDFService;
 import deimos.gui.view.services.SimilarityService;
 import deimos.gui.view.services.TrainingValuesService;
 import deimos.gui.view.services.URLsTFService;
+import deimos.gui.view.services.UserInfoPublicIPService;
 import deimos.gui.view.services.WeightService;
 import deimos.phase2.similarity.SimilarityMapper;
 import deimos.phase2.user.UserIDF;
@@ -85,14 +87,68 @@ public class AnalyzeController {
 	private Button analyzeButton;
 
 	private String truncateText;
-	private String filePath;
+	
+	private String filePathHistory;
+	private String filePathUserInfo;
+	private String filePathPublicIP;
+	
 	private URLsTFService serviceURLsTF;
+	private UserInfoPublicIPService serviceUserInfoPublicIP;
 	private IDFService serviceIDF;
 	private WeightService serviceWeights;
 	private SimilarityService serviceSimilarity;
 	private GEWService serviceGEW;
 	private TrainingValuesService serviceTrainingValues;
 	private File file;
+	
+	/**
+	 * Estimates the name of the public IP file given
+	 * a pattern of the input history file. For example,
+	 * 'export-history-Anushka.csv' -> 'export-publicIP-Anushka.txt'
+	 * @param historyFileName
+	 * @return
+	 */
+	private static String getPublicIPFileName(String historyFileName)
+	{
+		String historyFileNameWoExt = historyFileName.substring(0, historyFileName.length()-4);
+		String FILE_OUTPUT_HISTORY_WO_EX = DeimosConfig.FILE_OUTPUT_HISTORY.substring(0,
+				DeimosConfig.FILE_OUTPUT_HISTORY.length()-4);
+		String FILE_OUTPUT_PUBLICIP_WO_EX = DeimosConfig.FILE_OUTPUT_PUBLICIP.substring(0,
+				DeimosConfig.FILE_OUTPUT_PUBLICIP.length()-4);
+		
+		return historyFileNameWoExt.replace(FILE_OUTPUT_HISTORY_WO_EX, FILE_OUTPUT_PUBLICIP_WO_EX)+".txt";
+	}
+	
+	/**
+	 * Estimates the name of the user Info file given
+	 * a pattern of the input history file. For example,
+	 * 'export-history-Anushka.csv' -> 'export-userInfo-Anushka.txt'
+	 * @param historyFileName
+	 * @return
+	 */
+	private static String getUserInfoFileName(String historyFileName)
+	{
+		String historyFileNameWoExt = historyFileName.substring(0, historyFileName.length()-4);
+		String FILE_OUTPUT_HISTORY_WO_EX = DeimosConfig.FILE_OUTPUT_HISTORY.substring(0,
+				DeimosConfig.FILE_OUTPUT_HISTORY.length()-4);
+		String FILE_OUTPUT_USERINFO_WO_EX = DeimosConfig.FILE_OUTPUT_USERINFO.substring(0,
+				DeimosConfig.FILE_OUTPUT_USERINFO.length()-4);
+		
+		return historyFileNameWoExt.replace(FILE_OUTPUT_HISTORY_WO_EX, FILE_OUTPUT_USERINFO_WO_EX)+".txt";
+	}
+	
+	/**
+	 * Sets the 3 parameters filePath to their default values.
+	 */
+	private void setDefaultInputFileNames() {
+		System.out.println("Selecting default history, public IP and user Info files.");
+		filePathHistory = DeimosConfig.FILE_OUTPUT_HISTORY;
+		filePathPublicIP = DeimosConfig.FILE_OUTPUT_PUBLICIP;
+		filePathUserInfo = DeimosConfig.FILE_OUTPUT_USERINFO;
+		
+		// outputFileTextField.setText(filePathHistory);
+		outputFileTextField.setText(null);
+	}
 
 	/**
 	 * Initializes the controller class. This method is automatically called
@@ -103,8 +159,9 @@ public class AnalyzeController {
 
 		userId = -1;
 
-		initializeURLsTF();
+		initializeURLsTFandUserInfoPublicIP();
 		initializeTruncateHint();
+		initializeInputHistoryHint();
 		initializeIDF();
 		initializeWeights();
 		initializeSimilarity();
@@ -113,12 +170,6 @@ public class AnalyzeController {
 
 		browseButton.setTooltip(new Tooltip("Select the output file of Phase 1 data collection."));
 	}
-	
-	/**
-	 * TODO
-	 * TrainingValuesService is not complete, 
-	 * add a function call to UserTrainingInput file
-	 */
 	
 	private void initializeTrainingValues() {
 		serviceTrainingValues = new TrainingValuesService();
@@ -140,11 +191,6 @@ public class AnalyzeController {
 		});
 	}
 
-	/**
-	 * TODO
-	 * GEWService is not complete, 
-	 * add a function call to GEW class 
-	 */
 	private void initializeGEW() {
 		serviceGEW = new GEWService();
 		
@@ -166,7 +212,11 @@ public class AnalyzeController {
 		});
 	}
 	
-	private void initializeURLsTF() {
+	private void initializeURLsTFandUserInfoPublicIP() {
+		
+		serviceUserInfoPublicIP = new UserInfoPublicIPService();
+		
+		// TODO does this service need parameters?
 
 		urlsTFTimeline = new Timeline(
 				new KeyFrame(Duration.seconds(0),
@@ -181,6 +231,7 @@ public class AnalyzeController {
 				);
 
 		serviceURLsTF = new URLsTFService();
+		
 
 		serviceURLsTF.setOnRunning(e1 -> {
 			bindToStatus(urlsTFTimeline);
@@ -337,18 +388,46 @@ public class AnalyzeController {
 		});
 		truncateLabel.setTooltip(new Tooltip("Truncate existing user tables for this ID."));
 	}
+	
+	private void initializeInputHistoryHint() {
+
+		truncateLabel.setOnMouseClicked(e -> {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setHeaderText("Import Information from Collect Phase");
+			alert.setTitle("Hint");
+
+			truncateText = "Select the history file exported during the data collection phase.\n\n"
+					+ "It will be named in the format '"+DeimosConfig.FILE_OUTPUT_HISTORY+"'.\n"
+							+ "The same naming format will be used to locate the '"+DeimosConfig.FILE_OUTPUT_USERINFO+"' and "
+									+ "the '"+DeimosConfig.FILE_OUTPUT_PUBLICIP+"' files.";
+
+			alert.setContentText(truncateText);
+
+			alert.showAndWait();
+		});
+		truncateLabel.setTooltip(new Tooltip("The history file among the file(s) exported by the Collect tab."));
+	}
 
 	/**
 	 * Many services require parameters.
 	 * @param id Sends the specified user Id to them for use.
 	 * @param truncate Boolean value for truncate checkbox is used for URLsTFService.
-	 * @param filepath FilePath is used for URLsTFService.
+	 * @param filepathHistory filePaths are used for URLsTFService.
+	 * @param filepathUserInfo filePaths are used for URLsTFService.
+	 * @param filepathPublicIP filePaths are used for URLsTFService.
 	 */
-	private void setParamsForServices(int id, boolean truncate, String filepath)
+	private void setParamsForServices(int id, boolean truncate, String filepathHistory,
+			String filepathUserInfo, String filepathPublicIP)
 	{
 		serviceURLsTF.setUserId(id);
 		serviceURLsTF.setTruncate(truncate);
-		serviceURLsTF.setFilePath(filepath);
+		serviceURLsTF.setFilePath(filepathHistory);
+		
+		serviceUserInfoPublicIP.setUserId(id);
+		serviceUserInfoPublicIP.setTruncate(truncate);
+		serviceUserInfoPublicIP.setFilePathUserInfo(filepathUserInfo);
+		serviceUserInfoPublicIP.setFilePathPublicIP(filepathPublicIP);
+		
 		serviceIDF.setUserId(id);
 		serviceWeights.setUserId(id);
 		serviceSimilarity.setUserId(id);
@@ -366,7 +445,7 @@ public class AnalyzeController {
 	 */
 	private void setParamsForServices()
 	{
-		setParamsForServices(userId, truncateCheckBox.isSelected(), filePath);
+		setParamsForServices(userId, truncateCheckBox.isSelected(), filePathHistory, filePathUserInfo, filePathPublicIP);
 	}
 
 	@FXML
@@ -374,63 +453,79 @@ public class AnalyzeController {
 	{
 
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open Resource File");
+		fileChooser.setTitle("Open History File");
 		fileChooser.getExtensionFilters().addAll(
-				new ExtensionFilter("Coma-separated values", "*.csv"),
+				new ExtensionFilter("Comma-separated values", "*.csv"),
 				new ExtensionFilter("Text Files", "*.txt"));
 		file = fileChooser.showOpenDialog(new Stage());
 
-		filePath = "";
+		filePathHistory = "";
 
 		if(file != null)
 		{
-			filePath = file.toString();
-			outputFileTextField.setText(filePath);
+			filePathHistory = file.toString();
+			outputFileTextField.setText(filePathHistory);
+			
+			// Also derive other files
+			filePathPublicIP = getPublicIPFileName(filePathHistory);
+			filePathUserInfo = getUserInfoFileName(filePathHistory);
 		}
 		else
 		{
 			// TODO handle invalid files vagaira
 
-			Alert alert = new Alert(AlertType.CONFIRMATION);
+			/*Alert alert = new Alert(AlertType.WARNING);
 			alert.setTitle("File not found");
-			alert.setHeaderText("Selected file should be of chrome history only");
-			alert.setContentText("Choose the default file? click on 'Cancel' if you don't wish to.");
-			alert.showAndWait().ifPresent(response -> {
-				if (response == ButtonType.OK) {
-					System.out.println("Selecting default history file.");
-					filePath = DeimosConfig.FILE_OUTPUT_HISTORY;
-					outputFileTextField.setText(filePath);
-				}
-			});
+			alert.setHeaderText("Selected file should be of Chrome history only");
+			alert.setContentText("Reverting to the default file.");
+			alert.showAndWait();*/
+			
+			System.out.println("Invalid file operation in browse button. Reverting to default files.");
+			
+			setDefaultInputFileNames();
 		}
 
 	}
 
 	@FXML
-	private void handleAnalyzeButton() {
-		String message = "";
+	private void handleAnalyzeButton()
+	{
 
-		if(!(userIDTextField.getText().trim().isEmpty())) {
+		if(!(userIDTextField.getText().trim().isEmpty()))
+		{
 			try 
 			{
 				userId = Integer.parseInt(userIDTextField.getText());
 
-				if(!truncateCheckBox.isSelected() && UserURLsTF.doesUserIdExist(userId)) {
+				if(!truncateCheckBox.isSelected() && UserURLsTF.doesUserIdExist(userId))
+				{
+					Alert alert = new Alert(AlertType.CONFIRMATION);
+					alert.setTitle("Something's not right.");
+					alert.setContentText("User-ID already exists!\n\n"
+							+ "Check the 'Truncate' option to clear any existing rows with this "
+							+ "user ID in the table and continue anyway.");
 
-					message = "User-ID already exists!";
-					GUIUtils.generateErrorAlert(message, null);
+					Optional<ButtonType> result = alert.showAndWait();
+					if (result.get() == ButtonType.OK)
+					{
+					    // ... user chose OK TODO insert user/IP anyway
+						
+						setParamsForServices();
+						GUIUtils.startAgain(serviceUserInfoPublicIP);
+						
+					}
+					else {
+					    // ... user chose CANCEL or closed the dialog
+					}					
 				}
 				else
 				{
 					if(outputFileTextField.getText().isEmpty())
 					{
-						System.out.println("Selecting default history file.");
-						filePath = DeimosConfig.FILE_OUTPUT_HISTORY;
-						outputFileTextField.setText(filePath);
+						setDefaultInputFileNames();
 					}
+					
 					analyzeVBox.setDisable(true);
-					/*userIDTextField.setDisable(true);
-					outputFileTextField.setDisable(true);*/
 					analyzeButton.setDisable(true);
 
 					urlsTFStatusLabel.setText("Initializing...");
@@ -439,18 +534,19 @@ public class AnalyzeController {
 					setParamsForServices();
 
 					statusLabel.setText("user_url and user_tf insertion");
-					GUIUtils.startAgain(serviceURLsTF); // The others cascade from this one.				
+					GUIUtils.startAgain(serviceURLsTF); // The others cascade from this one.
+					GUIUtils.startAgain(serviceUserInfoPublicIP);
 				}
 			}
 			catch(NumberFormatException e) 
 			{
-				message = "Invalid User-ID, please enter a number!";
-				GUIUtils.generateErrorAlert(message, null); // TODO get stage
+				String message = "Invalid User-ID, please enter a number!";
+				GUIUtils.generateErrorAlert(message, null);
 
 			}
 		}
 		else {
-			message = "User-ID field can't be empty!";
+			String message = "User-ID field can't be empty!";
 			GUIUtils.generateErrorAlert(message, null);
 		}
 	}

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
@@ -22,11 +24,13 @@
                <children>
                   <HBox prefHeight="25.0" spacing="8.0">
                      <children>
-                        <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" text="User To Predict Demographics For" HBox.hgrow="ALWAYS">
+                        <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" prefWidth="185.0" text="User To Predict Demographics For" HBox.hgrow="ALWAYS">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
+                        <Separator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" opacity="0.5" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="resyncUsersButton" mnemonicParsing="false" onAction="#handleResyncUsersButton" prefWidth="70.0" text="Re-Sync" />
                      </children>
                   </HBox>
                   <VBox spacing="8.0">
@@ -41,12 +45,89 @@
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <Spinner fx:id="userPredictSpinner" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
-                              <Button fx:id="resyncUsersButton" mnemonicParsing="false" onAction="#handleResyncUsersButton" prefWidth="70.0" text="Re-Sync" />
+                              <Spinner fx:id="userPredictSpinner" maxWidth="1.7976931348623157E308" prefWidth="50.0" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="exportButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleExportButton" prefWidth="70.0" text="Export">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Button>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
+               </children>
+            </VBox>
+            <Separator />
+            <VBox spacing="8.0">
+               <children>
+                  <HBox prefHeight="25.0" spacing="8.0">
+                     <children>
+                        <Label maxHeight="25.0" maxWidth="1.7976931348623157E308" text="Import User Data" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                     <children>
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="Values File">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <HBox fx:id="outputFileHBox" maxWidth="1.7976931348623157E308" spacing="6.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <TextField fx:id="outputFileTextField" editable="false" maxHeight="1.7976931348623157E308" promptText="Leave blank for default, export-trainingValues.csv" HBox.hgrow="ALWAYS">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                              </TextField>
+                              <Button fx:id="browseButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" prefWidth="70.0" text="Browse...">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </HBox>
+                  <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
+                     <children>
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="User ID">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <HBox fx:id="outputFileHBox1" maxWidth="1.7976931348623157E308" spacing="6.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <TextField editable="false" maxHeight="1.7976931348623157E308" promptText="Leave blank to auto-generate" HBox.hgrow="ALWAYS">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets right="-10.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="4.0">
+                           <children>
+                              <Label text="*" textFill="RED" visible="false" />
+                              <Label maxHeight="1.7976931348623157E308" text="Truncate">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </Label>
+                              <CheckBox maxHeight="1.7976931348623157E308" mnemonicParsing="false" />
+                              <Button fx:id="importButton" mnemonicParsing="false" prefWidth="70.0" text="Import" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             <Separator />
@@ -71,10 +152,13 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="errorTextField" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="39.0" promptText="Leave blank for default = 0.01" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="errorTextField" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" promptText="Leave blank for default, 0.01" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets />
                            </HBox.margin>
+                           <font>
+                              <Font size="10.0" />
+                           </font>
                         </TextField>
                         <Button fx:id="trainButton" disable="true" mnemonicParsing="false" onAction="#handleTrainButton" prefWidth="70.0" text="Train" />
                      </children>
@@ -103,7 +187,7 @@
                               </Label>
                               <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <ImageView fx:id="wordCloudImage" fitHeight="160.0" fitWidth="160.0" onMouseClicked="#magnifyImage" pickOnBounds="true" preserveRatio="true" />
+                                    <ImageView fx:id="wordCloudImage" fitHeight="112.5" fitWidth="112.5" onMouseClicked="#magnifyImage" pickOnBounds="true" preserveRatio="true" />
                                  </children>
                               </VBox>
                            </children>
@@ -129,41 +213,34 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                  </rowConstraints>
                                  <children>
-                                    <Label disable="true" text="Interests">
+                                    <Label text="Gender">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Gender" GridPane.rowIndex="1">
+                                    <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="predictedInterestsLabel" disable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Format to be finalized" textFill="#0033ff" wrapText="true" GridPane.columnIndex="1" />
-                                    <Label fx:id="predictedGenderLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Age Group" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Age Group" GridPane.rowIndex="2">
+                                    <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label fx:id="predictedLocationLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <Label text="Location" GridPane.rowIndex="2">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Location" GridPane.rowIndex="3">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label fx:id="predictedAgeGroupLabel" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="N/A" textFill="#0033ff" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="14.0" />
                                        </font>
@@ -200,7 +277,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="predictButton" disable="true" mnemonicParsing="false" onAction="#handleGenerateButton" prefWidth="75.0" text="Predict!" />
+            <Button fx:id="predictButton" disable="true" mnemonicParsing="false" onAction="#handlePredictButton" prefWidth="75.0" text="Predict!" />
          </children>
          <padding>
             <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />

@@ -63,12 +63,15 @@
                   </HBox>
                   <HBox maxHeight="1.7976931348623157E308" spacing="6.0">
                      <children>
-                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="History file">
+                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0" text="History file" underline="true">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="outputFileTextField" promptText="Leave blank to use default file." HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="outputFileTextField" editable="false" maxHeight="1.7976931348623157E308" promptText="Leave blank for default, export-History.txt" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="10.0" />
+                           </font></TextField>
                         <Button fx:id="browseButton" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="90.0" text="Browse..." />
                      </children>
                   </HBox>

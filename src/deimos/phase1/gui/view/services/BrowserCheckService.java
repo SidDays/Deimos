@@ -23,7 +23,7 @@ public class BrowserCheckService extends Service<Void> {
             	
             	// TODO Remove this later! Used to simulate a delay
             	try {
-    				Thread.sleep(1000);
+    				Thread.sleep(100);
     			} catch (InterruptedException e) {
     				
     				e.printStackTrace();

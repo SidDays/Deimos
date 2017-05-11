@@ -41,6 +41,7 @@ public class DeimosConfig {
 	public static final String FILE_OUTPUT_HISTORY = "export-history.csv";
 	public static final String FILE_OUTPUT_PUBLICIP = "export-publicIP.txt";
 	public static final String FILE_OUTPUT_USERINFO = "export-userInfo.txt";
+	public static final String FILE_OUTPUT_TRAINVAL = "export-trainingValues.csv";
 	
 	public static final String FILE_MAXMIND_GEOCITY = "resources/GeoLiteCity.dat";
 	

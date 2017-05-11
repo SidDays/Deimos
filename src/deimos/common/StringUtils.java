@@ -22,6 +22,52 @@ public class StringUtils
 {
 
 	/**
+	 * Strips a filename of its extension.
+	 * @param str
+	 * @return
+	 */
+	public static String removeExtension(String str)
+	{
+		if(str.contains("."))
+		{
+			return str.substring(0, str.lastIndexOf('.'));
+		}
+		return str;
+	}
+
+	/**
+	 * Gets extension of a file.
+	 * @param str
+	 * @return
+	 */
+	public static String extractExtension(String str)
+	{
+		if(str.contains("."))
+		{
+			return str.substring(str.lastIndexOf('.')+1);
+		}
+		return null;
+	}
+
+	/**
+	 * Adds a certain String to a filename while preserving the extensions.
+	 * @return
+	 */
+	public static String addTagToFileName(String fileName, String nameTag)
+	{
+		if(nameTag == null || nameTag.isEmpty() || nameTag.equals("null"))
+		{
+			return fileName;
+		} else {
+
+			String fileWoExt = StringUtils.removeExtension(fileName);
+			String ext = StringUtils.extractExtension(fileName);
+
+			return fileWoExt + "-" + nameTag + "." + ext;
+		}
+	}
+
+	/**
 	 * Converts a long string into a format displayable in a fixed size.
 	 * Adds "..." if the length is exceeded.
 	 * @param str
@@ -225,7 +271,7 @@ public class StringUtils
 	}
 
 	/**
-	 * When given a CSV line as inpu, returns all the individual
+	 * When given a CSV line as input, returns all the individual
 	 * cells in that row in an Array
 	 * @param csvLine
 	 * @return String[] containing subparts

@@ -125,7 +125,7 @@ public class ExportAll {
 		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
 				"male", 1995, null, DeimosConfig.FILE_OUTPUT_USERINFO);
 		
-		Zipper.zipOutputFiles();
+		Zipper.zipOutputFiles(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 		
 		mailOutputToDeimosTeam();
 

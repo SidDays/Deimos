@@ -1,5 +1,6 @@
 package deimos.phase3;
 
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +27,18 @@ public class NeuralConstants {
 			"Middle-aged female",
 			"Old male",
 			"Old female"
+	};
+
+	/**
+	 * For the user export filenames.
+	 */
+	public static final String GROUPS_SMALL_NAMES[] = {
+			"YOUNG_MALE",
+			"YOUNG_FEMALE",
+			"MID_MALE",
+			"MID_FEMALE",
+			"OLD_MALE",
+			"OLD_FEMALE"
 	};
 
 	public static int getGroup(int age, int gender)
@@ -96,6 +109,11 @@ public class NeuralConstants {
 			OLD_MALE_IDEAL,
 			OLD_FEMALE_IDEAL
 	};
+	
+	public static int getAge(int yearOfBirth) {
+		int year = Year.now().getValue();
+		return year - yearOfBirth;
+	}
 
 	public static int getAgeGroup(int age)
 	{
@@ -110,11 +128,27 @@ public class NeuralConstants {
 		else
 			return INT_AGES[1];
 	}
+
+	public static int getGenderGroup(String str)
+	{
+		int gender = -1;
+		if(str.length() >= 1) {
+			String firstLetter = str.substring(0, 1);
+			
+			if(firstLetter.equalsIgnoreCase("m"))
+				gender = 0;
+			else if(firstLetter.equalsIgnoreCase("f"))
+				gender = 1;
+		}
+
+		return gender;
+	}
+
 	public static int getAgeGroup(User u)
 	{
 		return getAgeGroup(u.getAge());
 	}
-	
+
 	public static String getClosestGroup(double[] row)
 	{
 		int max_index = 0;
@@ -123,7 +157,7 @@ public class NeuralConstants {
 			if(row[max_index] < row[i])
 				max_index = i;
 		}
-		
+
 		return GROUPS[max_index];
 	}
 
@@ -132,17 +166,14 @@ public class NeuralConstants {
 	 * The bigger the value (i.e. the closer the value is to one), the better
 	 * a match it is.
 	 * 
-	 *
-	 * 
 	 * @param row
 	 * @return
 	 */
 	@Deprecated
 	public static List<String> getClosestGroups(double[] row)
 	{
-		// TODO BUGGY
-		
-		
+		// TOO BUGGY
+
 		List<String> closest = new ArrayList<>(Arrays.asList(GROUPS));
 
 		// Bubble sort ftw

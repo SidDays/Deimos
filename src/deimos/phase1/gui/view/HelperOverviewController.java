@@ -211,7 +211,7 @@ public class HelperOverviewController {
 		if(isAllFlagsEnabled()) {
 
 			// TODO This is being done on the main thread because I'm a lazy fuck.
-			Zipper.zipOutputFiles();
+			Zipper.zipOutputFiles(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 
 			// LEAVE NO TRACES! bwahaha
 			if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)

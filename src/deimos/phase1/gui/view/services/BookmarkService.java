@@ -1,6 +1,7 @@
 package deimos.phase1.gui.view.services;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 import deimos.phase1.ExportBookmarks;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -11,6 +12,13 @@ import javafx.concurrent.Task;
  *
  */
 public class BookmarkService extends Service<Void> {
+	
+	private String nameTag = null;
+
+	public void setNameTag(String nt)
+	{
+		this.nameTag = nt;
+	}
 
 	@Override
 	protected Task<Void> createTask() {
@@ -19,7 +27,7 @@ public class BookmarkService extends Service<Void> {
             @Override
             public Void call(){
             
-            	ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
+            	ExportBookmarks.retreiveBookmarksAsFile(StringUtils.addTagToFileName(DeimosConfig.FILE_OUTPUT_BOOKMARKS, nameTag));
                	return null;
             }
 		};

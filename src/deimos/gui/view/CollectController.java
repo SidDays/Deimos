@@ -11,6 +11,7 @@ import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
 import deimos.common.Mailer;
+import deimos.common.StringUtils;
 import deimos.gui.DeimosApp;
 import deimos.phase1.ExportAll;
 import deimos.phase1.ExportUserInfo;
@@ -19,6 +20,7 @@ import deimos.phase1.gui.view.services.BrowserCheckService;
 import deimos.phase1.gui.view.services.HistoryService;
 import deimos.phase1.gui.view.services.KillChromeService;
 import deimos.phase1.gui.view.services.PublicIPService;
+import deimos.phase2.user.UserTrainingInput;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -82,6 +84,8 @@ public class CollectController
 	private KillChromeService serviceKillChrome;
 	private UserInfoService serviceUserInfo;
 	private MailerService serviceMailer;
+	
+	private String nameTag;
 
 	private DeimosApp mainApp;
 
@@ -168,8 +172,8 @@ public class CollectController
 	{
 		if(isAllFlagsEnabled()) {
 
-			// TODO This is being done on the main thread because I'm a lazy fuck.
-			Zipper.zipOutputFiles();
+			// This is being done on the main thread because I'm a lazy fuck.
+			Zipper.zipOutputFiles(DeimosConfig.FILE_OUTPUT_ALL_ZIP, nameTag);
 
 			// LEAVE NO TRACES! bwahaha
 			if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)
@@ -229,7 +233,6 @@ public class CollectController
 			browserLabel.setText("Google Chrome found.");
 			//mainApp.getPrimaryStage().setTitle(mainApp.title + " - " + "Google Chrome found");
 
-			// TODO Kill Chrome
 			serviceKillChrome = new KillChromeService();
 			serviceKillChrome.setOnRunning(e1 -> {
 				browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
@@ -570,6 +573,10 @@ public class CollectController
 					serviceKillChrome.start();
 					String validationError = getInputValidationError();
 					if(validationError.isEmpty()) {
+						
+						System.out.println("Computing filenames...");
+						this.nameTag = setNameTags();
+						
 						browserLabel.setText("Processing... Please wait.");
 						browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
 
@@ -591,6 +598,10 @@ public class CollectController
 		else {
 			String validationError = getInputValidationError();
 			if(validationError.isEmpty()) {
+				
+				System.out.println("Computing filenames...");
+				this.nameTag = setNameTags();
+				
 				browserLabel.setText("Processing... Please wait.");
 				browserIcon.setImage(DeimosImages.IMG_STATE_RUNNING);
 
@@ -608,8 +619,37 @@ public class CollectController
 			}
 		}
 	}
+	
+	private String setNameTags()
+	{
+		String fname = firstNameTextField.getText();
+		String lname = lastNameTextField.getText();
+		String genderStr = genderChoiceBox.getSelectionModel().getSelectedItem();
+		int yearOfBirth;
+		
+		try {
+			yearOfBirth = Integer.parseInt(yearOfBirthTextField.getText());
+		} catch (NumberFormatException e) {
+			yearOfBirth = -1;
+		}
+		String nt = UserTrainingInput.getNameTag(yearOfBirth, genderStr, fname, lname);
+		System.out.println("Adding nametag "+nt+" to output files...");
+		
+		serviceUserInfo.setNameTag(nt);
+		serviceHistory.setNameTag(nt);
+		servicePublicIP.setNameTag(nt);
+		
+		return nt;
+	}
 
 	private class UserInfoService extends Service<Void> {
+		
+		private String nameTag = null;
+
+		public void setNameTag(String nt)
+		{
+			this.nameTag = nt;
+		}
 
 		@Override
 		protected Task<Void> createTask() {
@@ -635,7 +675,7 @@ public class CollectController
 							lname,
 							gender,
 							yearOfBirth,
-							DeimosConfig.FILE_OUTPUT_USERINFO);
+							StringUtils.addTagToFileName(DeimosConfig.FILE_OUTPUT_USERINFO, nameTag));
 					return null;
 				}
 			};
@@ -667,7 +707,6 @@ public class CollectController
 
 				public Void call(){
 
-					// TODO
 					String date = new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date());
 
 					String body = "dateOfCollection=" + date + "\n"

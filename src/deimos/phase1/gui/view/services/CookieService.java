@@ -3,6 +3,7 @@ package deimos.phase1.gui.view.services;
 import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
+import deimos.common.StringUtils;
 import deimos.phase1.ExportCookies;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -13,6 +14,13 @@ import javafx.concurrent.Task;
  *
  */
 public class CookieService extends Service<Void> {
+	
+	private String nameTag = null;
+	
+	public void setNameTag(String nt)
+	{
+		this.nameTag = nt;
+	}
 
 	@Override
 	protected Task<Void> createTask() {
@@ -21,7 +29,7 @@ public class CookieService extends Service<Void> {
             @Override
             public Void call() throws SQLiteException
             {
-            	ExportCookies.retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
+            	ExportCookies.retreiveCookiesAsFile(StringUtils.addTagToFileName(DeimosConfig.FILE_OUTPUT_COOKIES, nameTag));
                	return null;
             }
         };
