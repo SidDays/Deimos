@@ -58,7 +58,7 @@
                </children>
             </VBox>
             <Separator />
-            <VBox spacing="8.0">
+            <VBox fx:id="importUserVBox" spacing="8.0">
                <children>
                   <HBox prefHeight="25.0" spacing="8.0">
                      <children>
@@ -76,14 +76,14 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <HBox fx:id="outputFileHBox" maxWidth="1.7976931348623157E308" spacing="6.0" HBox.hgrow="ALWAYS">
+                        <HBox maxWidth="1.7976931348623157E308" spacing="6.0" HBox.hgrow="ALWAYS">
                            <children>
                               <TextField fx:id="outputFileTextField" editable="false" maxHeight="1.7976931348623157E308" promptText="Leave blank for default, export-trainingValues.csv" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font size="10.0" />
                                  </font>
                               </TextField>
-                              <Button fx:id="browseButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" prefWidth="70.0" text="Browse...">
+                              <Button fx:id="browseButton" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleBrowseButton" prefWidth="70.0" text="Browse...">
                                  <font>
                                     <Font size="11.0" />
                                  </font>
@@ -101,7 +101,7 @@
                         </Label>
                         <HBox fx:id="outputFileHBox1" maxWidth="1.7976931348623157E308" spacing="6.0" HBox.hgrow="ALWAYS">
                            <children>
-                              <TextField editable="false" maxHeight="1.7976931348623157E308" promptText="Leave blank to auto-generate" HBox.hgrow="ALWAYS">
+                              <TextField fx:id="userIDTextField" maxHeight="1.7976931348623157E308" promptText="Leave blank to auto-generate" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font size="10.0" />
                                  </font>
@@ -122,8 +122,8 @@
                                     <Cursor fx:constant="HAND" />
                                  </cursor>
                               </Label>
-                              <CheckBox maxHeight="1.7976931348623157E308" mnemonicParsing="false" />
-                              <Button fx:id="importButton" mnemonicParsing="false" prefWidth="70.0" text="Import" />
+                              <CheckBox fx:id="truncateCheckBox" maxHeight="1.7976931348623157E308" mnemonicParsing="false" />
+                              <Button fx:id="importButton" mnemonicParsing="false" onAction="#handleImportButton" prefWidth="70.0" text="Import" />
                            </children>
                         </HBox>
                      </children>
@@ -178,7 +178,7 @@
                   </Label>
                   <HBox VBox.vgrow="ALWAYS">
                      <children>
-                        <VBox maxHeight="1.7976931348623157E308" spacing="8.0">
+                        <VBox maxHeight="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
                            <children>
                               <Label text="Interests" VBox.vgrow="NEVER">
                                  <font>

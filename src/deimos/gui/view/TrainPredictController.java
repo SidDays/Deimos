@@ -2,15 +2,18 @@ package deimos.gui.view;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import deimos.common.DeimosConfig;
 import deimos.common.DeimosImages;
 import deimos.common.GUIUtils;
 import deimos.common.StringUtils;
 import deimos.gui.view.services.ExportUserService;
+import deimos.gui.view.services.ImportUserService;
 import deimos.gui.view.services.NeuralTrainingService;
 import deimos.gui.view.services.PredictListService;
 import deimos.gui.view.services.PredictService;
+import deimos.phase2.user.UserURLsTF;
 import deimos.phase3.Neural;
 import deimos.phase3.User;
 import deimos.phase3.WordCloudGenerator;
@@ -20,12 +23,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -41,19 +46,25 @@ public class TrainPredictController {
 	@FXML
 	private Button exportButton;
 
-	private ExportUserService serviceUserExport;
+	private ExportUserService serviceExportUser;
 
 	// Import user
 	@FXML
-	private HBox outputFileHBox;
+	private TextField userIDTextField;
+	@FXML
+	private VBox importUserVBox;
 	@FXML
 	private TextField outputFileTextField;
+	@FXML
+	private CheckBox truncateCheckBox;
 	@FXML
 	private Button browseButton;
 	@FXML
 	private Button importButton;
-	
+
 	private String filePathValues, filePathPublicIP, filePathUserInfo;
+
+	private ImportUserService serviceImportUser;
 
 	// Training mode
 	@FXML
@@ -124,16 +135,17 @@ public class TrainPredictController {
 	{
 		String valuesFileNameWoExt = StringUtils.removeExtension(valuesFileName);
 		String FILE_OUTPUT_PUBLICIP_WO_EX = StringUtils.removeExtension(DeimosConfig.FILE_OUTPUT_PUBLICIP);
-		String FILE_OUTPUT_USERINFO_WO_EX = StringUtils.removeExtension(DeimosConfig.FILE_OUTPUT_USERINFO);
+		String FILE_OUTPUT_TRAINVAL_WO_EX = StringUtils.removeExtension(DeimosConfig.FILE_OUTPUT_TRAINVAL);
 
-		return valuesFileNameWoExt.replace(FILE_OUTPUT_PUBLICIP_WO_EX, FILE_OUTPUT_USERINFO_WO_EX)+".txt";
+		return valuesFileNameWoExt.replace(FILE_OUTPUT_TRAINVAL_WO_EX, FILE_OUTPUT_PUBLICIP_WO_EX)+".txt";
 	}
 
 	@FXML
 	private void initialize()
 	{
 		initializePredictListSpinner();
-		initializeUserExport();
+		initializeExportUser();
+		initializeImportUser();
 		initializeNeuralTraining();
 		initializePrediction();
 
@@ -171,12 +183,32 @@ public class TrainPredictController {
 		});
 	}
 
-	private void initializeUserExport()
+	private void initializeExportUser()
 	{
-		serviceUserExport = new ExportUserService();
+		serviceExportUser = new ExportUserService();
 
-		serviceUserExport.setOnSucceeded(e -> {
+		serviceExportUser.setOnSucceeded(e -> {
 			tpStatus.setText("Exported user!");
+		});
+	}
+
+	private void initializeImportUser()
+	{
+		serviceImportUser = new ImportUserService();
+		serviceImportUser.setOnRunning(e-> {
+			importUserVBox.setDisable(true);
+		});
+		serviceImportUser.setOnCancelled(e-> {
+			importUserVBox.setDisable(false);
+		});
+		serviceImportUser.setOnFailed(e-> {
+			importUserVBox.setDisable(false);
+			tpStatus.setText("Imported user failed - "+serviceImportUser.getException());
+			// serviceImportUser.getException().printStackTrace();
+		});
+		serviceImportUser.setOnSucceeded(e -> {
+			importUserVBox.setDisable(false);
+			tpStatus.setText("Imported user!");
 		});
 	}
 
@@ -296,8 +328,116 @@ public class TrainPredictController {
 	private void handleExportButton()
 	{
 		currentUser = userPredictSpinner.getValue();
-		serviceUserExport.setUserId(currentUser.getUserId());
-		GUIUtils.startAgain(serviceUserExport);
+		serviceExportUser.setUserId(currentUser.getUserId());
+		GUIUtils.startAgain(serviceExportUser);
+	}
+
+	/**
+	 * Returns 1 higher than the largest userId in the list.
+	 * @return
+	 */
+	private int autoGenerateUserId()
+	{
+		if(usersPrediction.size() == 0)
+			return 1;
+		else {
+			int userId = usersPrediction.get(usersPrediction.size()-1).getUserId()+1;
+			userIDTextField.setText(String.valueOf(userId));
+			return userId;
+		}
+	}
+
+	@FXML
+	private void handleImportButton()
+	{
+		// TODO
+		System.out.println("Importing started.");
+
+		int userId = -1;
+		boolean userIdCheck = false;
+
+		if((userIDTextField.getText().isEmpty()))
+		{
+			System.out.println("Auto-generating user Id.");
+			userId = autoGenerateUserId();
+			userIdCheck = true;
+		}
+		else
+		{
+			try
+			{
+				userId = Integer.parseInt(userIDTextField.getText());
+				userIdCheck = true;
+			}
+			catch (NumberFormatException e)
+			{
+				String message = "Invalid User-ID, please enter a number!";
+				GUIUtils.generateErrorAlert(message, null);
+
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Something's not right.");
+				alert.setHeaderText("Invalid User-ID");
+				alert.setContentText("Select OK to auto-generate a userId by default, or select Cancel to change it manually.");
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == ButtonType.OK)
+				{
+					// ... user chose OK
+					userId = autoGenerateUserId();
+					userIdCheck = true;
+				}
+				else {
+					// ... user chose CANCEL or closed the dialog
+				}
+			}
+		}
+
+		if(userIdCheck)
+		{
+			System.out.println("Passed userId check, userId chosen = "+userId);
+			
+			boolean truncate = truncateCheckBox.isSelected();
+			boolean alreadyExists = UserURLsTF.doesUserIdExist(userId);		
+			boolean proceed = false;
+
+			if(alreadyExists && !truncate)
+			{
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Something's not right.");
+				alert.setHeaderText("User-ID already exists!");
+				alert.setContentText("Clear any existing rows with this "
+						+ "user ID in the table and continue anyway?");
+
+				Optional<ButtonType> result = alert.showAndWait();
+				if (result.get() == ButtonType.OK)
+				{
+					// ... user chose OK
+					truncateCheckBox.setSelected(true);
+					proceed = true;
+				}
+				else {
+					// ... user chose CANCEL or closed the dialog
+				}	
+			}
+			else
+				proceed = true;
+
+			if(proceed)
+			{					
+				// Set parameter Values
+				serviceImportUser.setUserId(userId);
+				serviceImportUser.setTruncate(truncateCheckBox.isSelected());
+				serviceImportUser.setFilePathValues(filePathValues);
+				serviceImportUser.setFilePathPublicIP(filePathPublicIP);
+				serviceImportUser.setFilePathUserInfo(filePathUserInfo);
+
+				System.out.println("Importing...");
+				GUIUtils.startAgain(serviceImportUser);
+			}
+		}
+		else
+			System.out.println("Failed userId check. Won't continue.");
+
 	}
 
 	@FXML
@@ -354,7 +494,7 @@ public class TrainPredictController {
 			setDefaultInputFileNames();
 		}
 	}
-	
+
 	/**
 	 * Sets the 3 parameters filePath to their default values.
 	 */

@@ -501,15 +501,15 @@ public class AnalyzeController {
 				{
 					Alert alert = new Alert(AlertType.CONFIRMATION);
 					alert.setTitle("Something's not right.");
-					alert.setContentText("User-ID already exists!\n\n"
-							+ "Check the 'Truncate' option to clear any existing rows with this "
-							+ "user ID in the table and continue anyway.");
+					alert.setHeaderText("User-ID already exists!");
+					alert.setContentText("Clear any existing rows with this "
+							+ "user ID in the table and continue anyway?");
 
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == ButtonType.OK)
 					{
 					    // ... user chose OK TODO insert user/IP anyway
-						
+						truncateCheckBox.setSelected(true);
 						setParamsForServices();
 						GUIUtils.startAgain(serviceUserInfoPublicIP);
 						
