@@ -8,6 +8,7 @@ import java.util.List;
 public class NeuralConstants {
 
 	public static final int NODES_INPUT = 35;
+	public static final int[] NODES_HIDDEN = {27};
 	public static final int NODES_OUTPUT = 6;
 
 	public static final int LIMIT_YOUNG_MID = 30;

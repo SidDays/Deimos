@@ -103,6 +103,7 @@ public class ImportUserService extends Service<Void> {
 							System.out.println("User info file loaded.");
 							String userData[] = userInfoLines.get(0).split(DeimosConfig.DELIM);
 
+							// Handle nulls correctly - 1
 							for(int i = 0; i < userData.length; i++)
 								if(userData[i].equals("null"))
 									userData[i] = null;
@@ -112,9 +113,7 @@ public class ImportUserService extends Service<Void> {
 									genderStr = userData[2],
 									yearOfBirthStr = userData[3],
 									location = userData[4];
-
-							char gender = genderStr.charAt(0);
-							int yearOfBirth = Integer.parseInt(yearOfBirthStr);
+							
 
 							// Get the Public IP
 							List<String> publicIPLines = ProcessFileUtils.readFileIntoList(filePathPublicIP);
@@ -145,10 +144,23 @@ public class ImportUserService extends Service<Void> {
 								psUser.setString(3, lname);
 							else
 								psUser.setNull(3, Types.VARCHAR);
+							
+							if(genderStr != null) {
+								char gender = genderStr.charAt(0);
+								psUser.setString(4, String.valueOf(gender));
+							}
+							else {
+								psUser.setNull(4, Types.CHAR);
+							}						
 
-							psUser.setString(4, String.valueOf(gender));
+							if(yearOfBirthStr != null) {
+								int yearOfBirth = Integer.parseInt(yearOfBirthStr);
+								psUser.setInt(5, yearOfBirth);
+							}
+							else {
+								psUser.setNull(5, Types.INTEGER);
+							}
 
-							psUser.setInt(5, yearOfBirth);
 							if(location != null)
 								psUser.setString(6, location);
 							else

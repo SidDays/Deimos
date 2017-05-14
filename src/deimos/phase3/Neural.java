@@ -184,8 +184,11 @@ public class Neural
 
 		// BasicLayer(ActivationFunction activationFunction, boolean hasBias, int neuronCount)
 		network.addLayer(new BasicLayer(null, true, NeuralConstants.NODES_INPUT));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
-		network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 20));
+		
+		// Add the hidden layers
+		for(int i = 0; i < NeuralConstants.NODES_HIDDEN.length; i++)
+			network.addLayer(new BasicLayer(new ActivationSigmoid(), true, NeuralConstants.NODES_HIDDEN[i]));
+		
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, NeuralConstants.NODES_OUTPUT));
 
 		network.getStructure().finalizeStructure();
