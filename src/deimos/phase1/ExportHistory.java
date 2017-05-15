@@ -4,6 +4,7 @@ import org.sqlite.SQLiteException;
 
 import deimos.common.DeimosConfig;
 import deimos.common.StringUtils;
+import deimos.common.TimeUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,7 +50,6 @@ public class ExportHistory {
 	public static List<String> retrieveHistory(String historyLocation) throws SQLiteException
 	{
 		// TODO revise history output format ADD NUMBER OF TIMES VISITED
-		
 		count = 0;
 		
 		List<String> output = new ArrayList<>();
@@ -107,7 +107,10 @@ public class ExportHistory {
 	 * @param fileName
 	 * @throws SQLiteException
 	 */
-	public static void retreiveHistoryAsFile(String fileName) throws SQLiteException {
+	public static void retreiveHistoryAsFile(String fileName) throws SQLiteException
+	{
+		
+		long startTime = System.currentTimeMillis();
 
 		List<String> output = retrieveHistory(FILE_CHROME_WIN_HISTORY);
 
@@ -121,7 +124,7 @@ public class ExportHistory {
 				fileStream.println(output.get(i));
 			}
 			
-			System.out.println(count + " history entries exported to "+fileName+ ".");
+			
 
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -144,6 +147,10 @@ public class ExportHistory {
 				e.printStackTrace();
 			}
 		}
+		
+		long stopTime = System.currentTimeMillis();
+		
+		System.out.println(count + " history entries exported to "+fileName+ " in " +TimeUtils.formatHmss(stopTime-startTime)+ ".");
 	}
 
 	public static void main(String[] args) {

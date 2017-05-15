@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import org.ipify.Ipify;
 
 import deimos.common.DeimosConfig;
+import deimos.common.TimeUtils;
 
 public class ExportIP {
 	
@@ -29,8 +30,10 @@ public class ExportIP {
 		return ipAddress;
 	}
 	
-	public static void retrievePublicIPAsFile(String fileName)
-			throws UnknownHostException {
+	public static void retrievePublicIPAsFile(String fileName) throws UnknownHostException
+	{
+		
+		long startTime = System.currentTimeMillis();
 		
 		int count = 0;
 		try
@@ -57,8 +60,12 @@ public class ExportIP {
 			if(fileStream != null)
 				fileStream.close();
 			
-			System.out.println(count + " public IP(s) exported to "+fileName+ ".");
+			
 		}
+		
+		long stopTime = System.currentTimeMillis();
+		
+		System.out.println(count + " public IP(s) exported to "+fileName+ " in " +TimeUtils.formatHmss(stopTime-startTime)+ ".");
 	}
 	
 	public static void main(String args[]) {

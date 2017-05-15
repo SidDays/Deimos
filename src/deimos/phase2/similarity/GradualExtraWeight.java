@@ -4,6 +4,8 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 
@@ -12,6 +14,9 @@ public class GradualExtraWeight {
 	private static Connection db_conn;
 	
 	public static void executeGEWQuery(int user_id) {
+		
+		long startTime = System.currentTimeMillis();
+		
 		 try {
 			 
 			DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
@@ -126,7 +131,8 @@ public class GradualExtraWeight {
 			CallableStatement cs = db_conn.prepareCall(query);
 			System.out.println("GEW process started");
 			cs.execute();
-			System.out.println("GEW process ended");
+			long stopTime = System.currentTimeMillis();
+			System.out.println("GEW process ended in " +TimeUtils.formatHmss(stopTime-startTime)+ ".");
 			cs.close();
 			db_conn.close();
 			

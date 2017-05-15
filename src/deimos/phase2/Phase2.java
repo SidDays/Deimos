@@ -35,8 +35,7 @@ public class Phase2 {
 	
 	private static void prepareUserData(int user_id)
 	{
-		// TODO remove hardcode
-		
+		// remove hardcode
 		UserInfo.insertUserInfoIntoDB(user_id, DeimosConfig.FILE_OUTPUT_USERINFO, DeimosConfig.FILE_OUTPUT_PUBLICIP, false);
 		
 		UserURLsTF.userURLAndTFTableInsertion(user_id);
@@ -85,7 +84,7 @@ public class Phase2 {
 		
 		System.out.println("All Phase 2 operations started together.\n");
 		
-		// TODO remove hardcode
+		// remove hardcode
 		phase2(1);
 		
 		long stopTime = System.currentTimeMillis();
