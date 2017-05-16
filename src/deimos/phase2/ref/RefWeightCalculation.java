@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 
@@ -61,6 +62,8 @@ public class RefWeightCalculation
 	{
 		try
 		{
+			long startTime = System.currentTimeMillis();
+			
 			db_conn = DBOperations.getConnectionToDatabase("RefWeightCalculation");
 			
 			stmtWeightUpdate = db_conn.createStatement();
@@ -78,8 +81,10 @@ public class RefWeightCalculation
 					+ "( SELECT idf FROM ref_idf "
 					+ "WHERE ref_idf.term = ref_tf.term )");
 			//dbo.executeUpdate(queryUpdate);
-
-			System.out.println("Weight calculation and updation finished for ref_tf!");
+			
+			long stopTime = System.currentTimeMillis();
+			System.out.format("Weight calculation and updation finished for ref_tf in %s.\n",
+					TimeUtils.formatHmss(stopTime-startTime));
 			db_conn.close();
 			stmtWeightUpdate.close();
 		}

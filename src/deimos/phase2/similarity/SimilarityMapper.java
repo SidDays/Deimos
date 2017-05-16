@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import deimos.common.StringUtils;
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 public class SimilarityMapper
@@ -69,6 +70,7 @@ public class SimilarityMapper
 	{		
 		try
 		{
+			long startTime = System.currentTimeMillis();
 			
 			db_conn = DBOperations.getConnectionToDatabase("SimilarityMapper");
 			
@@ -261,7 +263,9 @@ public class SimilarityMapper
 			// Close connection
 			db_conn.close();
 			
-			System.out.println("Finished computing similarity for user "+user_id+"!");
+			long stopTime = System.currentTimeMillis();
+			System.out.format("Finished computing similarity for user %d in %s.\n",
+					user_id, TimeUtils.formatHmss(stopTime-startTime));
 			status = "Finished!";
 		} 
 		catch (SQLException e) 

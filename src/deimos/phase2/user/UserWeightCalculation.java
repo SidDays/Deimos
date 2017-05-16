@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 /**
@@ -45,6 +46,8 @@ public class UserWeightCalculation {
 	{
 		try
 		{
+			long startTime = System.currentTimeMillis();
+			
 			System.out.println("Weight calculation and updation for user_tf started for user "+user_id+".");
 			
 			db_conn = DBOperations.getConnectionToDatabase("UserWeightCalculation");
@@ -61,8 +64,10 @@ public class UserWeightCalculation {
 			stmt.close();
 			
 			db_conn.close();
-
-			System.out.println("Weight calculation and updation finished for user_tf for user "+user_id+"!");
+			
+			long stopTime = System.currentTimeMillis();
+			System.out.format("Weight calculation and updation finished for user_tf for user %d in %s.\n",
+					user_id, TimeUtils.formatHmss(stopTime-startTime));
 			System.out.println();
 		}
 		catch(SQLException e)
