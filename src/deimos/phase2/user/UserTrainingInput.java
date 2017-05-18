@@ -295,7 +295,7 @@ public class UserTrainingInput
 
 		// Modify filenames
 		String fileNameValuesWoEx = StringUtils.removeExtension(fileNameValues);
-		fileNameValues = String.format("%s-%s-%s.txt", fileNameValuesWoEx, demoGroup, fullName);
+		fileNameValues = String.format("%s-%s-%s.csv", fileNameValuesWoEx, demoGroup, fullName);
 
 		String fileNameUserInfoWoEx = StringUtils.removeExtension(fileNameUserInfo);
 		fileNameUserInfo = String.format("%s-%s-%s.txt", fileNameUserInfoWoEx, demoGroup, fullName);

@@ -42,6 +42,7 @@ import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
+import deimos.common.TimeUtils;
 import deimos.phase2.DBOperations;
 
 /**
@@ -59,9 +60,9 @@ import deimos.phase2.DBOperations;
 public class Neural
 {
 	public static final int MAX_ITERATIONS = 10000;
-	
+
 	public static List<User> trainingUsers = new ArrayList<>();
-	
+
 	private static double[][] INPUT, IDEAL; // TODO
 
 	/** Create Statements and preparedStatements on this connection. */
@@ -70,7 +71,7 @@ public class Neural
 	private static BasicNetwork network;
 
 	private static MLDataSet trainingSet;
-	
+
 	public static final double ERROR_ALLOWED_DEFAULT = 0.01;
 
 	static {
@@ -113,12 +114,12 @@ public class Neural
 
 			// Select those users who have input values
 			pstmtUsersWithValues = db_conn.prepareStatement(
-						"SELECT * "
-								+ "FROM user_info "
-								+ "WHERE user_id "
-								+ "IN (SELECT DISTINCT (user_id) FROM user_training_input)");
+					"SELECT * "
+							+ "FROM user_info "
+							+ "WHERE user_id "
+							+ "IN (SELECT DISTINCT (user_id) FROM user_training_input)");
 			ResultSet rs = pstmtUsersWithValues.executeQuery();
-			
+
 			PreparedStatement pstmt = db_conn.prepareStatement("SELECT * FROM user_training_input WHERE user_id = ?");
 
 			// DO SOMETHING!
@@ -128,7 +129,7 @@ public class Neural
 			{
 				User u = new User();
 				u.setUserId(rs.getInt("USER_ID"));
-				
+
 				// Add its input values
 				pstmt.setInt(1, u.getUserId());
 				ResultSet rs2 = pstmt.executeQuery();
@@ -140,17 +141,17 @@ public class Neural
 				}
 				rs2.close();
 				u.setInput_row(row);
-				
+
 				u.setfName(rs.getString("FIRST_NAME"));
 				u.setlName(rs.getString("LAST_NAME"));
 				u.setLocation(rs.getString("LOCATION"));
 				u.setPublicIP(rs.getString("IP"));
 				u.setYearOfBirth(rs.getInt("BIRTH_YEAR"));
 				u.setGender(rs.getString("GENDER"));
-				
+
 				System.out.format("%s (%s) [%s] {%s} \n", u, u.getAge(), u.getGender(),
 						NeuralConstants.GROUPS[NeuralConstants.getAgeGroup(u)]);
-				
+
 				// Separate them
 				if(u.getGender() == null || u.getYearOfBirth() == 0)
 				{
@@ -184,11 +185,11 @@ public class Neural
 
 		// BasicLayer(ActivationFunction activationFunction, boolean hasBias, int neuronCount)
 		network.addLayer(new BasicLayer(null, true, NeuralConstants.NODES_INPUT));
-		
+
 		// Add the hidden layers
 		for(int i = 0; i < NeuralConstants.NODES_HIDDEN.length; i++)
 			network.addLayer(new BasicLayer(new ActivationSigmoid(), true, NeuralConstants.NODES_HIDDEN[i]));
-		
+
 		network.addLayer(new BasicLayer(new ActivationSigmoid(), false, NeuralConstants.NODES_OUTPUT));
 
 		network.getStructure().finalizeStructure();
@@ -201,7 +202,9 @@ public class Neural
 	 */
 	public static void train(double allowedError) // TODO
 	{
-		
+
+		long startTime = System.currentTimeMillis();
+
 		INPUT = new double[trainingUsers.size()][NeuralConstants.NODES_INPUT];
 		IDEAL = new double[trainingUsers.size()][NeuralConstants.NODES_OUTPUT];
 		for(int i = 0; i < INPUT.length; i++)
@@ -210,33 +213,33 @@ public class Neural
 			System.out.println(i+": Training for user "+u+", gender = "+u.getGender()+", age = "+u.getAge());
 			int ageGroup = NeuralConstants.getAgeGroup(u);
 			int gender = (u.getGender().equalsIgnoreCase("m"))?0:1;
-			
+
 			int group = NeuralConstants.getGroup(ageGroup, gender);
 			double ideal[] = NeuralConstants.VALUES_IDEAL[group];
 			System.out.println(Neural.getDataAsString(ideal));
 			IDEAL[i] = ideal;
-			
+
 			for(int j = 0; j < INPUT[0].length; j++)
 			{
 				INPUT[i][j] = u.getInput_row()[j];
-				
+
 			}
 		}
-		
-		/*double INPUT[][] = { NeuralConstants.getRandomInputDataRow(),
-				NeuralConstants.getRandomInputDataRow(),
-				NeuralConstants.getRandomInputDataRow(),
-				NeuralConstants.getRandomInputDataRow(),
-				NeuralConstants.getRandomInputDataRow(),
-				NeuralConstants.getRandomInputDataRow()};
-		// public static double INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 1.0 } };
 
-		double IDEAL[][] = { NeuralConstants.YOUNG_MALE_IDEAL,
-				NeuralConstants.YOUNG_FEMALE_IDEAL,
-				NeuralConstants.MID_MALE_IDEAL,
-				NeuralConstants.MID_FEMALE_IDEAL,
-				NeuralConstants.OLD_MALE_IDEAL,
-				NeuralConstants.OLD_FEMALE_IDEAL};*/
+		/*double INPUT[][] = { NeuralConstants.getRandomInputDataRow(),
+		NeuralConstants.getRandomInputDataRow(),
+		NeuralConstants.getRandomInputDataRow(),
+		NeuralConstants.getRandomInputDataRow(),
+		NeuralConstants.getRandomInputDataRow(),
+		NeuralConstants.getRandomInputDataRow()};
+// public static double INPUT[][] = { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 }, { 1.0, 1.0 } };
+
+double IDEAL[][] = { NeuralConstants.YOUNG_MALE_IDEAL,
+		NeuralConstants.YOUNG_FEMALE_IDEAL,
+		NeuralConstants.MID_MALE_IDEAL,
+		NeuralConstants.MID_FEMALE_IDEAL,
+		NeuralConstants.OLD_MALE_IDEAL,
+		NeuralConstants.OLD_FEMALE_IDEAL};*/
 		// public static double IDEAL[][] = { { 0.0 }, { 1.0 }, { 1.0 }, { 0.0 } };
 
 		// create training data
@@ -255,36 +258,45 @@ public class Neural
 			epoch++;
 		}
 		while(train.getError() > allowedError && epoch < MAX_ITERATIONS);
-		
+
 		train.finishTraining();
 
 		predict();
+
+		long stopTime = System.currentTimeMillis();
+		System.out.format("Training finished in %s.\n",
+				TimeUtils.formatHmss(stopTime-startTime));
+
+
 	}
-	
+
 	public static void train()
 	{
 		train(ERROR_ALLOWED_DEFAULT);
 	}
-	
+
 	public static double[] predict(User u)
 	{
-		System.out.println("Training for user "+u);
+		System.out.println("Predicting for user "+u+" started.");
+
 		return predict(u.getInput_row());
+
 	}
-	
+
 	public static double[] predict(double[] row)
 	{
-		
 		MLData data = new BasicMLData(row);
 
 		// test the neural network
-		System.out.println("Neural Network Results:");
+
+		// System.out.println("Neural Network Results:");
 
 		final MLData output = network.compute(data);
 
-		System.out.println("actual = " + getDataAsString(output.getData()));
+		// System.out.println("actual = " + getDataAsString(output.getData()));
+
 		/* +, ideal = " + getDataAsString(pair.getIdeal().getData()))*/
-		
+
 		return output.getData();
 
 	}
@@ -314,7 +326,7 @@ public class Neural
 	 */
 	public static void main(final String args[])
 	{
-		
+
 		initializeNetwork();
 		separateUsers();
 		train();

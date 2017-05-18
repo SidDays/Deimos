@@ -115,10 +115,16 @@ public class UserIDF {
 					pstmt2.setFloat(3, (float)idf);
 					pstmt2.executeUpdate();
 					
+					status = "Finished!";
+					
 				} catch (SQLSyntaxErrorException e) {
 					System.err.println(e);
+					
+					status = "Error";
 				} catch (SQLException sqle) {
 					sqle.printStackTrace();
+					
+					status = "Error";
 				}
 				
 			}
@@ -128,7 +134,7 @@ public class UserIDF {
 			db_conn.close();
 			
 			System.out.println("\nidf calculation for user_idf complete!");
-			status = "Finished!";
+			
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
