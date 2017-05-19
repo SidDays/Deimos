@@ -1,6 +1,7 @@
 package deimos.gui.view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -203,7 +204,20 @@ public class TrainPredictController {
 		});
 		serviceImportUser.setOnFailed(e-> {
 			importUserVBox.setDisable(false);
-			tpStatus.setText("Imported user failed - "+serviceImportUser.getException());
+			
+			Throwable ex = serviceImportUser.getException();
+			
+			if(ex instanceof FileNotFoundException)
+				GUIUtils.generateErrorAlert("One or more files are missing!\n\n"
+						+ "The User Info and Public IP files must also be included along with the training values.", null);
+			else if(ex instanceof NumberFormatException)
+				GUIUtils.generateErrorAlert("Invalid training input file format!\n\n"
+						+ "The training values file is a CSV file containing category names and decimal values. Please confirm the correct file is being"
+						+ " imported and try again.", null);
+			else
+				GUIUtils.generateErrorAlert("Unknown error occurred!", null);
+			
+			tpStatus.setText("Imported user failed...");
 			// serviceImportUser.getException().printStackTrace();
 		});
 		serviceImportUser.setOnSucceeded(e -> {

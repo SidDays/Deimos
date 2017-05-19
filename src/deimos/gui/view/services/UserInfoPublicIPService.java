@@ -49,7 +49,7 @@ public class UserInfoPublicIPService extends Service<Void> {
 
 		return new Task<Void>() {
 			@Override
-			public Void call(){
+			public Void call() throws FileNotFoundException {
 
 				if(userId == -1) {
 					System.err.println("userId = -1! Can't insert user-info or Public IP.");
@@ -130,7 +130,8 @@ public class UserInfoPublicIPService extends Service<Void> {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					} catch (FileNotFoundException e) {
-						e.printStackTrace();
+						// e.printStackTrace();
+						throw e;
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

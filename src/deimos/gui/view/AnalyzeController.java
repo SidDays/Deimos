@@ -1,6 +1,7 @@
 package deimos.gui.view;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
 import deimos.common.DeimosConfig;
@@ -87,11 +88,11 @@ public class AnalyzeController {
 	private Button analyzeButton;
 
 	private String truncateText;
-	
+
 	private String filePathHistory;
 	private String filePathUserInfo;
 	private String filePathPublicIP;
-	
+
 	private URLsTFService serviceURLsTF;
 	private UserInfoPublicIPService serviceUserInfoPublicIP;
 	private IDFService serviceIDF;
@@ -100,7 +101,7 @@ public class AnalyzeController {
 	private GEWService serviceGEW;
 	private TrainingValuesService serviceTrainingValues;
 	private File file;
-	
+
 	/**
 	 * Estimates the name of the public IP file given
 	 * a pattern of the input history file. For example,
@@ -115,10 +116,10 @@ public class AnalyzeController {
 				DeimosConfig.FILE_OUTPUT_HISTORY.length()-4);
 		String FILE_OUTPUT_PUBLICIP_WO_EX = DeimosConfig.FILE_OUTPUT_PUBLICIP.substring(0,
 				DeimosConfig.FILE_OUTPUT_PUBLICIP.length()-4);
-		
+
 		return historyFileNameWoExt.replace(FILE_OUTPUT_HISTORY_WO_EX, FILE_OUTPUT_PUBLICIP_WO_EX)+".txt";
 	}
-	
+
 	/**
 	 * Estimates the name of the user Info file given
 	 * a pattern of the input history file. For example,
@@ -133,10 +134,10 @@ public class AnalyzeController {
 				DeimosConfig.FILE_OUTPUT_HISTORY.length()-4);
 		String FILE_OUTPUT_USERINFO_WO_EX = DeimosConfig.FILE_OUTPUT_USERINFO.substring(0,
 				DeimosConfig.FILE_OUTPUT_USERINFO.length()-4);
-		
+
 		return historyFileNameWoExt.replace(FILE_OUTPUT_HISTORY_WO_EX, FILE_OUTPUT_USERINFO_WO_EX)+".txt";
 	}
-	
+
 	/**
 	 * Sets the 3 parameters filePath to their default values.
 	 */
@@ -145,7 +146,7 @@ public class AnalyzeController {
 		filePathHistory = DeimosConfig.FILE_OUTPUT_HISTORY;
 		filePathPublicIP = DeimosConfig.FILE_OUTPUT_PUBLICIP;
 		filePathUserInfo = DeimosConfig.FILE_OUTPUT_USERINFO;
-		
+
 		// outputFileTextField.setText(filePathHistory);
 		outputFileTextField.setText(null);
 	}
@@ -170,7 +171,7 @@ public class AnalyzeController {
 
 		browseButton.setTooltip(new Tooltip("Select the output file of Phase 1 data collection."));
 	}
-	
+
 	private void initializeTrainingValues() {
 		serviceTrainingValues = new TrainingValuesService();
 
@@ -182,41 +183,90 @@ public class AnalyzeController {
 			analyzeButton.setDisable(false);
 		});
 		serviceTrainingValues.setOnFailed(e1 -> {
+			trainingValuesStatusLabel.setText("");
 			progressTrainingValuesBar.setProgress(0);
 
 		});
 		serviceTrainingValues.setOnCancelled(e1 -> {
+			trainingValuesStatusLabel.setText("");
 			progressTrainingValuesBar.setProgress(0);
-
 		});
 	}
 
 	private void initializeGEW() {
 		serviceGEW = new GEWService();
-		
+
 		serviceGEW.setOnSucceeded(e1 -> {
 			progressGEWBar.setProgress(1);
-			
+
 			progressTrainingValuesBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Obtaining training values");
 			GUIUtils.startAgain(serviceTrainingValues);
 			gewStatusLabel.setText("Finished!");
 		});
 		serviceGEW.setOnFailed(e1 -> {
+			gewStatusLabel.setText("");
 			progressGEWBar.setProgress(0);
 
 		});
 		serviceGEW.setOnCancelled(e1 -> {
+			gewStatusLabel.setText("");
 			progressGEWBar.setProgress(0);
 
 		});
 	}
-	
+
+	private void cancelEverything() {
+
+		// Cancel everything
+		System.out.println("Attempting to cancel everything...");
+		
+		if(serviceUserInfoPublicIP.cancel())
+			serviceUserInfoPublicIP.reset();
+
+		if(serviceURLsTF.cancel())
+			serviceURLsTF.reset();
+		if(serviceIDF.cancel())
+			serviceIDF.reset();
+		if(serviceWeights.cancel())
+			serviceWeights.reset();
+		if(serviceSimilarity.cancel())
+			serviceSimilarity.reset();
+		if(serviceGEW.cancel())
+			serviceGEW.reset();
+		if(serviceTrainingValues.cancel())
+			serviceTrainingValues.reset();
+
+		analyzeVBox.setDisable(false);
+		analyzeButton.setDisable(false);
+
+		// Reset the button
+		analyzeButton.setText("Analyze!");
+		analyzeButton.setOnAction(e -> {
+			handleAnalyzeButton();
+		});
+	}
+
 	private void initializeURLsTFandUserInfoPublicIP() {
-		
+
 		serviceUserInfoPublicIP = new UserInfoPublicIPService();
-		
-		// TODO does this service need parameters?
+		serviceUserInfoPublicIP.setOnFailed(e -> {
+
+			cancelEverything();
+
+			Throwable ex = serviceUserInfoPublicIP.getException();
+
+			if(ex instanceof FileNotFoundException) {
+				GUIUtils.generateErrorAlert("One or more files are missing!\n\n"
+						+ "The User Info and Public IP files must also be included along with the history file.", null);
+				statusLabel.setText("Files missing...");
+			}
+			else {
+				GUIUtils.generateErrorAlert("Unknown error occurred!", null);
+				statusLabel.setText("Analysis phase failed...");
+			}
+		});
+
 
 		urlsTFTimeline = new Timeline(
 				new KeyFrame(Duration.seconds(0),
@@ -231,7 +281,7 @@ public class AnalyzeController {
 				);
 
 		serviceURLsTF = new URLsTFService();
-		
+
 
 		serviceURLsTF.setOnRunning(e1 -> {
 			bindToStatus(urlsTFTimeline);
@@ -243,18 +293,23 @@ public class AnalyzeController {
 			statusLabel.setText("IDF insertion");
 			GUIUtils.startAgain(serviceIDF);
 		});
+
+		// WorkerStateEvent eventURLsTFFailure = new WorkerStateEvent(new EventHandler());
+
 		serviceURLsTF.setOnFailed(e1 -> {
 			progressURLsTFBar.setProgress(0);
+			urlsTFStatusLabel.setText("");
 			clearBindings(urlsTFTimeline, progressURLsTFBar);
 			//clearURLsTFBinding();
 		});
 		serviceURLsTF.setOnCancelled(e1 -> {
 			progressURLsTFBar.setProgress(0);
+			urlsTFStatusLabel.setText("");
 			clearBindings(urlsTFTimeline, progressURLsTFBar);
 			//clearURLsTFBinding();
 		});
 	}
-	
+
 	/**
 	 * Generalized function for binding 
 	 * the progress bars
@@ -264,7 +319,7 @@ public class AnalyzeController {
 		timeLine.setCycleCount(Animation.INDEFINITE);
 		timeLine.play();
 	}
-	
+
 	/**
 	 * Generalized function for 
 	 * clearing the bindings of 
@@ -277,7 +332,7 @@ public class AnalyzeController {
 	}
 
 	private void initializeIDF() {
-		
+
 		idfTimeline = new Timeline(
 				new KeyFrame(Duration.seconds(0),
 						new EventHandler<ActionEvent>() {
@@ -295,20 +350,21 @@ public class AnalyzeController {
 			bindToStatus(idfTimeline);
 		});
 		serviceIDF.setOnSucceeded(e1 -> {
-			
+
 			progressIDFBar.setProgress(1);
 			//idfStatusLabel.setText("Finished!");
 			progressWeightBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Weights insertion");
 			GUIUtils.startAgain(serviceWeights);
+
 		});
 		serviceIDF.setOnFailed(e1 -> {
-			progressIDFBar.setProgress(0);
+			idfStatusLabel.setText("");
 			clearBindings(idfTimeline, progressIDFBar);
 			progressIDFBar.setProgress(0);
 		});
 		serviceIDF.setOnCancelled(e1 -> {
-			progressIDFBar.setProgress(0);
+			idfStatusLabel.setText("");
 			clearBindings(idfTimeline, progressIDFBar);
 			progressIDFBar.setProgress(0);
 		});
@@ -319,20 +375,22 @@ public class AnalyzeController {
 
 		serviceWeights.setOnSucceeded(e1 -> {
 			progressWeightBar.setProgress(1);
-			
+
 			progressSimilarityBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 			statusLabel.setText("Similarity insertion");
 			GUIUtils.startAgain(serviceSimilarity);
 			weightStatusLabel.setText("Finished!");
 		});
 		serviceWeights.setOnFailed(e1 -> {
+			weightStatusLabel.setText("");
 			progressWeightBar.setProgress(0);
 		});
 		serviceWeights.setOnCancelled(e1 -> {
+			weightStatusLabel.setText("");
 			progressWeightBar.setProgress(0);
 		});
 	}
-	
+
 	private void initializeSimilarity()
 	{
 		similarityTimeline = new Timeline(
@@ -358,14 +416,16 @@ public class AnalyzeController {
 			//bindSimilarityToStatus();
 		});
 		serviceSimilarity.setOnFailed(e1 -> {
-			
+
 			progressSimilarityBar.setProgress(0);
+			similarityStatusLabel.setText("");
 			clearBindings(similarityTimeline, progressSimilarityBar);
 			//clearSimilarityBinding();
 		});
 		serviceSimilarity.setOnCancelled(e1 -> {
-			
+
 			progressSimilarityBar.setProgress(0);
+			similarityStatusLabel.setText("");
 			clearBindings(similarityTimeline, progressSimilarityBar);
 			//clearSimilarityBinding();
 		});
@@ -388,7 +448,7 @@ public class AnalyzeController {
 		});
 		truncateLabel.setTooltip(new Tooltip("Truncate existing user tables for this ID."));
 	}
-	
+
 	private void initializeInputHistoryHint() {
 
 		truncateLabel.setOnMouseClicked(e -> {
@@ -398,8 +458,8 @@ public class AnalyzeController {
 
 			truncateText = "Select the history file exported during the data collection phase.\n\n"
 					+ "It will be named in the format '"+DeimosConfig.FILE_OUTPUT_HISTORY+"'.\n"
-							+ "The same naming format will be used to locate the '"+DeimosConfig.FILE_OUTPUT_USERINFO+"' and "
-									+ "the '"+DeimosConfig.FILE_OUTPUT_PUBLICIP+"' files.";
+					+ "The same naming format will be used to locate the '"+DeimosConfig.FILE_OUTPUT_USERINFO+"' and "
+					+ "the '"+DeimosConfig.FILE_OUTPUT_PUBLICIP+"' files.";
 
 			alert.setContentText(truncateText);
 
@@ -422,12 +482,12 @@ public class AnalyzeController {
 		serviceURLsTF.setUserId(id);
 		serviceURLsTF.setTruncate(truncate);
 		serviceURLsTF.setFilePath(filepathHistory);
-		
+
 		serviceUserInfoPublicIP.setUserId(id);
 		serviceUserInfoPublicIP.setTruncate(truncate);
 		serviceUserInfoPublicIP.setFilePathUserInfo(filepathUserInfo);
 		serviceUserInfoPublicIP.setFilePathPublicIP(filepathPublicIP);
-		
+
 		serviceIDF.setUserId(id);
 		serviceWeights.setUserId(id);
 		serviceSimilarity.setUserId(id);
@@ -465,7 +525,7 @@ public class AnalyzeController {
 		{
 			filePathHistory = file.toString();
 			outputFileTextField.setText(filePathHistory);
-			
+
 			// Also derive other files
 			filePathPublicIP = getPublicIPFileName(filePathHistory);
 			filePathUserInfo = getUserInfoFileName(filePathHistory);
@@ -479,9 +539,9 @@ public class AnalyzeController {
 			alert.setHeaderText("Selected file should be of Chrome history only");
 			alert.setContentText("Reverting to the default file.");
 			alert.showAndWait();*/
-			
+
 			System.out.println("Invalid file operation in browse button. Reverting to default files.");
-			
+
 			setDefaultInputFileNames();
 		}
 
@@ -508,14 +568,14 @@ public class AnalyzeController {
 					Optional<ButtonType> result = alert.showAndWait();
 					if (result.get() == ButtonType.OK)
 					{
-					    // ... user chose OK TODO insert user/IP anyway
+						// ... user chose OK TODO insert user/IP anyway
 						truncateCheckBox.setSelected(true);
 						setParamsForServices();
 						GUIUtils.startAgain(serviceUserInfoPublicIP);
-						
+
 					}
 					else {
-					    // ... user chose CANCEL or closed the dialog
+						// ... user chose CANCEL or closed the dialog
 					}					
 				}
 				else
@@ -524,18 +584,24 @@ public class AnalyzeController {
 					{
 						setDefaultInputFileNames();
 					}
-					
-					analyzeVBox.setDisable(true);
-					analyzeButton.setDisable(true);
 
 					urlsTFStatusLabel.setText("Initializing...");
 					progressURLsTFBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
 
 					setParamsForServices();
 
+					analyzeVBox.setDisable(true);
+					// analyzeButton.setDisable(true);
 					statusLabel.setText("user_url and user_tf insertion");
+
 					GUIUtils.startAgain(serviceURLsTF); // The others cascade from this one.
 					GUIUtils.startAgain(serviceUserInfoPublicIP);
+
+					// Reset the button
+					analyzeButton.setText("Cancel!");
+					analyzeButton.setOnAction(e -> {
+						cancelEverything();
+					});
 				}
 			}
 			catch(NumberFormatException e) 
